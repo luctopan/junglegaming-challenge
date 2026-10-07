@@ -10,6 +10,7 @@ src/
   platform/      browser adapters (storage, visibility, uuid, …)
   config/        typed gameplay config, defaults, validation (pure)
   game/core/     deterministic simulation (pure TypeScript)
+    testing/     scripted bots + test helpers (test-only layer, never bundled)
   game/input/    keyboard/touch → abstract InputState
   game/render/   PixiJS views, effects, asset registry, viewport
   game/runtime/  GameSession: wires core + input + render + clock; lifecycle
@@ -20,19 +21,20 @@ src/
   main.tsx       composition root (may import anything; nothing imports it)
 ```
 
-| Layer        | May import                                            | Packages allowed (of react, react-dom, react-router, pixi.js, axios, @tanstack, msw) |
-| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| shared       | —                                                     | none                                                                                 |
-| platform     | shared                                                | none                                                                                 |
-| config       | shared                                                | none                                                                                 |
-| game/core    | config, shared                                        | none                                                                                 |
-| game/input   | core, config, shared, platform                        | none                                                                                 |
-| game/render  | core, config, shared, platform                        | pixi.js                                                                              |
-| game/bridge  | core, shared                                          | none                                                                                 |
-| game/runtime | core, input, render, bridge, config, shared, platform | pixi.js                                                                              |
-| api          | config, shared, platform                              | react, axios, @tanstack                                                              |
-| mocks        | api, shared, platform                                 | msw                                                                                  |
-| ui           | runtime, bridge, api, config, shared, platform        | react, react-dom, react-router, @tanstack                                            |
+| Layer             | May import                                                                          | Packages allowed (of react, react-dom, react-router, pixi.js, axios, @tanstack, msw) |
+| ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| shared            | —                                                                                   | none                                                                                 |
+| platform          | shared                                                                              | none                                                                                 |
+| config            | shared                                                                              | none                                                                                 |
+| game/core         | config, shared                                                                      | none                                                                                 |
+| game/core/testing | core, config, shared (**test-only**: importable only by `*.test.ts` and `scripts/`) | none                                                                                 |
+| game/input        | core, config, shared, platform                                                      | none                                                                                 |
+| game/render       | core, config, shared, platform                                                      | pixi.js                                                                              |
+| game/bridge       | core, shared                                                                        | none                                                                                 |
+| game/runtime      | core, input, render, bridge, config, shared, platform                               | pixi.js                                                                              |
+| api               | config, shared, platform                                                            | react, axios, @tanstack                                                              |
+| mocks             | api, shared, platform                                                               | msw                                                                                  |
+| ui                | runtime, bridge, api, config, shared, platform                                      | react, react-dom, react-router, @tanstack                                            |
 
 `shared` is strictly pure so the core can use it; anything touching `window`,
 `document`, `localStorage`, `crypto` etc. lives in `platform`, which the core and config
@@ -175,10 +177,17 @@ _Phase 5–6._
   [gameConfig.ts](src/config/gameConfig.ts), validated by [validate.ts](src/config/validate.ts)).
   `src/game/core` may not contain other numeric literals than 0/1/-1 (ESLint
   `no-magic-numbers`), so balancing never touches system code.
-- [docs/BALANCE.md](docs/BALANCE.md) (`pnpm balance`) plays 50 seeded headless matches with a
-  scripted bot. With the current defaults the bot is defeated in every match after ~34 s
-  (score ≈ 6): the defaults are on the hard side; to be tuned with human play once rendering and
-  input exist (Phase 3–4).
+- [docs/BALANCE.md](docs/BALANCE.md) (`pnpm balance`) plays the same 50 seeds with two scripted
+  bots ([src/game/core/testing/](src/game/core/testing/), test support only): **naive** (straight
+  at the nearest enemy, reacts every step) and **skilled** (0.2 s reaction time, kites Chasers,
+  routes around islands with the flow field, fires only when a weapon bears).
+- Balancing target for the skilled bot: median duration 60–100 s and 20–50 % time_up. The
+  prescribed steps were applied (Chaser speed 125 → 105, spawn mix 60/40 → 50/50, ram damage
+  25 → 20). The skilled median moved from 36.2 s to 36.6 s, with 0 % time_up before and after,
+  so **the target is not met**. Before/after table and proposed next changes (player HP, Shooter
+  damage/cooldown): [docs/DECISIONS.md](docs/DECISIONS.md) S17–S18. Shooter fire, which neither
+  bot dodges, dominates damage taken. **Final tuning will be validated by manual play in
+  Phases 3–4.**
 - Enemy AI is deliberately simple: no strafing, no prediction of the player's motion, and
   enemies only avoid each other through physical separation.
 - Spawn backlog is unbounded by design (a due spawn is never dropped); with the 25-enemy cap it
