@@ -1,9 +1,10 @@
 import type { Arena, SolidAt } from '../../core';
 import { shoreShape } from '../../core';
-import { createRng, nextFloat } from '../../../shared/rng';
+import { createRng, nextFloat, nextRange } from '../../../shared/rng';
+import { HALF } from '../../../shared/math/constants';
 import { assertNever } from '../../../shared/assertNever';
 import type { ShoreTileset } from '../theme';
-import { ARENA_ART, DECOR, GRASS_ISLAND_TILES, SHALLOW_TILES } from '../theme';
+import { ARENA_ART, DECOR, FORT, ISLAND_BLOCK, SHALLOW_TILES } from '../theme';
 
 /**
  * Pure layout of the arena art, derived from the same grid as the collision
@@ -25,11 +26,18 @@ export interface TileLayout {
   readonly unsupported: readonly { readonly col: number; readonly row: number }[];
 }
 
+/** A decoration sprite, centred on (x, y). Never part of the collision geometry. */
 export interface Prop {
   readonly x: number;
   readonly y: number;
   readonly tile: number;
   readonly scale: number;
+  readonly kind: 'fort' | 'plant' | 'rock';
+}
+
+interface Cell {
+  readonly col: number;
+  readonly row: number;
 }
 
 const isIslandCell =
@@ -41,16 +49,7 @@ const isIslandCell =
     row < grid.rows &&
     grid.water[row * grid.cols + col] === false;
 
-/** Stable per-cell variety without randomness (same art on every load). */
-const pick = (variants: readonly number[], col: number, row: number): number => {
-  const CELL_HASH_COL = 31;
-  const CELL_HASH_ROW = 17;
-  const index = (col * CELL_HASH_COL + row * CELL_HASH_ROW) % variants.length;
-  // Tilesets always define at least one variant (see theme.ts).
-  return variants[index] ?? variants[0] ?? 0;
-};
-
-/** Autotiles every solid cell of `solid` with a rounded shore tile set. */
+/** Autotiles every solid cell of `solid` with a rounded shore tile set (by cell shape). */
 export function layoutShore(
   cols: number,
   rows: number,
@@ -58,10 +57,7 @@ export function layoutShore(
   tileset: ShoreTileset,
 ): TileLayout {
   const tiles: PlacedTile[] = [];
-  const unsupported: { col: number; row: number }[] = [];
-  const isOuterCorner = (col: number, row: number): boolean =>
-    solid(col, row) && shoreShape(solid, col, row).kind === 'outerCorner';
-
+  const unsupported: Cell[] = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       if (!solid(col, row)) continue;
@@ -69,7 +65,7 @@ export function layoutShore(
       let tile: number;
       switch (shape.kind) {
         case 'fill':
-          tile = pick(tileset.fill, col, row);
+          tile = tileset.fill;
           break;
         case 'outerCorner':
           tile = tileset.outerCorner[shape.corner];
@@ -77,21 +73,12 @@ export function layoutShore(
         case 'innerCorner':
           tile = tileset.innerCorner[shape.corner];
           break;
-        case 'edge': {
-          const edge = tileset.edge[shape.side];
-          const horizontal = shape.side === 'top' || shape.side === 'bottom';
-          const afterCorner = horizontal
-            ? isOuterCorner(col - 1, row)
-            : isOuterCorner(col, row - 1);
-          tile =
-            afterCorner && edge.nextToCorner !== undefined
-              ? edge.nextToCorner
-              : pick(edge.variants, col, row);
+        case 'edge':
+          tile = tileset.edge[shape.side];
           break;
-        }
         case 'unsupported':
           unsupported.push({ col, row });
-          tile = pick(tileset.fill, col, row);
+          tile = tileset.fill;
           break;
         default:
           return assertNever(shape);
@@ -102,9 +89,69 @@ export function layoutShore(
   return { tiles, unsupported };
 }
 
-/** Sand islands with a grass core, one tile per island cell. */
-export const islandLayout = (grid: ArenaGrid): TileLayout =>
-  layoutShore(grid.cols, grid.rows, isIslandCell(grid), GRASS_ISLAND_TILES);
+/**
+ * Index (0–3) of a cell along its run of solid cells in one direction, in the
+ * painted 4×4 island: 0 at the near shore, 3 at the far shore, 1/2 in between
+ * (counted from the near shore). A run of exactly 4 maps to 0, 1, 2, 3, which
+ * is the only sequence the art draws without seams (DECISIONS R14).
+ */
+function blockIndex(solid: SolidAt, col: number, row: number, dc: number, dr: number): number {
+  const LAST = 3;
+  if (!solid(col - dc, row - dr)) return 0;
+  if (!solid(col + dc, row + dr)) return LAST;
+  let fromShore = 1;
+  while (solid(col - dc * (fromShore + 1), row - dr * (fromShore + 1))) fromShore++;
+  return 1 + ((fromShore - 1) % 2);
+}
+
+/**
+ * Sand islands with a grass core. The tiles 6–9 / 22–25 / 38–41 / 54–57 are
+ * one painted 4×4 island lit from the top-left: each cell takes the tile at its
+ * position along its row and column runs, so neighbours always meet as painted.
+ * Concave corners use the "sand clearing" tiles (no painted counterpart).
+ */
+export function islandLayout(grid: ArenaGrid): TileLayout {
+  const solid = isIslandCell(grid);
+  const tiles: PlacedTile[] = [];
+  const unsupported: Cell[] = [];
+  for (let row = 0; row < grid.rows; row++) {
+    for (let col = 0; col < grid.cols; col++) {
+      if (!solid(col, row)) continue;
+      const shape = shoreShape(solid, col, row);
+      if (shape.kind === 'unsupported') unsupported.push({ col, row });
+      const tile =
+        shape.kind === 'innerCorner'
+          ? ISLAND_BLOCK.innerCorner[shape.corner]
+          : ISLAND_BLOCK.tiles[blockIndex(solid, col, row, 0, 1)]?.[
+              blockIndex(solid, col, row, 1, 0)
+            ];
+      // The block is 4×4 and indices are 0–3, so a tile always exists.
+      tiles.push({ col, row, tile: tile ?? ISLAND_BLOCK.tiles[1][1] });
+    }
+  }
+  return { tiles, unsupported };
+}
+
+/** Lengths of every horizontal and vertical run of island cells (seamless iff all are 4). */
+export function islandRunLengths(grid: ArenaGrid): number[] {
+  const solid = isIslandCell(grid);
+  const lengths: number[] = [];
+  const scan = (outer: number, inner: number, at: (o: number, i: number) => boolean): void => {
+    for (let o = 0; o < outer; o++) {
+      let run = 0;
+      for (let i = 0; i <= inner; i++) {
+        if (i < inner && at(o, i)) run++;
+        else if (run > 0) {
+          lengths.push(run);
+          run = 0;
+        }
+      }
+    }
+  };
+  scan(grid.rows, grid.cols, (row, col) => solid(col, row));
+  scan(grid.cols, grid.rows, (col, row) => solid(col, row));
+  return lengths;
+}
 
 /**
  * Cells within `ring` tiles (8-neighbourhood) of an island cell, islands
@@ -149,59 +196,68 @@ export const shallowLayout = (grid: ArenaGrid): TileLayout =>
   layoutShore(grid.cols, grid.rows, shallowMask(grid, ARENA_ART.shallowRingTiles), SHALLOW_TILES);
 
 /**
- * Plants on grass (grid points shared by four island cells, where the grass
- * strips meet) and rocks on sand (centres of outer-corner cells). Seeded, so the
- * decoration is identical on every load; never part of the collision geometry.
+ * Decoration, identical on every load (fixed seed) and never part of the
+ * collision geometry:
+ * - the fort (`FORT`, hand-placed cells on one island),
+ * - plants on the grass core (fill cells), rocks on the sand rim (edge cells),
+ *   both away from the fort and from each other.
+ * Only island cells are used, so nothing looks like an obstacle in the water.
  */
 export function placeDecor(grid: ArenaGrid): Prop[] {
   const island = isIslandCell(grid);
   const { tileSize: t } = grid;
   const rng = createRng(DECOR.seed);
+  const centre = (c: Cell): { x: number; y: number } => ({
+    x: (c.col + HALF) * t,
+    y: (c.row + HALF) * t,
+  });
 
-  const grassPoints: { x: number; y: number }[] = [];
-  for (let row = 1; row < grid.rows; row++) {
-    for (let col = 1; col < grid.cols; col++) {
-      if (
-        island(col - 1, row - 1) &&
-        island(col, row - 1) &&
-        island(col - 1, row) &&
-        island(col, row)
-      ) {
-        grassPoints.push({ x: col * t, y: row * t });
+  const props: Prop[] = FORT.pieces
+    .filter((p) => island(FORT.anchor.col + p.dc, FORT.anchor.row + p.dr))
+    .map((p) => ({
+      ...centre({ col: FORT.anchor.col + p.dc, row: FORT.anchor.row + p.dr }),
+      tile: p.tile,
+      scale: 1,
+      kind: 'fort' as const,
+    }));
+  const fortCells = new Set(props.map((p) => `${Math.floor(p.x / t)},${Math.floor(p.y / t)}`));
+
+  const cells = (kind: 'fill' | 'edge'): Cell[] => {
+    const found: Cell[] = [];
+    for (let row = 0; row < grid.rows; row++) {
+      for (let col = 0; col < grid.cols; col++) {
+        if (!island(col, row) || fortCells.has(`${col},${row}`)) continue;
+        if (shoreShape(island, col, row).kind === kind) found.push({ col, row });
       }
     }
-  }
-  const sandPoints: { x: number; y: number }[] = [];
-  for (let row = 0; row < grid.rows; row++) {
-    for (let col = 0; col < grid.cols; col++) {
-      if (island(col, row) && shoreShape(island, col, row).kind === 'outerCorner') {
-        sandPoints.push({ x: (col + HALF_TILE) * t, y: (row + HALF_TILE) * t });
-      }
-    }
-  }
+    return found;
+  };
 
-  const props: Prop[] = [];
   const farFromOthers = (p: { x: number; y: number }): boolean =>
     props.every((q) => Math.hypot(q.x - p.x, q.y - p.y) >= DECOR.minSpacing);
   const scatter = (
-    points: { x: number; y: number }[],
-    art: { readonly tiles: readonly number[]; readonly scale: number; readonly max: number },
+    candidates: Cell[],
+    art: (typeof DECOR)['plants'] | (typeof DECOR)['rocks'],
+    kind: 'plant' | 'rock',
   ): void => {
     let placed = 0;
-    for (const point of shuffle(points, () => nextFloat(rng))) {
+    for (const cell of shuffle(candidates, () => nextFloat(rng))) {
       if (placed === art.max) return;
+      const c = centre(cell);
+      const point = {
+        x: c.x + nextRange(rng, -art.jitter, art.jitter),
+        y: c.y + nextRange(rng, -art.jitter, art.jitter),
+      };
       if (!farFromOthers(point)) continue;
-      const tile = art.tiles[Math.floor(nextFloat(rng) * art.tiles.length)] ?? art.tiles[0] ?? 0;
-      props.push({ x: point.x, y: point.y, tile, scale: art.scale });
+      const tile = art.tiles[Math.floor(nextFloat(rng) * art.tiles.length)] ?? art.tiles[0];
+      props.push({ ...point, tile, scale: art.scale, kind });
       placed++;
     }
   };
-  scatter(grassPoints, DECOR.plants);
-  scatter(sandPoints, DECOR.rocks);
+  scatter(cells('fill'), DECOR.plants, 'plant');
+  scatter(cells('edge'), DECOR.rocks, 'rock');
   return props;
 }
-
-const HALF_TILE = 0.5;
 
 function shuffle<T>(items: readonly T[], random: () => number): T[] {
   const result = [...items];

@@ -92,3 +92,13 @@ describe('createPool', () => {
     expect(disposed.sort()).toEqual([0, 1]);
   });
 });
+
+describe('trail texture', () => {
+  it('ramps from transparent at the tail to opaque at the ball, premultiplied', async () => {
+    const { trailRampPixels } = await import('./projectiles/trailTexture');
+    const data = trailRampPixels(4);
+    expect(Array.from(data.filter((_, i) => i % 4 === 3))).toEqual([64, 128, 191, 255]);
+    // Premultiplied white: every colour channel equals alpha.
+    expect(Array.from(data.slice(0, 4))).toEqual([64, 64, 64, 64]);
+  });
+});

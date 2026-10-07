@@ -25,15 +25,21 @@ describe('HpBar', () => {
     bar.destroy();
   });
 
+  it('uses a dynamic texture, so the renderer re-reads the clipped frame', () => {
+    const bar = new HpBar(fakeAtlas());
+    expect(fillSprite(bar).texture.dynamic).toBe(true);
+    bar.destroy();
+  });
+
   it('switches fill colours at the configured thresholds', () => {
     const atlas = fakeAtlas();
     const bar = new HpBar(atlas);
-    bar.bind(HP_BARS.enemy);
+    bar.bind(HP_BARS.player);
     bar.setRatio(0.9);
-    expect(atlas.requested).toContain('enemy_health_fill_green');
-    expect(atlas.requested).not.toContain('enemy_health_fill_red');
-    bar.setRatio(0.3);
-    expect(atlas.requested).toContain('enemy_health_fill_red');
+    expect(atlas.requested).toContain('health_fill_green');
+    expect(atlas.requested).not.toContain('health_fill_red');
+    bar.setRatio(0.2);
+    expect(atlas.requested).toContain('health_fill_red');
     bar.destroy();
   });
 
@@ -65,14 +71,14 @@ describe('ship visuals', () => {
     expect(shipFrame('player', 9)).toBe('ship_23');
   });
 
-  it('uses green/amber/red for the player and green/red for enemies', () => {
+  it('uses green/amber/red for the player and always red for enemies (mockup)', () => {
     const player = hpBarArt('player');
     expect(hpFill(player, 0.8).frame).toBe('health_fill_green');
     expect(hpFill(player, 0.5).frame).toBe('health_fill_amber');
     expect(hpFill(player, 0.2).frame).toBe('health_fill_red');
     const enemy = hpBarArt('chaser');
-    expect(hpFill(enemy, 0.41).frame).toBe('enemy_health_fill_green');
-    expect(hpFill(enemy, 0.4).frame).toBe('enemy_health_fill_red');
+    expect(hpFill(enemy, 1).frame).toBe('enemy_health_fill_red');
+    expect(hpFill(enemy, 0.1).frame).toBe('enemy_health_fill_red');
   });
 
   it('quantises bar widths to whole pixels', () => {

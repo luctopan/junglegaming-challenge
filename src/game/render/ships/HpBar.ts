@@ -24,6 +24,9 @@ export class HpBar {
     frame: new Rectangle(0, 0, 1, 1),
     // A separate rectangle: without it `orig` would alias `frame`.
     orig: new Rectangle(0, 0, 1, 1),
+    // Without this the WebGL batcher keeps the first frame's quad and UVs, and
+    // the bar never visibly shrinks (unit tests in Node cannot see it).
+    dynamic: true,
   });
   readonly #releaseTexture = trackResource('dynamicTextures');
   #art: HpBarArt | null = null;

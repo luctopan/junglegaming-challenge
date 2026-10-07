@@ -18,46 +18,40 @@ export const SHIP_ART = {
   headingOffset: Math.PI / 2,
 } as const;
 
-export interface ShoreEdge {
-  readonly variants: readonly number[];
-  /** Tile that continues the grass line of the outer corner before it (left/above). */
-  readonly nextToCorner?: number;
-}
-
-/** A rounded tile set: see `shoreShape` in the core map module. */
+/** A rounded tile set, chosen per cell by `shoreShape` (core map module). */
 export interface ShoreTileset {
-  readonly fill: readonly number[];
-  readonly edge: Readonly<Record<Side, ShoreEdge>>;
+  readonly fill: number;
+  readonly edge: Readonly<Record<Side, number>>;
   readonly outerCorner: Readonly<Record<Corner, number>>;
   readonly innerCorner: Readonly<Record<Corner, number>>;
 }
 
 /**
- * Sand islands with a grass core (tiles 6–9 / 22–25 / 38–41 / 54–57). The
- * "sand clearing" tiles 36/37/52/53 double as concave corners: their borders
- * line up with the edge tiles (checked pixel by pixel when this set was chosen).
+ * Sand islands with a grass core: tiles 6–9 / 22–25 / 38–41 / 54–57 are ONE
+ * painted 4×4 island, lit from the top-left. Inside it neighbours meet with a
+ * colour step of 1–3 (0–255 scale); any other neighbour pair (a tile next to
+ * itself, a skipped row…) steps 10–60, which reads as a tile grid
+ * (DECISIONS R14). `tiles[row][col]` is indexed by the cell's position in its
+ * runs (`islandLayout`). The "sand clearing" tiles 36/37/52/53 serve as concave
+ * corners (no painted counterpart).
  */
-export const GRASS_ISLAND_TILES: ShoreTileset = {
-  fill: [23, 39, 40],
-  edge: {
-    top: { variants: [8], nextToCorner: 7 },
-    left: { variants: [38], nextToCorner: 22 },
-    right: { variants: [25, 41] },
-    bottom: { variants: [55, 56] },
-  },
-  outerCorner: { topLeft: 6, topRight: 9, bottomLeft: 54, bottomRight: 57 },
+export const ISLAND_BLOCK = {
+  tiles: [
+    [6, 7, 8, 9],
+    [22, 23, 24, 25],
+    [38, 39, 40, 41],
+    [54, 55, 56, 57],
+  ],
   innerCorner: { topLeft: 53, topRight: 52, bottomLeft: 37, bottomRight: 36 },
+} as const satisfies {
+  tiles: readonly (readonly number[])[];
+  innerCorner: Readonly<Record<Corner, number>>;
 };
 
 /** Translucent shallow-water ring (tiles 10–12 / 26–28 / 42–44, concave 58/59/74/75). */
 export const SHALLOW_TILES: ShoreTileset = {
-  fill: [27],
-  edge: {
-    top: { variants: [11] },
-    left: { variants: [26] },
-    right: { variants: [28] },
-    bottom: { variants: [43] },
-  },
+  fill: 27,
+  edge: { top: 11, left: 26, right: 28, bottom: 43 },
   outerCorner: { topLeft: 10, topRight: 12, bottomLeft: 42, bottomRight: 44 },
   innerCorner: { topLeft: 75, topRight: 74, bottomLeft: 59, bottomRight: 58 },
 };
@@ -73,13 +67,36 @@ export const ARENA_ART = {
   border: { color: 0xffffff, alpha: 0.25, width: 2 },
 } as const;
 
-/** Props are decoration only: they never take part in collisions. */
+/**
+ * Props are decoration only: they never take part in collisions. Density
+ * follows the mockup (a few plants and a rock or two per island).
+ */
 export const DECOR = {
   seed: 0x5eed,
-  plants: { tiles: [70, 71, 72, 87, 88], scale: 0.75, max: 6 },
-  rocks: { tiles: [49, 50, 51, 65, 66, 67], scale: 0.7, max: 3 },
-  /** Props keep at least this distance from each other (u). */
-  minSpacing: 70,
+  /** On the grass core; `jitter` = max offset from the cell centre (u). */
+  plants: { tiles: [70, 71, 72, 87, 88], scale: 0.8, max: 7, jitter: 14 },
+  /** On the sand rim. */
+  rocks: { tiles: [49, 50, 51, 65, 66, 67], scale: 0.75, max: 4, jitter: 10 },
+  /** Props keep at least this distance from each other and from the fort (u). */
+  minSpacing: 56,
+} as const;
+
+/**
+ * Stone fort on the left island (ARENA_MAP cols 2–5, rows 2–5), drawn from the
+ * fort tiles: a tower linked east to a cannon wall, a bridge and a second tower,
+ * with a short wall south. Pieces outside the island are skipped (tested).
+ * Tiles by connected sides: 77 tower E+S, 62 tower W, 47 wall E–W with cannon,
+ * 76 bridge E–W, 79 wall end N.
+ */
+export const FORT = {
+  anchor: { col: 2, row: 3 },
+  pieces: [
+    { dc: 0, dr: 0, tile: 77 },
+    { dc: 1, dr: 0, tile: 47 },
+    { dc: 2, dr: 0, tile: 76 },
+    { dc: 3, dr: 0, tile: 62 },
+    { dc: 0, dr: 1, tile: 79 },
+  ],
 } as const;
 
 export interface BarFill {
@@ -109,10 +126,8 @@ export const HP_BARS = {
   },
   enemy: {
     frame: 'enemy_health_frame',
-    fills: [
-      { frame: 'enemy_health_fill_green', minRatio: 0.4 },
-      { frame: 'enemy_health_fill_red', minRatio: 0 },
-    ],
+    // Always red, as in the mockup: enemies read apart from the player at a glance.
+    fills: [{ frame: 'enemy_health_fill_red', minRatio: 0 }],
     scale: 0.4,
   },
 } as const satisfies { offsetY: number; player: HpBarArt; enemy: HpBarArt };
@@ -135,7 +150,11 @@ export const SHIP_FX = {
 
 export const PROJECTILE_ART = {
   frame: 'cannon_ball',
-  trail: { maxLength: 46, width: 3, color: 0xffffff, alpha: 0.45 },
+  /**
+   * White streak behind each ball (mockup), fading from `alpha` at the ball to 0
+   * at the tail; it grows from the muzzle up to `maxLength` (u).
+   */
+  trail: { maxLength: 72, width: 4, color: 0xffffff, alpha: 0.8, gradientSteps: 32 },
 } as const;
 
 export interface SpriteEffectArt {

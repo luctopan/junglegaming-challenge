@@ -45,6 +45,7 @@ const SHOW_UI = params.get('ui') !== '0';
 const EXPLOSION_PAUSE_DELAY = 0.15;
 /** `pauseOnFight`: a busy frame for screenshots (burning ships, balls in flight). */
 const FIGHT = { burningShips: 2, projectiles: 2, enemies: 2 } as const;
+const BALLS_IN_STATE = 4;
 
 interface SandboxState {
   readonly time: number;
@@ -55,6 +56,8 @@ interface SandboxState {
   readonly damagedShips: number;
   /** Alive ships at damage stage ≥ 1 (drawn with fire). */
   readonly burningShips: number;
+  /** World positions of up to a few balls in flight (for screenshot crops). */
+  readonly ballPositions: readonly { readonly x: number; readonly y: number }[];
   readonly effects: number;
   readonly phase: string;
 }
@@ -112,6 +115,10 @@ export function Sandbox() {
         ).length,
         effects: session.stats()?.effects ?? 0,
         phase: world.phase,
+        ballPositions: world.projectiles
+          .filter((b) => b.alive)
+          .slice(0, BALLS_IN_STATE)
+          .map((b) => ({ x: b.pos.x, y: b.pos.y })),
       };
       const fight =
         next.burningShips >= FIGHT.burningShips &&

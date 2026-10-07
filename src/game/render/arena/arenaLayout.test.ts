@@ -2,36 +2,59 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_GAME_CONFIG } from '../../../config/defaults';
 import { createRng, nextFloat } from '../../../shared/rng';
 import { createMatch } from '../../core';
-import { validateMap } from '../../core/map/validateMap';
 import { buildArena } from '../../core/map/arena';
-import { DECOR, GRASS_ISLAND_TILES, SHALLOW_TILES } from '../theme';
-import type { ArenaGrid } from './arenaLayout';
-import { islandLayout, layoutShore, placeDecor, shallowLayout, shallowMask } from './arenaLayout';
+import { validateMap } from '../../core/map/validateMap';
+import { POCKET_MAP } from '../../core/testing/maps';
+import { DECOR, FORT, ISLAND_BLOCK, SHALLOW_TILES } from '../theme';
+import type { ArenaGrid, TileLayout } from './arenaLayout';
+import {
+  islandLayout,
+  islandRunLengths,
+  layoutShore,
+  placeDecor,
+  shallowLayout,
+  shallowMask,
+} from './arenaLayout';
 
 const arena = createMatch(DEFAULT_GAME_CONFIG, 1).arena;
 const isIsland = (grid: ArenaGrid, col: number, row: number): boolean =>
   grid.water[row * grid.cols + col] === false;
-const tileAt = (layout: ReturnType<typeof islandLayout>, col: number, row: number) =>
+const tileAt = (layout: TileLayout, col: number, row: number) =>
   layout.tiles.find((t) => t.col === col && t.row === row)?.tile;
 
 describe('islandLayout', () => {
   const layout = islandLayout(arena);
 
-  it('draws exactly the island cells of the collision grid, all with real shore tiles', () => {
+  it('draws exactly the island cells of the collision grid', () => {
     const islandCells = arena.water.filter((water) => !water).length;
     expect(layout.tiles).toHaveLength(islandCells);
     expect(layout.unsupported).toEqual([]);
     for (const { col, row } of layout.tiles) expect(isIsland(arena, col, row)).toBe(true);
   });
 
-  it('uses corners, edges and concave corners where the U island needs them', () => {
-    expect(tileAt(layout, 2, 2)).toBe(GRASS_ISLAND_TILES.outerCorner.topLeft);
-    // The first top edge after a corner continues the corner's grass line.
-    expect(tileAt(layout, 3, 2)).toBe(GRASS_ISLAND_TILES.edge.top.nextToCorner);
-    expect(tileAt(layout, 4, 2)).toBe(8);
-    expect(tileAt(layout, 3, 3)).toBe(GRASS_ISLAND_TILES.innerCorner.bottomRight);
-    expect(tileAt(layout, 6, 3)).toBe(GRASS_ISLAND_TILES.innerCorner.bottomLeft);
-    expect(tileAt(layout, 7, 5)).toBe(GRASS_ISLAND_TILES.outerCorner.bottomRight);
+  it('keeps every island run exactly 4 long: the only seamless size of the painted island', () => {
+    expect(new Set(islandRunLengths(arena))).toEqual(new Set([4]));
+  });
+
+  it('draws each 4×4 island with the painted block in order, so neighbours meet as painted', () => {
+    // Left island: cols 2–5, rows 2–5.
+    ISLAND_BLOCK.tiles.forEach((row, r) => {
+      row.forEach((tile, c) => {
+        expect(tileAt(layout, 2 + c, 2 + r)).toBe(tile);
+      });
+    });
+    // Top-right island touches the arena border (cols 12–15, rows 0–3): same block.
+    expect(tileAt(layout, 12, 0)).toBe(6);
+    expect(tileAt(layout, 15, 3)).toBe(57);
+  });
+
+  it('indexes longer runs from their shore and uses concave-corner tiles (other maps)', () => {
+    const grid = buildArena(POCKET_MAP, 64, 0);
+    const pocket = islandLayout(grid);
+    expect(pocket.unsupported).toEqual([]);
+    // U island top bar (6 wide): 0, 1, 2, 1, 2, 3 along the top row.
+    expect([2, 3, 4, 5, 6, 7].map((c) => tileAt(pocket, c, 2))).toEqual([6, 7, 8, 7, 8, 9]);
+    expect(tileAt(pocket, 3, 3)).toBe(ISLAND_BLOCK.innerCorner.bottomRight);
   });
 
   it('can draw every map that passes validateMap (random layouts)', () => {
@@ -63,26 +86,23 @@ describe('islandLayout', () => {
 });
 
 describe('shallowLayout', () => {
-  it('rings every island with one tile of shallow water and has no gaps', () => {
+  it('rings every island with shallow water, with no undrawable cell', () => {
     const layout = shallowLayout(arena);
     expect(layout.unsupported).toEqual([]);
     const mask = shallowMask(arena, 1);
+    const inside = (c: number, r: number) => c >= 0 && r >= 0 && c < arena.cols && r < arena.rows;
     for (let row = 0; row < arena.rows; row++) {
       for (let col = 0; col < arena.cols; col++) {
-        if (isIsland(arena, col, row)) {
-          for (const [dc, dr] of [
-            [-1, -1],
-            [1, 1],
-            [0, 1],
-            [1, 0],
-          ] as const) {
-            expect(mask(col + dc, row + dr)).toBe(true);
+        if (!isIsland(arena, col, row)) continue;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            if (inside(col + dc, row + dr)) expect(mask(col + dc, row + dr)).toBe(true);
           }
         }
       }
     }
     expect(layout.tiles.every((t) => mask(t.col, t.row))).toBe(true);
-    expect(new Set(layout.tiles.map((t) => t.tile))).toContain(SHALLOW_TILES.fill[0]);
+    expect(new Set(layout.tiles.map((t) => t.tile))).toContain(SHALLOW_TILES.fill);
   });
 });
 
@@ -91,48 +111,44 @@ describe('layoutShore', () => {
     const strip = (col: number, row: number) => row === 0 && col >= 0 && col < 3;
     const layout = layoutShore(3, 1, strip, SHALLOW_TILES);
     expect(layout.unsupported).toHaveLength(3);
-    expect(layout.tiles.every((t) => t.tile === SHALLOW_TILES.fill[0])).toBe(true);
+    expect(layout.tiles.every((t) => t.tile === SHALLOW_TILES.fill)).toBe(true);
   });
 });
 
 describe('placeDecor', () => {
   const props = placeDecor(arena);
-  const cellAt = (x: number, y: number) => ({
-    col: Math.floor(x / arena.tileSize),
-    row: Math.floor(y / arena.tileSize),
+  const cellOf = (p: { x: number; y: number }) => ({
+    col: Math.floor(p.x / arena.tileSize),
+    row: Math.floor(p.y / arena.tileSize),
   });
 
-  it('places plants and rocks deterministically', () => {
+  it('is deterministic and has a fort, plants and rocks', () => {
     expect(placeDecor(arena)).toEqual(props);
-    expect(props.some((p) => (DECOR.plants.tiles as readonly number[]).includes(p.tile))).toBe(
-      true,
-    );
-    expect(props.some((p) => (DECOR.rocks.tiles as readonly number[]).includes(p.tile))).toBe(true);
+    const kinds = props.map((p) => p.kind);
+    expect(kinds.filter((k) => k === 'fort')).toHaveLength(FORT.pieces.length);
+    expect(kinds).toContain('plant');
+    expect(kinds).toContain('rock');
+    expect(kinds.filter((k) => k === 'plant').length).toBeLessThanOrEqual(DECOR.plants.max);
   });
 
-  it('keeps every prop on land, so decoration never looks like an obstacle in the water', () => {
-    // A plant sits on a grid point: all four cells around it are island.
+  it('keeps everything on land, so decoration never looks like an obstacle in the water', () => {
     for (const prop of props) {
-      const { col, row } = cellAt(prop.x, prop.y);
-      const onPoint = prop.x % arena.tileSize === 0 && prop.y % arena.tileSize === 0;
-      const cells = onPoint
-        ? [
-            [col - 1, row - 1],
-            [col, row - 1],
-            [col - 1, row],
-            [col, row],
-          ]
-        : [[col, row]];
-      for (const [c = 0, r = 0] of cells)
-        expect(isIsland(arena, c, r), `${prop.x},${prop.y}`).toBe(true);
+      const { col, row } = cellOf(prop);
+      expect(isIsland(arena, col, row), `${prop.kind} at ${prop.x},${prop.y}`).toBe(true);
     }
   });
 
-  it('spaces props apart', () => {
-    for (const a of props) {
+  it('keeps plants and rocks off the fort and apart from each other', () => {
+    const fortCells = new Set(
+      props.filter((p) => p.kind === 'fort').map((p) => JSON.stringify(cellOf(p))),
+    );
+    const scattered = props.filter((p) => p.kind !== 'fort');
+    for (const p of scattered) expect(fortCells.has(JSON.stringify(cellOf(p)))).toBe(false);
+    for (const a of scattered) {
       for (const b of props) {
-        if (a !== b)
+        if (a !== b) {
           expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThanOrEqual(DECOR.minSpacing);
+        }
       }
     }
   });

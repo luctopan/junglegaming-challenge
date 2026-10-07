@@ -1,10 +1,13 @@
-import { Container, Sprite, Texture } from 'pixi.js';
+import type { Texture } from 'pixi.js';
+import { Container, Sprite } from 'pixi.js';
+import { trackResource } from '../../../platform/resourceCounters';
 import type { GameConfig } from '../../../config/gameConfig';
 import type { Atlas } from '../assets/atlas';
 import type { Pool } from '../pool';
 import { createPool } from '../pool';
 import { PROJECTILE_ART } from '../theme';
 import type { ProjectileState } from '../worldView';
+import { createTrailTexture } from './trailTexture';
 
 interface BallView {
   readonly root: Container;
@@ -13,10 +16,15 @@ interface BallView {
   seenFrame: number;
 }
 
-/** Cannon balls with a short fading trail; one pooled view per live projectile. */
+/**
+ * Cannon balls with a short white streak that fades towards its tail (one
+ * shared gradient texture); one pooled view per live projectile.
+ */
 export class ProjectileLayer {
   readonly view = new Container();
   readonly #pool: Pool<BallView>;
+  readonly #trailTexture: Texture = createTrailTexture(PROJECTILE_ART.trail.gradientSteps);
+  readonly #releaseTrailTexture = trackResource('dynamicTextures');
   readonly #byId = new Map<number, BallView>();
   #frame = 0;
 
@@ -25,7 +33,7 @@ export class ProjectileLayer {
     this.#pool = createPool<BallView>({
       create: () => {
         const root = new Container();
-        const trail = new Sprite(Texture.WHITE);
+        const trail = new Sprite(this.#trailTexture);
         trail.anchor.set(1, 0.5);
         trail.tint = PROJECTILE_ART.trail.color;
         trail.alpha = PROJECTILE_ART.trail.alpha;
@@ -91,5 +99,7 @@ export class ProjectileLayer {
     this.#byId.clear();
     this.#pool.destroy();
     this.view.destroy({ children: true });
+    this.#trailTexture.destroy(true);
+    this.#releaseTrailTexture();
   }
 }
