@@ -12,7 +12,10 @@ export type AssetStatus =
   | { readonly kind: 'ready' }
   | { readonly kind: 'error'; readonly message: string };
 
-export type SessionPhase = 'loading' | 'running' | 'ended';
+export type SessionPhase = 'loading' | 'running' | 'paused' | 'ended';
+
+/** Who paused: the player, or the game itself (window blurred, tab hidden). */
+export type PauseReason = 'manual' | 'blur' | 'hidden';
 
 export interface MatchSnapshot {
   readonly score: number;
@@ -25,6 +28,8 @@ export interface MatchSnapshot {
 
 export interface GameSnapshot {
   readonly phase: SessionPhase;
+  /** Set only while `phase === 'paused'`. */
+  readonly pauseReason: PauseReason | null;
   readonly assets: AssetStatus;
   readonly match: MatchSnapshot | null;
   /** The game cannot run (e.g. no WebGL); shown instead of the arena. */
@@ -36,13 +41,15 @@ export interface GameStore {
   readonly getSnapshot: () => GameSnapshot;
   readonly subscribe: (listener: () => void) => () => void;
   setAssets(status: AssetStatus): void;
-  setPhase(phase: SessionPhase): void;
+  /** `pauseReason` is kept only for the paused phase. */
+  setPhase(phase: SessionPhase, pauseReason?: PauseReason | null): void;
   publishMatch(match: MatchSnapshot): void;
   setFailure(message: string): void;
 }
 
 export const INITIAL_SNAPSHOT: GameSnapshot = Object.freeze({
   phase: 'loading',
+  pauseReason: null,
   assets: Object.freeze({ kind: 'loading', percent: 0 }),
   match: null,
   failure: null,
@@ -86,8 +93,11 @@ export function createGameStore(initial: GameSnapshot = INITIAL_SNAPSHOT): GameS
     setAssets(status) {
       if (!sameAssets(snapshot.assets, status)) commit({ ...snapshot, assets: status });
     },
-    setPhase(phase) {
-      if (snapshot.phase !== phase) commit({ ...snapshot, phase });
+    setPhase(phase, pauseReason = null) {
+      const reason = phase === 'paused' ? pauseReason : null;
+      if (snapshot.phase !== phase || snapshot.pauseReason !== reason) {
+        commit({ ...snapshot, phase, pauseReason: reason });
+      }
     },
     publishMatch(match) {
       if (!sameMatch(snapshot.match, match)) commit({ ...snapshot, match: { ...match } });

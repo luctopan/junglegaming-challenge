@@ -5,10 +5,11 @@ import { realClock } from '../../platform/clock';
 import { trackResource } from '../../platform/resourceCounters';
 import type { Clock } from '../../shared/clock';
 import { MS_PER_SECOND } from '../../shared/math/constants';
-import type { DomainEvent, World } from '../core';
-import { createFixedStepper, createMatch, getPlayer, step, timeLeftSeconds } from '../core';
-import type { GameStore } from '../bridge/gameStore';
+import { getPlayer, timeLeftSeconds } from '../core';
+import type { GameStore, PauseReason } from '../bridge/gameStore';
 import { toPercent } from '../bridge/gameStore';
+import type { EdgeCommand, TouchSource } from '../input';
+import { attachKeyboard, attachTouchControls } from '../input';
 import type { AudioEngine, CombatAtlases, RenderStats, WorldView } from '../render';
 import {
   createAudioEngine,
@@ -18,17 +19,24 @@ import {
   WorldRenderer,
 } from '../render';
 import type { InputSource } from './inputSource';
-import { IDLE_INPUT_SOURCE } from './inputSource';
+import { MatchDriver } from './matchDriver';
 import type { PixiHost } from './pixiHost';
 import { createPixiHost } from './pixiHost';
+import type { StateSnapshot } from './stateSnapshot';
+import { snapshotState } from './stateSnapshot';
+import { testControls } from './testControls';
 
 export interface GameSessionOptions {
+  /** Element the canvas is attached to (sized by the UI). */
   readonly container: HTMLElement;
+  /** Ancestor of the on-screen touch controls; omit for no touch input. */
+  readonly controlsRoot?: HTMLElement | null;
   readonly store: GameStore;
   readonly config: GameConfig;
   readonly seed: number;
   /** URL prefix of the generated runtime assets (`public/assets/`). */
   readonly assetBasePath: string;
+  /** Scripted player input (dev sandbox); replaces keyboard and touch. */
   readonly input?: InputSource;
   readonly clock?: Clock;
   readonly muted?: boolean;
@@ -41,7 +49,11 @@ export interface SessionStats extends RenderStats {
 export interface GameSession {
   /** Retries after an asset failure (the Retry button). */
   retryAssets(): void;
-  /** Fresh match on the same canvas: new world, views back to their pools. */
+  /** Pauses a running match; ignored otherwise. */
+  pause(reason?: PauseReason): void;
+  /** Resumes a paused match. Only an explicit player action may call this. */
+  resume(): void;
+  /** Fresh match on the same canvas: new world, time, input and pause state. */
   restart(seed?: number): void;
   setMuted(muted: boolean): void;
   /** Top layer in world coordinates for dev overlays; null until the arena is shown. */
@@ -53,10 +65,20 @@ export interface GameSession {
   destroy(): void;
 }
 
-const liveSessions = new Set<GameSession>();
+/** Test-hook access to a session (see testHook.ts); not part of the UI-facing API. */
+export interface SessionInternals {
+  /** Runs one frame exactly as the ticker does. */
+  frame(): void;
+  /** Null until the arena is shown. */
+  snapshot(): StateSnapshot | null;
+}
+
+const liveSessions = new Map<GameSession, SessionInternals>();
 
 /** Sessions currently alive in the page (the test hook sums their resources). */
-export const activeSessions = (): readonly GameSession[] => [...liveSessions];
+export const activeSessions = (): readonly GameSession[] => [...liveSessions.keys()];
+
+export const sessionInternals = (): readonly SessionInternals[] => [...liveSessions.values()];
 
 class SessionAbortedError extends Error {
   constructor() {
@@ -79,15 +101,16 @@ function countDisplayObjects(root: Container): number {
  * screen. Creation is synchronous; the async boot (assets → Pixi → match) is
  * abort-aware, so `destroy()` during any await leaves nothing behind (React
  * Strict Mode mounts, unmounts and remounts the screen in development).
+ * Destroying a session before its match ended abandons the match: no result
+ * exists for it, so it can never be recorded.
  */
 export function createGameSession(options: GameSessionOptions): GameSession {
   const { container, store, config, assetBasePath } = options;
-  const input = options.input ?? IDLE_INPUT_SOURCE;
-  const clock = options.clock ?? realClock;
+  const overrides = testControls();
+  const clock = overrides?.manualClock ?? options.clock ?? realClock;
   const abort = new AbortController();
   const scope = new DisposableScope();
   const frameListeners = new Set<(world: WorldView) => void>();
-  const pending: DomainEvent[] = [];
   const audio: AudioEngine = createAudioEngine({
     basePath: assetBasePath,
     muted: options.muted ?? false,
@@ -96,23 +119,18 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     audio.destroy();
   });
 
-  let world: World = createMatch(config, options.seed);
+  const newDriver = (seed: number): MatchDriver =>
+    new MatchDriver({ config, seed, clock, scripted: options.input });
+
+  let driver = newDriver(overrides?.seed ?? options.seed);
+  let touch: TouchSource | null = null;
   let host: PixiHost | null = null;
   let renderer: WorldRenderer | null = null;
   let lastFrameMs: number | null = null;
   let resumeRetry: (() => void) | null = null;
 
-  const stepper = createFixedStepper({
-    clock,
-    stepSeconds: config.simulation.stepSeconds,
-    maxFrameSeconds: config.simulation.maxFrameSeconds,
-    maxStepsPerFrame: config.simulation.maxStepsPerFrame,
-    onStep: () => {
-      pending.push(...step(world, input.sample(world)));
-    },
-  });
-
   const publish = (): void => {
+    const { world } = driver;
     const player = getPlayer(world);
     store.publishMatch({
       score: world.score,
@@ -121,27 +139,41 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       maxHp: player.maxHp,
       endReason: world.endReason,
     });
-    store.setPhase(world.phase === 'ended' ? 'ended' : 'running');
+    store.setPhase(driver.state, driver.pauseReason);
   };
 
-  const onTick = (): void => {
+  const frame = (): void => {
     if (renderer === null) return;
+    const running = driver.state === 'running';
     const now = clock.now();
     const dtSeconds =
-      lastFrameMs === null
+      lastFrameMs === null || !running
         ? 0
         : Math.min(config.simulation.maxFrameSeconds, (now - lastFrameMs) / MS_PER_SECOND);
-    lastFrameMs = now;
-    const { alpha } = stepper.tick();
-    if (pending.length > 0) {
-      renderer.playEvents(pending, world);
-      audio.playEvents(pending, world.playerId);
-      pending.length = 0;
+    lastFrameMs = running ? now : null;
+    const alpha = driver.tick();
+    const events = driver.drainEvents();
+    if (events.length > 0) {
+      renderer.playEvents(events, driver.world);
+      audio.playEvents(events, driver.world.playerId);
     }
+    // While paused, effects, water and camera shake freeze with the match.
     renderer.update(dtSeconds);
-    renderer.sync(world, alpha);
+    renderer.sync(driver.world, alpha);
     publish();
-    for (const listener of frameListeners) listener(world);
+    for (const listener of frameListeners) listener(driver.world);
+  };
+
+  const releaseHeldInput = (): void => {
+    driver.input.clear();
+    touch?.releaseAll();
+  };
+
+  const pause = (reason: PauseReason): void => {
+    if (renderer === null || !driver.pause(reason)) return;
+    releaseHeldInput();
+    audio.setPaused(true);
+    publish();
   };
 
   const waitForRetry = (): Promise<void> =>
@@ -161,7 +193,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     });
 
   const loadAssets = async (): Promise<CombatAtlases> => {
-    const arena = { width: world.arena.width, height: world.arena.height };
+    const arena = { width: driver.world.arena.width, height: driver.world.arena.height };
     const size = { width: container.clientWidth, height: container.clientHeight };
     const resolution = preferredTextureResolution(
       window.devicePixelRatio || 1,
@@ -193,10 +225,13 @@ export function createGameSession(options: GameSessionOptions): GameSession {
 
   const startMatch = (): void => {
     lastFrameMs = null;
-    stepper.resetBaseline();
-    pending.length = 0;
+    releaseHeldInput();
+    audio.setPaused(false);
+    driver.start();
     audio.play('matchStart');
     audio.startAmbience();
+    // A match that starts in a background tab must not run unseen.
+    if (document.visibilityState === 'hidden') pause('hidden');
     publish();
   };
 
@@ -204,23 +239,59 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     audio.unlock();
   };
 
+  // A Record keeps the command set exhaustive: a new EdgeCommand fails to compile here.
+  const commands: Readonly<Record<EdgeCommand, () => void>> = {
+    pause: () => {
+      pause('manual');
+    },
+  };
+
+  const listenForInput = (): void => {
+    const isActive = (): boolean => renderer !== null && driver.state === 'running';
+    if (options.input === undefined) {
+      attachKeyboard(scope, {
+        target: window,
+        state: () => driver.input,
+        isActive,
+        onCommand: (command) => {
+          commands[command]();
+        },
+      });
+      const controlsRoot = options.controlsRoot ?? null;
+      if (controlsRoot !== null) {
+        touch = attachTouchControls(scope, {
+          root: controlsRoot,
+          state: () => driver.input,
+          isActive,
+        });
+      }
+    }
+    // Auto-pause: a match never runs while the player cannot see or control it.
+    scope.listen(window, 'blur', () => {
+      pause('blur');
+    });
+    scope.listen(document, 'visibilitychange', () => {
+      if (document.visibilityState === 'hidden') pause('hidden');
+    });
+  };
+
   const boot = async (): Promise<void> => {
     const atlases = await loadAssets();
     const pixi = await createPixiHost(
       container,
-      { width: world.arena.width, height: world.arena.height },
+      { width: driver.world.arena.width, height: driver.world.arena.height },
       abort.signal,
     );
     if (pixi === null) throw new SessionAbortedError();
     host = pixi;
-    renderer = new WorldRenderer(atlases, world.arena);
+    renderer = new WorldRenderer(atlases, driver.world.arena);
     pixi.app.stage.addChild(renderer.root);
     renderer.setViewport(pixi.viewport);
     pixi.onViewportChange((viewport) => renderer?.setViewport(viewport));
-    pixi.app.ticker.add(onTick);
+    pixi.app.ticker.add(frame);
     const releaseTicker = trackResource('tickerCallbacks');
     scope.add(() => {
-      pixi.app.ticker.remove(onTick);
+      pixi.app.ticker.remove(frame);
       releaseTicker();
     });
     // Autoplay rules: sound may start only after a user gesture.
@@ -228,6 +299,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     if ('userActivation' in navigator && navigator.userActivation.hasBeenActive) unlockAudio();
     scope.listen(window, 'pointerdown', unlockAudio);
     scope.listen(window, 'keydown', unlockAudio);
+    listenForInput();
     startMatch();
   };
 
@@ -237,9 +309,21 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       resumeRetry = null;
       resume?.();
     },
-    restart(seed = options.seed) {
+    pause(reason = 'manual') {
+      pause(reason);
+    },
+    resume() {
+      if (!driver.resume()) return;
+      releaseHeldInput();
+      lastFrameMs = null;
+      audio.setPaused(false);
+      publish();
+    },
+    restart(seed) {
       if (abort.signal.aborted) return;
-      world = createMatch(config, seed);
+      // A test seed wins over the UI's random one, so replays stay deterministic.
+      driver = newDriver(testControls()?.seed ?? seed ?? options.seed);
+      touch?.releaseAll();
       renderer?.reset();
       if (renderer !== null) startMatch();
     },
@@ -272,7 +356,13 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       }
     },
   };
-  liveSessions.add(session);
+  liveSessions.set(session, {
+    frame,
+    snapshot: () =>
+      renderer === null
+        ? null
+        : snapshotState(driver.world, driver.state, driver.pauseReason, driver.input.idle),
+  });
 
   boot().catch((error: unknown) => {
     if (error instanceof SessionAbortedError || abort.signal.aborted) return;

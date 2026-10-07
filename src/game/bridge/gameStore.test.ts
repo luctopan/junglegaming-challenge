@@ -36,6 +36,19 @@ describe('gameStore', () => {
     expect(store.getSnapshot().failure).toBe('no WebGL');
   });
 
+  it('publishes the pause reason with the paused phase only', () => {
+    const store = createGameStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.setPhase('paused', 'blur');
+    expect(store.getSnapshot()).toMatchObject({ phase: 'paused', pauseReason: 'blur' });
+    store.setPhase('paused', 'blur');
+    expect(listener).toHaveBeenCalledTimes(1);
+    store.setPhase('running', 'manual');
+    expect(store.getSnapshot()).toMatchObject({ phase: 'running', pauseReason: null });
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+
   it('reports loading progress in whole percent', () => {
     expect(toPercent(0.123)).toBe(12);
     expect(toPercent(1.4)).toBe(100);

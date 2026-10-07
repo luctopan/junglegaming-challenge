@@ -10,7 +10,7 @@ async function bootstrap(rootElement: HTMLElement): Promise<void> {
   if (isTestMode(window.location.search)) {
     // Loaded on demand: the hook pulls in the game runtime, which the menu does not need.
     const { installTestHook } = await import('./game/runtime/testHook');
-    installTestHook(window);
+    installTestHook(window, window.location.search);
   }
   const root = createRoot(rootElement);
   try {
