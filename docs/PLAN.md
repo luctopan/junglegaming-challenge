@@ -38,39 +38,39 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 
 ### 2 Gameplay — Player
 
-- [ ] Forward movement + rotate both ways — P1 — unit:movement, e2e:movement
-- [ ] Front shot, 1 projectile — P1 — unit:weapons, e2e:combat
-- [ ] Side shots, 3 parallel projectiles, separate left/right commands — P1 — unit:weapons, e2e:combat
-- [ ] Limited HP, reduced by enemy projectiles and Chaser impact — P1 — unit:damage, e2e:enemies
-- [ ] Restricted to visible arena, cannot cross islands — P1 — unit:collision, e2e:movement
+- [x] Forward movement + rotate both ways — P1 — unit:movement, e2e:movement
+- [x] Front shot, 1 projectile — P1 — unit:weapons, e2e:combat
+- [x] Side shots, 3 parallel projectiles, separate left/right commands — P1 — unit:weapons, e2e:combat
+- [x] Limited HP, reduced by enemy projectiles and Chaser impact — P1 — unit:damage, e2e:enemies
+- [x] Restricted to visible arena, cannot cross islands — P1 — unit:collision, e2e:movement
 - [ ] Keyboard + touch controls for move/rotate/attacks — P3 — e2e:touch, e2e:combat
 - [ ] Move and fire simultaneously — P3 — e2e:combat
 - [ ] Controls shown in UI (menu help + on-screen) — P4 — e2e:navigation
 
 ### 2 Gameplay — Enemies
 
-- [ ] Chaser pursues, damages on contact, explodes on impact — P1 — unit:chaser, e2e:enemies
-- [ ] Shooter approaches, fires when in range — P1 — unit:shooter, e2e:enemies
-- [ ] Both move, rotate, take damage, respect islands — P1 — unit:collision, unit:steering
-- [ ] Both types appear in a default match — P1 — unit:spawner (distribution guarantee)
-- [ ] Spawn every configured interval until match end (no silently skipped intervals) — P1 — unit:spawner, e2e:enemies
-- [ ] Spawn points obstacle-free and far from player — P1 — unit:spawner
+- [x] Chaser pursues, damages on contact, explodes on impact — P1 — unit:chaser, e2e:enemies
+- [x] Shooter approaches, fires when in range — P1 — unit:shooter, e2e:enemies
+- [x] Both move, rotate, take damage, respect islands — P1 — unit:collision, unit:steering
+- [x] Both types appear in a default match — P1 — unit:spawner (distribution guarantee)
+- [x] Spawn every configured interval until match end (no silently skipped intervals) — P1 — unit:spawner, e2e:enemies
+- [x] Spawn points obstacle-free and far from player — P1 — unit:spawner
 
 ### 2 Arena, collisions, combat
 
 - [ ] Water + ≥1 island blocking ships and projectiles — P1/P2 — unit:collision, e2e:movement
-- [ ] Projectiles: direction, speed, damage, range/lifetime — P1 — unit:projectiles
-- [ ] Player shots hit enemies; enemy shots hit player (no friendly fire) — P1 — unit:damage
-- [ ] Damage applied once; removed on hit/obstacle/expire/out-of-arena — P1 — unit:projectiles
-- [ ] Per-weapon cooldown — P1 — unit:weapons, e2e:combat
-- [ ] Destroyed enemies stop damaging, firing, colliding — P1 — unit:damage
+- [x] Projectiles: direction, speed, damage, range/lifetime — P1 — unit:projectiles
+- [x] Player shots hit enemies; enemy shots hit player (no friendly fire) — P1 — unit:damage
+- [x] Damage applied once; removed on hit/obstacle/expire/out-of-arena — P1 — unit:projectiles
+- [x] Per-weapon cooldown — P1 — unit:weapons, e2e:combat
+- [x] Destroyed enemies stop damaging, firing, colliding — P1 — unit:damage
 
 ### 2 Match rules
 
 - [ ] Duration configurable 60–180 s of active play — P1/P4 — unit:config, e2e:options
-- [ ] +1 per enemy destroyed by player; Chaser self-destruct = 0 — P1 — unit:match, e2e:combat
-- [ ] Ends on time up or HP 0 — P1 — unit:match, e2e:match-end
-- [ ] End freezes movement, attacks, damage, spawns, scoring — P1 — unit:match, e2e:match-end
+- [x] +1 per enemy destroyed by player; Chaser self-destruct = 0 — P1 — unit:match, e2e:combat
+- [x] Ends on time up or HP 0 — P1 — unit:match, e2e:match-end
+- [x] End freezes movement, attacks, damage, spawns, scoring — P1 — unit:match, e2e:match-end
 - [ ] Restart = fresh HP/score/timer/entities — P3 — e2e:match-end
 - [ ] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual
 - [ ] Manual pause + auto-pause on blur/hidden — P3 — e2e:pause
@@ -93,10 +93,10 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 - [ ] Ranking: rank, player identity, score, pagination — P4/P5 — e2e:records
 - [ ] Ranking config selector: defaults to current Options config, lists configs that have records; subtitle as in mockup — P4/P5/P6 — e2e:records
 - [ ] Match History: date, score, duration, end reason, pagination — P4/P5 — e2e:records
-- [ ] Typed central gameplay config (all listed params) — P1 — unit:config
-- [ ] Balancing changes need no system logic changes — P1 — review
-- [ ] Spawn interval positive with documented limits — P1 — unit:config, README
-- [ ] Config snapshot frozen at match start — P1 — unit:match
+- [x] Typed central gameplay config (all listed params) — P1 — unit:config
+- [x] Balancing changes need no system logic changes — P1 — review
+- [x] Spawn interval positive with documented limits — P1 — unit:config, README
+- [x] Config snapshot frozen at match start — P1 — unit:match
 - [ ] Changing Options from the pause menu affects only the next match — P4 — e2e:options
 - [ ] Reload / leaving combat ends match — P3 — e2e:navigation
 - [ ] Persist options + last completed result — P4 — e2e:options, e2e:result
@@ -106,13 +106,13 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 ### 4 PixiJS & architecture
 
 - [ ] Separation: rules / render / input / UI state (lint-enforced) — P0/P1 — `pnpm lint` (P0: enforcement in place + tested)
-- [ ] Time-based simulation, frame-rate independent — P1 — unit:stepper (30/60/144 Hz parity)
+- [x] Time-based simulation, frame-rate independent — P1 — unit:stepper (30/60/144 Hz parity)
 - [ ] UI sync without per-frame React renders — P3 — unit:bridge, e2e (render counter in test mode)
 - [ ] Texture load once + reuse; failure handling before combat — P2 — e2e:assets
 - [ ] Canvas fits screen + DPR, preserves aspect, input coords, arena bounds — P2 — e2e:touch (resize)
 - [ ] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md
 - [ ] Correct init/teardown under Strict Mode — P2 — dev runs in StrictMode + e2e:lifecycle
-- [ ] Continuous combat state lives in simulation — P1
+- [x] Continuous combat state lives in simulation — P1
 - [ ] ARCHITECTURE.md — P8
 
 ### 5 Ranking & history
@@ -254,6 +254,8 @@ Allowed imports, enforced by the local ESLint rule `local/layer-boundaries` (sin
 
 ### 2.2 Simulation loop
 
+- Phase 1: the accumulator lives in `game/core/stepper.ts` (pure, injected clock; DECISIONS S3);
+  runtime wires it to the Pixi ticker.
 - `loop.ts`: `frame(nowMs)` → `dt = min(now - last, MAX_FRAME = 0.25 s)`; `acc += dt`;
   `while (acc >= STEP && steps < MAX_STEPS=8) { step(world, input.sample(), STEP); acc -= STEP }`;
   render with `alpha = acc / STEP` (position interpolation for smoothness at 120/144 Hz).
@@ -499,7 +501,7 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | #    | Scope                                                                                                                                                                                                                                                                                                                                                                               | Exit criteria                                                                                                          | Est. (h) |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------- |
 | 0 ✅ | Scaffold: Vite+React+TS strict, pnpm, ESLint (ts-eslint strict-type-checked, layer zones), Prettier, Vitest, Playwright (2 projects, report, trace), MSW worker in `public/`, scripts (dev/build/preview/lint/typecheck/test/test:e2e/test:e2e:update), atlas script, `.gitattributes`, CI workflow (GH Actions), docs skeletons (README, ARCHITECTURE, DECISIONS), ASSETS.md fixes | all scripts green on empty app; a smoke e2e passes desktop+mobile; lint fails on a deliberate core→pixi import         | 5        |
-| 1    | Config + core: types/defaults/validation, rng, clock, stepper, map + islands, movement, steering, weapons, projectiles, collisions, damage, Chaser, Shooter, spawner, match rules, events                                                                                                                                                                                           | ≥ 90 % line coverage on `game/core`; all unit tests in §1 green; headless 180 s simulated match deterministic per seed | 16       |
+| 1 ✅ | Config + core: types/defaults/validation, rng, clock, stepper, map + islands, movement, steering, weapons, projectiles, collisions, damage, Chaser, Shooter, spawner, match rules, events                                                                                                                                                                                           | ≥ 90 % line coverage on `game/core`; all unit tests in §1 green; headless 180 s simulated match deterministic per seed | 16       |
 | 2    | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                              | 13       |
 | 3    | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                         | 9        |
 | 4    | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                    | 15       |

@@ -5,8 +5,9 @@ Axios and MSW, tested with Vitest and Playwright. Everything runs in the browser
 ranking and match-history backend is mocked at network level by MSW in every build,
 including the public demo.
 
-> Status: **Phase 0 (scaffold & tooling) complete.** Gameplay arrives in later phases;
-> see [docs/PLAN.md](docs/PLAN.md) for the requirement checklist and phase status.
+> Status: **Phase 1 (config + deterministic simulation core) complete.** Rendering, input and
+> screens arrive in later phases; see [docs/PLAN.md](docs/PLAN.md) for the requirement
+> checklist and phase status.
 
 ## Requirements
 
@@ -35,7 +36,9 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
 | `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects |
 | `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries) |
 | `pnpm format`          | Prettier write (`format:check` verifies only)                    |
-| `pnpm test`            | Vitest unit tests (`test:watch`, `test:coverage` available)      |
+| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)    |
+| `pnpm test:watch`      | Vitest in watch mode (no coverage)                               |
+| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)  |
 | `pnpm test:e2e`        | Playwright on the production bundle, desktop + mobile Chromium   |
 | `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image              |
 | `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image              |
@@ -72,7 +75,23 @@ _Phase 3/4._ Planned mapping in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Gameplay configuration
 
-_Phase 1._
+Every gameplay parameter lives in one typed object: [src/config/gameConfig.ts](src/config/gameConfig.ts)
+(type, with units documented per field) and [src/config/defaults.ts](src/config/defaults.ts)
+(values). It is validated by [src/config/validate.ts](src/config/validate.ts) and frozen into each
+match at start, so balancing never requires changes to system code. Units: world units (the
+arena is 1024×576, 16×9 tiles of 64), seconds, degrees.
+
+The Options screen exposes two parameters ([src/config/options.ts](src/config/options.ts)):
+
+| Option            | Range        | Step  | Default |
+| ----------------- | ------------ | ----- | ------- |
+| Game session time | 60 – 180 s   | 10 s  | 120 s   |
+| Enemy spawn time  | 1.0 – 10.0 s | 0.5 s | 3 s     |
+
+The spawn interval is always positive; a due spawn is never skipped (it waits while the
+25-enemy safety cap is reached or no clear spawn point exists). Default balancing and its
+rationale: [docs/DECISIONS.md](docs/DECISIONS.md); measured outcomes:
+[docs/BALANCE.md](docs/BALANCE.md).
 
 ## Environment variables
 
