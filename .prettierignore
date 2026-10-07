@@ -1,0 +1,13 @@
+# Generated / vendored
+dist
+coverage
+playwright-report
+test-results
+pnpm-lock.yaml
+public/mockServiceWorker.js
+public/assets
+
+# Delivered material kept verbatim
+assets
+docs/CHALLENGE.md
+docs/reference
