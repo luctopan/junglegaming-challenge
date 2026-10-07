@@ -65,8 +65,86 @@
   outline-offset: 2px;
 }
 
-.exit {
+.backdrop {
   position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
+  inset: 0;
+  background: rgb(4 18 28 / 55%);
+}
+
+/* Temporary HUD (Phase 4 restyles it with the UI atlas, as in the mockup). */
+.hud {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: max(0.75rem, env(safe-area-inset-left));
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.hudItem {
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgb(11 42 60 / 85%);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hudLabel {
+  opacity: 0.8;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.pause {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: max(0.75rem, env(safe-area-inset-right));
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.controlPad {
+  position: absolute;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.steering {
+  left: max(0.75rem, env(safe-area-inset-left));
+}
+
+.cannons {
+  right: max(0.75rem, env(safe-area-inset-right));
+}
+
+/* The middle control sits higher, as in the mockup. */
+.controlPad > :nth-child(2) {
+  margin-bottom: 2.25rem;
+}
+
+.control {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 3px solid #e2a54a;
+  border-radius: 50%;
+  background: rgb(91 50 18 / 88%);
+  color: #fdf6e3;
+  font: inherit;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  /* Hold-to-act: no scrolling, zooming, text selection or long-press callout. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.control[data-pressed='true'] {
+  background: #c97a2a;
+  transform: scale(0.94);
 }
