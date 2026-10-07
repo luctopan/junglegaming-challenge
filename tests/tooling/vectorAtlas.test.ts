@@ -4,10 +4,15 @@ import { Resvg } from '@resvg/resvg-js';
 import { PNG } from 'pngjs';
 import { describe, expect, it } from 'vitest';
 import { scaleAtlas, sparrowToPixi } from '../../scripts/lib/atlas.mjs';
-import { checkFrameAlignment, frameError } from '../../scripts/lib/vectorAtlas.mjs';
+import {
+  checkFrameAlignment,
+  composeScaledSheet,
+  frameError,
+} from '../../scripts/lib/vectorAtlas.mjs';
 
 const assets = path.resolve(import.meta.dirname, '../../assets');
 const read = (rel: string) => readFileSync(path.join(assets, rel));
+const mapPath = path.resolve(import.meta.dirname, '../../scripts/data/ships-vector-frames.json');
 
 interface Image {
   width: number;
@@ -79,31 +84,83 @@ describe('vector atlas alignment', () => {
   });
 
   /**
-   * The decision the asset build takes for the delivered art (docs/DECISIONS.md R1):
-   * the vector is a 1280×720 overview with a different layout than the 1024×512
-   * sheet, so no frame lines up and the game ships the 1× ship sheet only.
+   * The vector is a 1280×720 overview in the preview.png layout, so read as-is no
+   * frame lines up with the 1024×512 sheet (docs/DECISIONS.md R1)…
    */
-  it('falls back to 1× for the delivered ship vector', () => {
+  const delivered = () => {
     const xml = read('spritesheet/ships_miscellaneous_sheet.xml').toString('utf8');
-    const sheetPng = read('spritesheet/ships_miscellaneous_sheet.png');
-    const sheet1x = PNG.sync.read(sheetPng);
+    const sheet1x = PNG.sync.read(read('spritesheet/ships_miscellaneous_sheet.png'));
     const atlas = sparrowToPixi(xml, {
       image: 'ships_sheet.png',
       size: { w: sheet1x.width, h: sheet1x.height },
     });
     const svg = read('vector/ships_miscellaneous_vector.svg');
-    const scaled = PNG.sync.read(
+    const raster = PNG.sync.read(
       new Resvg(svg, { fitTo: { mode: 'zoom', value: 2 } }).render().asPng(),
     );
+    const shipFrames = Object.fromEntries(
+      Object.entries(atlas.frames).map(([n, f]) => [n, f.frame]),
+    );
+    return { sheet1x, raster, shipFrames };
+  };
+  const { sheet1x, raster, shipFrames } = delivered();
+
+  it('does not match the delivered sheet layout as-is', () => {
     const report = checkFrameAlignment({
       sheet: sheet1x,
-      scaled,
-      frames: Object.fromEntries(Object.entries(atlas.frames).map(([n, f]) => [n, f.frame])),
+      scaled: raster,
+      frames: shipFrames,
       scale: 2,
       tolerance: 8,
     });
     expect(report.aligned).toBe(false);
     expect(report.misaligned).toBe(102);
+  });
+
+  // …but the frame map found once by scripts/locate-vector-frames.mjs re-packs
+  // it into a 2× sheet whose every frame downsamples to the 1× frame.
+  it('rebuilds a matching 2× sheet from the committed frame map', () => {
+    const located = (
+      JSON.parse(readFileSync(mapPath, 'utf8')) as {
+        frames: Record<string, { x: number; y: number }>;
+      }
+    ).frames;
+    const { image, upscaled } = composeScaledSheet({
+      sheet: sheet1x,
+      raster,
+      frames: shipFrames,
+      located,
+      scale: 2,
+    });
+    const report = checkFrameAlignment({
+      sheet: sheet1x,
+      scaled: image,
+      frames,
+      scale: 2,
+      tolerance: 8,
+    });
+    expect(report.aligned).toBe(true);
+    // Every frame the game draws comes from the vector, none is an upscale.
+    const drawn = Object.keys(shipFrames).filter((n) =>
+      /^(ship_\d+|cannon_ball|explosion_\d|fire_\d|wood_\d)$/.test(n),
+    );
+    expect(drawn).toHaveLength(34);
+    expect(drawn.filter((n) => upscaled.includes(n))).toEqual([]);
+    expect(upscaled.length).toBeLessThan(10);
+  });
+});
+
+describe('composeScaledSheet', () => {
+  it('crops located frames from the raster and upscales the others', () => {
+    const sheet = pattern(16, 8);
+    // The raster holds the 2× art of frame "a" at a different place (8 px right, 2× units).
+    const raster = upscale(sheet, 2, 8);
+    const located = { a: { x: 4, y: 0 } };
+    const { image, upscaled } = composeScaledSheet({ sheet, raster, frames, located, scale: 2 });
+    expect(upscaled).toEqual(['b']);
+    expect([image.width, image.height]).toEqual([32, 16]);
+    const report = checkFrameAlignment({ sheet, scaled: image, frames, scale: 2, tolerance: 1 });
+    expect(report.aligned).toBe(true);
   });
 });
 

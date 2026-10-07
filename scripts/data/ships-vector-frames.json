@@ -1,0 +1,505 @@
+{
+  "source": "assets/vector/ships_miscellaneous_vector.svg",
+  "units": "vector px at 1x (top-left of each sheet frame)",
+  "tolerance": 8,
+  "frames": {
+    "cannon": {
+      "x": 950,
+      "y": 68,
+      "error": 2.7
+    },
+    "cannon_ball": {
+      "x": 982,
+      "y": 100,
+      "error": 4.1
+    },
+    "cannon_loose": {
+      "x": 949,
+      "y": 100,
+      "error": 3.6
+    },
+    "cannon_mobile": {
+      "x": 990,
+      "y": 66,
+      "error": 4.1
+    },
+    "dinghy_large_1": {
+      "x": 948,
+      "y": 247,
+      "error": 3.3
+    },
+    "dinghy_large_2": {
+      "x": 1008,
+      "y": 247,
+      "error": 3.6
+    },
+    "dinghy_large_3": {
+      "x": 1068,
+      "y": 247,
+      "error": 3.9
+    },
+    "dinghy_small_1": {
+      "x": 980.5,
+      "y": 259,
+      "error": 6.6
+    },
+    "dinghy_small_2": {
+      "x": 1040.5,
+      "y": 259,
+      "error": 7.2
+    },
+    "dinghy_small_3": {
+      "x": 1100.5,
+      "y": 259,
+      "error": 7.6
+    },
+    "explosion_1": {
+      "x": 1163,
+      "y": 185,
+      "error": 3.6
+    },
+    "explosion_2": {
+      "x": 1170,
+      "y": 106.5,
+      "error": 2.6
+    },
+    "explosion_3": {
+      "x": 1179,
+      "y": 48.5,
+      "error": 3.5
+    },
+    "fire_1": {
+      "x": 1174.5,
+      "y": 279,
+      "error": 6.4
+    },
+    "fire_2": {
+      "x": 1204,
+      "y": 291,
+      "error": 5.2
+    },
+    "flag_1": {
+      "x": 657,
+      "y": 313,
+      "error": 4.3
+    },
+    "flag_2": {
+      "x": 737,
+      "y": 313,
+      "error": 2.5
+    },
+    "flag_3": {
+      "x": 817,
+      "y": 313,
+      "error": 2.9
+    },
+    "flag_4": {
+      "x": 897,
+      "y": 313,
+      "error": 2.8
+    },
+    "flag_5": {
+      "x": 977,
+      "y": 313,
+      "error": 3.1
+    },
+    "flag_6": {
+      "x": 1057,
+      "y": 313,
+      "error": 3
+    },
+    "hull_large_1": {
+      "x": 635,
+      "y": 178,
+      "error": 2.2
+    },
+    "hull_large_2": {
+      "x": 705,
+      "y": 178,
+      "error": 2.3
+    },
+    "hull_large_3": {
+      "x": 775,
+      "y": 178,
+      "error": 2.4
+    },
+    "hull_large_4": {
+      "x": 845,
+      "y": 178,
+      "error": 2
+    },
+    "hull_small_1": {
+      "x": 640,
+      "y": 48,
+      "error": 2.5
+    },
+    "hull_small_2": {
+      "x": 710,
+      "y": 48,
+      "error": 2.5
+    },
+    "hull_small_3": {
+      "x": 780,
+      "y": 48,
+      "error": 2.6
+    },
+    "hull_small_4": {
+      "x": 850,
+      "y": 48,
+      "error": 2.2
+    },
+    "nest": {
+      "x": 1010,
+      "y": 97,
+      "error": 4.6
+    },
+    "sail_large_1": {
+      "x": 627,
+      "y": 427,
+      "error": 2.4
+    },
+    "sail_large_2": {
+      "x": 707,
+      "y": 427,
+      "error": 2.1
+    },
+    "sail_large_3": {
+      "x": 787,
+      "y": 427,
+      "error": 2.2
+    },
+    "sail_large_4": {
+      "x": 867,
+      "y": 427,
+      "error": 2.3
+    },
+    "sail_large_5": {
+      "x": 947,
+      "y": 427,
+      "error": 2.3
+    },
+    "sail_large_6": {
+      "x": 1027,
+      "y": 427,
+      "error": 2.3
+    },
+    "sail_large_7": {
+      "x": 627,
+      "y": 347,
+      "error": 2.6
+    },
+    "sail_large_8": {
+      "x": 707,
+      "y": 347,
+      "error": 1.9
+    },
+    "sail_large_9": {
+      "x": 787,
+      "y": 347,
+      "error": 2
+    },
+    "sail_large_10": {
+      "x": 867,
+      "y": 347,
+      "error": 2.1
+    },
+    "sail_large_11": {
+      "x": 947,
+      "y": 347,
+      "error": 2.1
+    },
+    "sail_large_12": {
+      "x": 1027,
+      "y": 347,
+      "error": 2.1
+    },
+    "sail_large_13": {
+      "x": 627,
+      "y": 587,
+      "error": 1.9
+    },
+    "sail_large_14": {
+      "x": 707,
+      "y": 587,
+      "error": 2.1
+    },
+    "sail_large_15": {
+      "x": 787,
+      "y": 587,
+      "error": 2
+    },
+    "sail_large_16": {
+      "x": 867,
+      "y": 587,
+      "error": 2
+    },
+    "sail_large_17": {
+      "x": 947,
+      "y": 587,
+      "error": 2
+    },
+    "sail_large_18": {
+      "x": 1027,
+      "y": 587,
+      "error": 2
+    },
+    "sail_large_19": {
+      "x": 627,
+      "y": 507,
+      "error": 2.7
+    },
+    "sail_large_20": {
+      "x": 707,
+      "y": 507,
+      "error": 2.3
+    },
+    "sail_large_21": {
+      "x": 787,
+      "y": 507,
+      "error": 2.4
+    },
+    "sail_large_22": {
+      "x": 867,
+      "y": 507,
+      "error": 2.5
+    },
+    "sail_large_23": {
+      "x": 947,
+      "y": 507,
+      "error": 2.5
+    },
+    "sail_large_24": {
+      "x": 1027,
+      "y": 507,
+      "error": 2.5
+    },
+    "sail_small_1": {
+      "x": 1039,
+      "y": 565,
+      "error": 3.8
+    },
+    "sail_small_2": {
+      "x": 1038,
+      "y": 645,
+      "error": 3.1
+    },
+    "sail_small_3": {
+      "x": 799,
+      "y": 405,
+      "error": 2.6
+    },
+    "sail_small_4": {
+      "x": 879,
+      "y": 405,
+      "error": 2.5
+    },
+    "sail_small_5": {
+      "x": 959,
+      "y": 405,
+      "error": 2.9
+    },
+    "sail_small_6": {
+      "x": 1039,
+      "y": 405,
+      "error": 2.8
+    },
+    "sail_small_7": {
+      "x": 799,
+      "y": 485,
+      "error": 3.3
+    },
+    "sail_small_8": {
+      "x": 879,
+      "y": 485,
+      "error": 3.2
+    },
+    "sail_small_9": {
+      "x": 959,
+      "y": 485,
+      "error": 3.6
+    },
+    "sail_small_10": {
+      "x": 1039,
+      "y": 485,
+      "error": 3.6
+    },
+    "sail_small_11": {
+      "x": 799,
+      "y": 565,
+      "error": 3.5
+    },
+    "sail_small_12": {
+      "x": 879,
+      "y": 565,
+      "error": 3.3
+    },
+    "sail_small_13": {
+      "x": 959,
+      "y": 565,
+      "error": 3.7
+    },
+    "ship_1": {
+      "x": 47,
+      "y": 43,
+      "error": 1.9
+    },
+    "ship_2": {
+      "x": 137,
+      "y": 43,
+      "error": 1.8
+    },
+    "ship_3": {
+      "x": 227,
+      "y": 43,
+      "error": 1.8
+    },
+    "ship_4": {
+      "x": 317,
+      "y": 43,
+      "error": 1.9
+    },
+    "ship_5": {
+      "x": 407,
+      "y": 43,
+      "error": 2
+    },
+    "ship_6": {
+      "x": 497,
+      "y": 43,
+      "error": 1.9
+    },
+    "ship_7": {
+      "x": 47,
+      "y": 203,
+      "error": 2.1
+    },
+    "ship_8": {
+      "x": 137,
+      "y": 203,
+      "error": 2
+    },
+    "ship_9": {
+      "x": 227,
+      "y": 203,
+      "error": 1.9
+    },
+    "ship_10": {
+      "x": 317,
+      "y": 203,
+      "error": 2
+    },
+    "ship_11": {
+      "x": 407,
+      "y": 203,
+      "error": 2.1
+    },
+    "ship_12": {
+      "x": 497,
+      "y": 203,
+      "error": 2
+    },
+    "ship_13": {
+      "x": 47,
+      "y": 363,
+      "error": 2.2
+    },
+    "ship_14": {
+      "x": 137,
+      "y": 363,
+      "error": 2.1
+    },
+    "ship_15": {
+      "x": 227,
+      "y": 363,
+      "error": 2
+    },
+    "ship_16": {
+      "x": 317,
+      "y": 363,
+      "error": 2.1
+    },
+    "ship_17": {
+      "x": 407,
+      "y": 363,
+      "error": 2.2
+    },
+    "ship_18": {
+      "x": 497,
+      "y": 363,
+      "error": 2.1
+    },
+    "ship_19": {
+      "x": 47,
+      "y": 523,
+      "error": 1.6
+    },
+    "ship_20": {
+      "x": 137,
+      "y": 523,
+      "error": 1.8
+    },
+    "ship_21": {
+      "x": 227,
+      "y": 523,
+      "error": 1.7
+    },
+    "ship_22": {
+      "x": 317,
+      "y": 523,
+      "error": 1.7
+    },
+    "ship_23": {
+      "x": 407,
+      "y": 523,
+      "error": 1.7
+    },
+    "ship_24": {
+      "x": 497,
+      "y": 523,
+      "error": 1.7
+    },
+    "wood_1": {
+      "x": 984,
+      "y": 139,
+      "error": 1.9
+    },
+    "wood_2": {
+      "x": 949,
+      "y": 123,
+      "error": 1.3
+    },
+    "wood_3": {
+      "x": 984,
+      "y": 123,
+      "error": 1.6
+    },
+    "wood_4": {
+      "x": 949,
+      "y": 139,
+      "error": 1.5
+    }
+  },
+  "notLocated": {
+    "crew_1": {
+      "bestError": 20.2
+    },
+    "crew_2": {
+      "bestError": 23.4
+    },
+    "crew_3": {
+      "bestError": 22.5
+    },
+    "crew_4": {
+      "bestError": 18.2
+    },
+    "crew_5": {
+      "bestError": 18.1
+    },
+    "crew_6": {
+      "bestError": 16.8
+    },
+    "pole": {
+      "bestError": 10.4
+    }
+  }
+}

@@ -1,6 +1,9 @@
 import { expect, test } from './fixtures/test';
 import { resources, startGame, waitForArena } from './helpers/game';
 
+/** Every resolution of the ship sheet: Pixi picks 1× or @2x from the screen density. */
+const SHIP_SHEETS = '**/assets/ships/ships_sheet*.png';
+
 /**
  * Asset loading before combat: visible progress, a failure state with Retry
  * (provoked with plain route interception, no special app code path), and
@@ -36,7 +39,7 @@ test.describe('game assets', () => {
     allowConsoleError,
   }) => {
     allowConsoleError(/Failed to load resource/);
-    await page.context().route('**/assets/ships/ships_sheet.png', (route) => route.abort('failed'));
+    await page.context().route(SHIP_SHEETS, (route) => route.abort('failed'));
     await openApp('/?test=1');
     await startGame(page);
 
@@ -47,7 +50,7 @@ test.describe('game assets', () => {
     expect(before.canvases).toBe(0);
     expect(before.tickerCallbacks).toBe(0);
 
-    await page.context().unroute('**/assets/ships/ships_sheet.png');
+    await page.context().unroute(SHIP_SHEETS);
     await alert.getByRole('button', { name: 'Retry' }).click();
     await waitForArena(page);
     await expect(page.getByRole('alert')).toHaveCount(0);
