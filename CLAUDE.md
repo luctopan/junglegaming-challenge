@@ -64,7 +64,9 @@ src/
   api/           contracts (types), axios client, query keys, hooks
   mocks/         MSW handlers, fixtures, scenarios, persistence (shared dev/test/prod)
   ui/            React screens, components, a11y helpers
-  shared/        small utilities (rng, math, storage, event emitter)
+  shared/        pure utilities only (rng, math, event emitter) — no DOM/browser APIs
+  platform/      browser adapters (storage, etc.) — usable by ui, api, mocks, runtime;
+                 forbidden for game/core and config
 tests/e2e/       Playwright specs, fixtures, helpers
 ```
 
