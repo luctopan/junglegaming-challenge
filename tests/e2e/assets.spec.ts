@@ -1,5 +1,5 @@
 import { expect, test } from './fixtures/test';
-import { resources, startGame, waitForArena } from './helpers/game';
+import { leaveGame, resources, startGame, waitForArena } from './helpers/game';
 
 /** Every resolution of the ship sheet: Pixi picks 1× or @2x from the screen density. */
 const SHIP_SHEETS = '**/assets/ships/ships_sheet*.png';
@@ -71,7 +71,7 @@ test.describe('game assets', () => {
     const textures = (await resources(page)).cachedTextures;
     expect(firstLoad).toBeGreaterThan(0);
 
-    await page.getByRole('button', { name: 'Main menu' }).click();
+    await leaveGame(page);
     await startGame(page);
     await waitForArena(page);
     expect(atlasRequests).toHaveLength(firstLoad);

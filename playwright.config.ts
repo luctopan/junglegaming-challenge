@@ -15,7 +15,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,
-  ...(isCI ? { workers: 2 } : {}),
+  // Every game page renders WebGL on the CPU (SwiftShader) at 60 fps: more parallel pages than
+  // this starve each other into start-up timeouts, even on a 20-thread machine.
+  workers: isCI ? 2 : 4,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: `http://localhost:${PORT}`,
