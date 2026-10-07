@@ -9,6 +9,7 @@
   },
   "scripts": {
     "assets:build": "node scripts/build-atlases.mjs",
+    "balance": "node scripts/balance.ts",
     "dev": "pnpm assets:build && vite",
     "build": "pnpm assets:build && tsc -b && vite build",
     "preview": "vite preview",

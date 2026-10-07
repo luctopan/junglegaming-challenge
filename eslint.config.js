@@ -76,7 +76,7 @@ export default defineConfig(
   },
 
   {
-    files: ['*.{js,ts}', 'eslint/**/*.js', 'scripts/**/*.mjs', 'tests/**/*.ts'],
+    files: ['*.{js,ts}', 'eslint/**/*.js', 'scripts/**/*.{mjs,ts}', 'tests/**/*.ts'],
     languageOptions: { globals: globals.node },
     rules: { 'no-console': 'off' },
   },
