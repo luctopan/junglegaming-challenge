@@ -29,7 +29,8 @@ export function updateFlowField(world: World): void {
   world.nav.recomputeCount += 1;
 }
 
-function computeDistances(arena: Arena, source: number): number[] {
+/** BFS distance (in cells) from `source` over water cells; ∞ = unreachable. */
+export function computeDistances(arena: Arena, source: number): number[] {
   const distances = arena.water.map(() => Number.POSITIVE_INFINITY);
   const col = source % arena.cols;
   const row = Math.floor(source / arena.cols);
@@ -65,17 +66,20 @@ function computeDistances(arena: Arena, source: number): number[] {
  * field, or `null` when already in the player's cell (or no route exists).
  * Diagonal moves require both orthogonal cells to be water (no corner cutting).
  */
-export function nextWaypoint(world: World, pos: Vec2): Vec2 | null {
-  const { arena, nav } = world;
+export const nextWaypoint = (world: World, pos: Vec2): Vec2 | null =>
+  waypointFrom(world.arena, world.nav.distances, pos);
+
+/** Same as `nextWaypoint`, for any distance field over `arena` (e.g. towards another target). */
+export function waypointFrom(arena: Arena, distances: readonly number[], pos: Vec2): Vec2 | null {
   const here = cellIndexAt(arena, pos);
   const col = here % arena.cols;
   const row = Math.floor(here / arena.cols);
   let best = here;
-  let bestDistance = nav.distances[here] ?? Number.POSITIVE_INFINITY;
+  let bestDistance = distances[here] ?? Number.POSITIVE_INFINITY;
   const consider = (dc: number, dr: number): void => {
     if (!isWaterCell(arena, col + dc, row + dr)) return;
     const index = (row + dr) * arena.cols + col + dc;
-    const d = nav.distances[index] ?? Number.POSITIVE_INFINITY;
+    const d = distances[index] ?? Number.POSITIVE_INFINITY;
     if (d < bestDistance) {
       best = index;
       bestDistance = d;
