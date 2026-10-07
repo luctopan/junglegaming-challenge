@@ -11,6 +11,7 @@ import {
 } from './geometry';
 import { buildArena } from './map/arena';
 import { ARENA_MAP } from './map/arenaMap';
+import { POCKET_MAP } from './testing/maps';
 import { shoreShape } from './map/shoreShape';
 import { createMatch } from './createMatch';
 import { step } from './step';
@@ -87,17 +88,29 @@ describe('default arena corners', () => {
   const tile = DEFAULT_GAME_CONFIG.arena.tileSize;
   const radius = DEFAULT_GAME_CONFIG.arena.islandCornerRadius;
   const arena = buildArena(ARENA_MAP, tile, 0, radius);
+  /** Multi-rect islands with junctions and concave corners (the Phase 1–2 arena). */
+  const pocketArena = buildArena(POCKET_MAP, tile, 0, radius);
+
+  it('rounds all four corners of each 4×4 island, also where it meets the arena border', () => {
+    const all = { topLeft: radius, topRight: radius, bottomLeft: radius, bottomRight: radius };
+    expect(arena.islandRects).toHaveLength(3);
+    for (const rect of arena.islandRects) {
+      expect(rect.maxX - rect.minX).toBe(4 * tile);
+      expect(rect.maxY - rect.minY).toBe(4 * tile);
+      expect(rect.radii).toEqual(all);
+    }
+  });
 
   it('rounds convex shore corners only; junctions between rects stay square', () => {
     // U island: top bar (rows 2–3) has rounded top corners; its bottom corners meet the arms.
-    const bar = arena.islandRects.find((r) => r.minY === 2 * tile && r.minX === 2 * tile);
+    const bar = pocketArena.islandRects.find((r) => r.minY === 2 * tile && r.minX === 2 * tile);
     expect(bar?.radii).toEqual({
       topLeft: radius,
       topRight: radius,
       bottomLeft: 0,
       bottomRight: 0,
     });
-    const leftArm = arena.islandRects.find((r) => r.minY === 4 * tile && r.minX === 2 * tile);
+    const leftArm = pocketArena.islandRects.find((r) => r.minY === 4 * tile && r.minX === 2 * tile);
     expect(leftArm?.radii).toEqual({
       topLeft: 0,
       topRight: 0,
@@ -106,7 +119,7 @@ describe('default arena corners', () => {
     });
     // L island middle rect (rows 4–5, cols 10–13): its top side is half covered by
     // the rect above, yet its top-right cell is a real shore corner, and so is its bottom-left.
-    const middle = arena.islandRects.find((r) => r.minY === 4 * tile && r.minX === 10 * tile);
+    const middle = pocketArena.islandRects.find((r) => r.minY === 4 * tile && r.minX === 10 * tile);
     expect(middle?.radii).toEqual({
       topLeft: 0,
       topRight: radius,
@@ -115,14 +128,17 @@ describe('default arena corners', () => {
     });
   });
 
-  it('rounds exactly the cells drawn with outer-corner tiles', () => {
-    const solid = (col: number, row: number) => ARENA_MAP[row]?.[col] === '#';
-    const roundedCorners = arena.islandRects.reduce(
+  it.each([
+    ['ARENA_MAP', ARENA_MAP],
+    ['POCKET_MAP', POCKET_MAP],
+  ])('rounds exactly the cells drawn with outer-corner tiles (%s)', (_name, map) => {
+    const solid = (col: number, row: number) => map[row]?.[col] === '#';
+    const roundedCorners = buildArena(map, tile, 0, radius).islandRects.reduce(
       (n, r) => n + Object.values(r.radii).filter((v) => v > 0).length,
       0,
     );
     let outerCornerCells = 0;
-    ARENA_MAP.forEach((line, row) => {
+    map.forEach((line, row) => {
       Array.from(line).forEach((_, col) => {
         if (solid(col, row) && shoreShape(solid, col, row).kind === 'outerCorner')
           outerCornerCells++;
@@ -136,7 +152,12 @@ describe('default arena corners', () => {
     const blockedEverywhere = [0.1, 0.5, 0.9].every((f) => {
       const x = (2 + f) * tile;
       return (
-        firstRoundedRectHit({ x, y: 3.5 * tile }, { x, y: 5.5 * tile }, arena.islandRects, 5) === 0
+        firstRoundedRectHit(
+          { x, y: 3.5 * tile },
+          { x, y: 5.5 * tile },
+          pocketArena.islandRects,
+          5,
+        ) === 0
       );
     });
     expect(blockedEverywhere).toBe(true);
@@ -144,7 +165,7 @@ describe('default arena corners', () => {
     const t = firstRoundedRectHit(
       { x: 5 * tile, y: 4 * tile + 1 },
       { x: 3 * tile, y: 4 * tile + 1 },
-      arena.islandRects,
+      pocketArena.islandRects,
       5,
     );
     expect(t).not.toBeNull();

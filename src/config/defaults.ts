@@ -40,7 +40,8 @@ export const DEFAULT_GAME_CONFIG: GameConfig = cloneDeepFrozen<GameConfig>({
       hull: HULL,
     },
   },
-  playerSpawn: { x: 512, y: 448, headingDeg: -90 },
+  // Open water between the three islands (ARENA_MAP), facing north.
+  playerSpawn: { x: 448, y: 288, headingDeg: -90 },
   weapons: {
     front: {
       damage: 20,

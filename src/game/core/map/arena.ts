@@ -87,8 +87,11 @@ export function buildArena(
       top: sideIsShore(above),
       bottom: sideIsShore(below),
     };
+    // Outside the grid counts as open here: the art draws a rounded shore there too.
+    const open = (col: number, row: number): boolean =>
+      col < 0 || row < 0 || col >= cols || row >= rows || isWater(col, row);
     const round = (a: [number, number], b: [number, number]): number =>
-      isWater(...a) && isWater(...b) ? cornerRadius : 0;
+      open(...a) && open(...b) ? cornerRadius : 0;
     const last = { col: r.col1 - 1, row: r.row1 - 1 };
     return {
       minX: r.col0 * tileSize + (shore.left ? inset : 0),

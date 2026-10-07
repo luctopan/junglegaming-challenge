@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SQUARE_CORNERS } from '../geometry';
+import { POCKET_MAP } from '../testing/maps';
 import { buildArena, cellCenter, cellIndexAt } from './arena';
 import { ARENA_MAP } from './arenaMap';
 import { validateMap } from './validateMap';
@@ -85,12 +86,12 @@ describe('buildArena', () => {
     expect(arena.width).toBe(1024);
     expect(arena.height).toBe(576);
     expect(arena.water.filter((w) => !w)).toHaveLength(ARENA_MAP.join('').split('#').length - 1);
-    // U island top bar spans rows 2–3, cols 2–7.
+    // Left island: cols 2–5, rows 2–5, one rect.
     expect(arena.islandRects).toContainEqual({
       minX: 128,
       minY: 128,
-      maxX: 512,
-      maxY: 256,
+      maxX: 384,
+      maxY: 384,
       radii: SQUARE_CORNERS,
     });
     const area = arena.islandRects.reduce((s, r) => s + (r.maxX - r.minX) * (r.maxY - r.minY), 0);
@@ -111,7 +112,7 @@ describe('buildArena', () => {
       },
     ]);
     // Two rects of the same island: the shared edge is not inset (no gap opens).
-    const arena = buildArena(ARENA_MAP, 64, 8);
+    const arena = buildArena(POCKET_MAP, 64, 8);
     const bar = arena.islandRects.find((r) => r.minY === 128 + 8);
     const leftArm = arena.islandRects.find((r) => r.minX === 128 + 8 && r.minY === 256);
     expect(bar?.maxY).toBe(256 - 0);

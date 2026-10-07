@@ -2,6 +2,7 @@ import { DEFAULT_GAME_CONFIG } from '../../../config/defaults';
 import type { GameConfig } from '../../../config/gameConfig';
 import type { Vec2 } from '../../../shared/math/vec2';
 import type { MatchOptions } from '../createMatch';
+import { POCKET_MAP } from './maps';
 import { createMatch } from '../createMatch';
 import type { DomainEvent } from '../events';
 import { addShip } from '../ships';
@@ -10,6 +11,16 @@ import type { PlayerInput, Ship, ShipKind, World } from '../types';
 import { IDLE_INPUT } from '../types';
 
 export type Mutable<T> = { -readonly [K in keyof T]: Mutable<T[K]> };
+
+/**
+ * Player spawn of isolated system tests: clear water on both test maps, so those
+ * tests do not move whenever the real map (and its spawn point) is redesigned.
+ */
+export const SYSTEM_TEST_SPAWN: GameConfig['playerSpawn'] = Object.freeze({
+  x: 512,
+  y: 448,
+  headingDeg: -90,
+});
 
 /** Deep copy of the defaults with a test-specific tweak applied. */
 export function configWith(
@@ -20,12 +31,20 @@ export function configWith(
   return cfg;
 }
 
-/** A match without automatic spawns, for isolated system tests. */
+/**
+ * A match without automatic spawns, for isolated system tests: on
+ * `POCKET_MAP` (unless `options.map` says otherwise) with the player at
+ * `SYSTEM_TEST_SPAWN`, independent of the real arena layout.
+ */
 export function quietWorld(
   cfg: GameConfig = DEFAULT_GAME_CONFIG,
   options: MatchOptions = {},
 ): World {
-  return createMatch(cfg, 1, { spawnEnemies: false, ...options });
+  return createMatch({ ...cfg, playerSpawn: SYSTEM_TEST_SPAWN }, 1, {
+    spawnEnemies: false,
+    map: POCKET_MAP,
+    ...options,
+  });
 }
 
 export const place = (world: World, kind: ShipKind, pos: Vec2, heading = 0): Ship =>
