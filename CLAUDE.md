@@ -119,6 +119,13 @@ assert effects.
   `pnpm test` (unit) and the relevant Playwright specs.
 - Commit at the end of each phase with Conventional Commits
   (`feat(game): ...`, `test(e2e): ...`). Small, reviewable commits.
+- **Push at the end of each phase** (explicitly authorized by the developer;
+  it is not a remote-settings change): once all checks pass and everything is
+  committed, run `git push origin main`. If the GitHub CLI (`gh`) is available
+  and authenticated, wait for the triggered CI run (`gh run watch`) and report
+  its result; if it fails, report the failing step with a log excerpt and stop
+  (no further pushes, no force-push). Without `gh`, report the pushed commit
+  hash. Never push work-in-progress, never force-push, never rewrite history.
 - Keep `ARCHITECTURE.md`, `README.md` and `docs/DECISIONS.md` updated as you go,
   not only at the end.
 - **Never deploy, never run `vercel`/`netlify` commands, never create accounts

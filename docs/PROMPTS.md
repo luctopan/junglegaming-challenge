@@ -69,7 +69,10 @@ Read CLAUDE.md, docs/PLAN.md and the "Phase N" section. Implement Phase N only.
 - Update ARCHITECTURE.md / README.md sections affected, and tick the
   delivered items in docs/PLAN.md.
 - Commit with Conventional Commits.
-- End with: what was done, what is pending, any spec requirement at risk.
+- Push to origin and check CI as described in CLAUDE.md ("Push at the end
+  of each phase").
+- End with: what was done, what is pending, any spec requirement at risk,
+  and the CI result (or the pushed commit hash).
 ```
 
 ### Extra notes per phase (append to the prompt above)
