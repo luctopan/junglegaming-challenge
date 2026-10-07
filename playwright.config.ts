@@ -1,6 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 4173;
+/** Vite dev server: only for specs that need development-only React behaviour (Strict Mode). */
+const DEV_PORT = 5174;
+// Anchored on tests/e2e: a bare 'dev/**' glob would also match a checkout under a "dev" folder.
+const DEV_SPECS = /tests[\\/]e2e[\\/]dev[\\/][^\\/]+\.spec\.ts$/;
 const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
@@ -23,19 +27,41 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop-chromium',
+      testIgnore: DEV_SPECS,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } },
     },
     {
       // Gameplay is landscape-only on mobile (docs/DECISIONS.md).
       name: 'mobile-chromium',
+      testIgnore: DEV_SPECS,
       use: { ...devices['Pixel 7 landscape'] },
     },
+    {
+      // React Strict Mode double-mounts only in development builds.
+      name: 'dev-strict-mode',
+      testMatch: DEV_SPECS,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
+        baseURL: `http://localhost:${DEV_PORT}`,
+      },
+    },
   ],
-  // E2E runs against the production bundle, MSW included.
-  webServer: {
-    command: 'pnpm e2e:serve',
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !isCI,
-    timeout: 180_000,
-  },
+  webServer: [
+    {
+      // Everything else runs against the production bundle, MSW included.
+      command: 'pnpm e2e:serve',
+      url: `http://localhost:${PORT}`,
+      reuseExistingServer: !isCI,
+      timeout: 180_000,
+    },
+    {
+      // No assets:build here: running it alongside e2e:serve would race on public/assets/,
+      // and Playwright starts the tests only once both servers (and that build) are up.
+      command: `pnpm e2e:dev --port ${DEV_PORT} --strictPort`,
+      url: `http://localhost:${DEV_PORT}`,
+      reuseExistingServer: !isCI,
+      timeout: 180_000,
+    },
+  ],
 });
