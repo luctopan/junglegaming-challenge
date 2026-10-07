@@ -14,8 +14,14 @@ export type AssetStatus =
 
 export type SessionPhase = 'loading' | 'running' | 'paused' | 'ended';
 
-/** Who paused: the player, or the game itself (window blurred, tab hidden). */
-export type PauseReason = 'manual' | 'blur' | 'hidden';
+/**
+ * Who paused: the player, or the game itself (window blurred, tab hidden,
+ * touch device turned to portrait).
+ */
+export type PauseReason = 'manual' | 'blur' | 'hidden' | 'portrait';
+
+/** Colour band of the player's HP, as drawn by the in-world bar. */
+export type HpTone = 'green' | 'amber' | 'red';
 
 export interface MatchSnapshot {
   readonly score: number;
@@ -23,7 +29,10 @@ export interface MatchSnapshot {
   readonly secondsLeft: number;
   readonly hp: number;
   readonly maxHp: number;
+  readonly hpTone: HpTone;
   readonly endReason: EndReason | null;
+  /** Effective (unpaused) play time, set once the match has ended; null before. */
+  readonly durationMs: number | null;
 }
 
 export interface GameSnapshot {
@@ -68,7 +77,9 @@ const sameMatch = (a: MatchSnapshot | null, b: MatchSnapshot): boolean =>
   a.secondsLeft === b.secondsLeft &&
   a.hp === b.hp &&
   a.maxHp === b.maxHp &&
-  a.endReason === b.endReason;
+  a.hpTone === b.hpTone &&
+  a.endReason === b.endReason &&
+  a.durationMs === b.durationMs;
 
 /** Loading progress in whole percent, so the bar re-renders at most 100 times. */
 export const toPercent = (progress: number): number =>

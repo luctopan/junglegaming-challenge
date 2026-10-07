@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { MatchSnapshot } from '../../game/bridge/gameStore';
-import styles from './GameScreen.module.css';
+import { Button } from '../components/Button';
+import { Dialog } from '../components/Dialog';
+import screen from '../screens/screen.module.css';
 
 interface MatchEndPanelProps {
   readonly match: MatchSnapshot;
@@ -8,33 +10,23 @@ interface MatchEndPanelProps {
   readonly onMainMenu: () => void;
 }
 
-/** Temporary end-of-match panel; the Result screen with submission status is Phase 4/5. */
+/** Temporary end-of-match panel; replaced by the Result screen in the next step. */
 export function MatchEndPanel({ match, onPlayAgain, onMainMenu }: MatchEndPanelProps) {
   const playAgainRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    playAgainRef.current?.focus();
-  }, []);
-
   return (
-    <div className={styles.backdrop}>
-      <section
-        className={styles.overlay}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="end-title"
-      >
-        <h2 id="end-title">{match.endReason === 'defeated' ? 'Your ship sank' : "Time's up"}</h2>
-        <p>
-          Score: <span data-testid="end-score">{match.score}</span>
-        </p>
-        <button ref={playAgainRef} type="button" className={styles.button} onClick={onPlayAgain}>
+    <Dialog labelledBy="end-title" initialFocus={playAgainRef}>
+      <h2 id="end-title" className={screen.heading}>
+        {match.endReason === 'defeated' ? 'Your ship sank' : "Time's up"}
+      </h2>
+      <p className={screen.text}>
+        Score: <span data-testid="end-score">{match.score}</span>
+      </p>
+      <div className={screen.actions}>
+        <Button ref={playAgainRef} onClick={onPlayAgain}>
           Play again
-        </button>
-        <button type="button" className={styles.button} onClick={onMainMenu}>
-          Main menu
-        </button>
-      </section>
-    </div>
+        </Button>
+        <Button onClick={onMainMenu}>Main menu</Button>
+      </div>
+    </Dialog>
   );
 }

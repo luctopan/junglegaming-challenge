@@ -1,16 +1,25 @@
 import { useRef, useState } from 'react';
-import styles from './GameScreen.module.css';
+import { BrandLogo } from '../app/Backdrop';
+import { Button } from '../components/Button';
+import { Panel } from '../components/Panel';
+import { RoundButton } from '../components/RoundButton';
+import { SoundToggle } from '../components/SoundToggle';
+import screen from '../screens/screen.module.css';
+import { audioStore, optionsStore, usePersistedValue } from '../state/settings';
 import { Hud } from './Hud';
 import { MatchEndPanel } from './MatchEndPanel';
-import { optionsStore } from '../state/settings';
 import { matchConfig } from './matchConfig';
 import { PauseDialog } from './PauseDialog';
 import { TouchControls } from './TouchControls';
 import { useGameSession } from './useGameSession';
+import styles from './GameScreen.module.css';
 
 interface GameScreenProps {
   readonly onExit: () => void;
 }
+
+/** Config for a new match from the Options saved right now. */
+const nextMatchConfig = () => matchConfig(optionsStore.getSnapshot().value);
 
 /**
  * Arena canvas, the loading/failure states that must resolve before combat
@@ -20,84 +29,115 @@ interface GameScreenProps {
 export function GameScreen({ onExit }: GameScreenProps) {
   const screenRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  // The config snapshot of this match: later Options changes apply to the next one.
-  const [config] = useState(() => matchConfig(optionsStore.getSnapshot().value));
+  // The first match's config snapshot: later Options changes apply to the next match.
+  const [config] = useState(nextMatchConfig);
+  const { muted } = usePersistedValue(audioStore);
   const { snapshot, retryAssets, pause, resume, restart } = useGameSession(
     containerRef,
     screenRef,
-    config,
+    { config, muted },
   );
   const { assets, failure, phase, pauseReason, match } = snapshot;
   const inMatch = failure === null && match !== null && phase !== 'loading';
+  const playing = phase === 'running' || phase === 'paused';
 
   return (
     <main ref={screenRef} className={styles.screen}>
       <div ref={containerRef} className={styles.arena} data-testid="arena" />
+      <BrandLogo className={styles.logo} />
 
       {inMatch ? (
         <>
           <Hud match={match} />
-          {phase === 'running' || phase === 'paused' ? <TouchControls /> : null}
-          {phase === 'running' ? (
-            <button
-              type="button"
-              className={`${styles.button} ${styles.pause}`}
-              aria-label="Pause"
-              onClick={pause}
-            >
-              <span aria-hidden="true">❚❚</span>
-            </button>
+          {playing ? (
+            <>
+              <TouchControls />
+              <div className={styles.corner}>
+                <SoundToggle />
+                <RoundButton
+                  label="Pause"
+                  icon={{ atlas: 'pause' }}
+                  aria-haspopup="dialog"
+                  onClick={() => {
+                    pause();
+                  }}
+                />
+              </div>
+            </>
           ) : null}
           {phase === 'paused' && pauseReason !== null ? (
             <PauseDialog reason={pauseReason} onResume={resume} onMainMenu={onExit} />
           ) : null}
           {phase === 'ended' ? (
-            <MatchEndPanel match={match} onPlayAgain={restart} onMainMenu={onExit} />
+            <MatchEndPanel
+              match={match}
+              onPlayAgain={() => {
+                restart(nextMatchConfig());
+              }}
+              onMainMenu={onExit}
+            />
           ) : null}
         </>
-      ) : failure !== null ? (
-        <section className={styles.overlay} role="alert">
-          <h2>The game could not start</h2>
-          <p>{failure}</p>
-          <ExitButton onExit={onExit} />
-        </section>
-      ) : assets.kind === 'error' ? (
-        <section className={styles.overlay} role="alert" aria-labelledby="assets-error-title">
-          <h2 id="assets-error-title">Could not load the game assets</h2>
-          <p>Check your connection and try again. The battle starts once everything is loaded.</p>
-          <button type="button" className={styles.button} onClick={retryAssets}>
-            Retry
-          </button>
-          <ExitButton onExit={onExit} />
-        </section>
       ) : (
-        <section className={styles.overlay} aria-labelledby="loading-title">
-          <h2 id="loading-title">Loading the fleet…</h2>
-          <div
-            className={styles.progress}
-            role="progressbar"
-            aria-labelledby="loading-title"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={assets.kind === 'loading' ? assets.percent : 100}
-          >
-            <div
-              className={styles.progressFill}
-              style={{ width: `${assets.kind === 'loading' ? assets.percent : 100}%` }}
-            />
-          </div>
-          <p className={styles.percent}>{assets.kind === 'loading' ? assets.percent : 100}%</p>
-          <ExitButton onExit={onExit} />
-        </section>
+        <div className={styles.overlay}>
+          {failure !== null ? (
+            <Panel role="alert" aria-labelledby="failure-title">
+              <h2 id="failure-title" className={screen.heading}>
+                The game could not start
+              </h2>
+              <p className={screen.text}>{failure}</p>
+              <ExitButton onExit={onExit} />
+            </Panel>
+          ) : assets.kind === 'error' ? (
+            <Panel role="alert" aria-labelledby="assets-error-title">
+              <h2 id="assets-error-title" className={screen.heading}>
+                Could not load the game assets
+              </h2>
+              <p className={screen.text}>
+                Check your connection and try again. The battle starts once everything is loaded.
+              </p>
+              <div className={screen.actions}>
+                <Button onClick={retryAssets}>Retry</Button>
+                <ExitButton onExit={onExit} />
+              </div>
+            </Panel>
+          ) : (
+            <Panel aria-labelledby="loading-title">
+              <h2 id="loading-title" className={screen.heading}>
+                Loading the fleet…
+              </h2>
+              <LoadingBar percent={assets.kind === 'loading' ? assets.percent : 100} />
+              <ExitButton onExit={onExit} />
+            </Panel>
+          )}
+        </div>
       )}
     </main>
   );
 }
 
+function LoadingBar({ percent }: { readonly percent: number }) {
+  return (
+    <>
+      <div
+        className={styles.progress}
+        role="progressbar"
+        aria-labelledby="loading-title"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+      >
+        <div className={styles.progressFill} style={{ width: `${percent}%` }} />
+      </div>
+      <p className={`${screen.text} ${styles.percent}`}>{percent}%</p>
+    </>
+  );
+}
+
 function ExitButton({ onExit }: { readonly onExit: () => void }) {
   return (
-    <button type="button" className={styles.button} onClick={onExit}>
+    <Button variant="secondary" size="small" onClick={onExit}>
       Main menu
-    </button>
+    </Button>
   );
 }

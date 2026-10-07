@@ -130,3 +130,46 @@ test.describe('pause', () => {
     expect(simulated).toBeLessThanOrEqual(wallSeconds + 0.05);
   });
 });
+
+test.describe('pause menu', () => {
+  test('Options from the pause menu apply only to the next match', async ({ page, openApp }) => {
+    await openMatch(page, openApp);
+    await advance(page, 1000);
+    const pauseButton = page.getByRole('button', { name: 'Pause' });
+    await pauseButton.click();
+    const dialog = page.getByRole('dialog', { name: 'Paused' });
+    await dialog.getByRole('button', { name: 'Options' }).click();
+
+    const options = page.getByRole('dialog', { name: 'Options' });
+    await expect(options).toContainText('Changes apply to the next battle');
+    const session = options.getByRole('spinbutton', { name: 'Game session time' });
+    await session.focus();
+    await page.keyboard.press('Home');
+    await expect(session).toHaveAttribute('aria-valuenow', '60');
+
+    // Escape goes back to the pause menu, onto the Options button.
+    await page.keyboard.press('Escape');
+    await expect(dialog.getByRole('button', { name: 'Options' })).toBeFocused();
+    await dialog.getByRole('button', { name: 'Resume' }).click();
+    await expect(pauseButton).toBeFocused();
+    await advance(page, 1000);
+    // The running match keeps its 120 s snapshot.
+    expect((await snapshot(page)).timeLeftSeconds).toBeCloseTo(118, 0);
+
+    await pauseButton.click();
+    await page.getByRole('button', { name: 'Main menu' }).click();
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
+    await expect.poll(async () => (await snapshot(page).catch(() => null))?.phase).toBe('running');
+    expect((await snapshot(page)).timeLeftSeconds).toBe(60);
+  });
+
+  test('Back in the pause Options returns to the pause menu', async ({ page, openApp }) => {
+    await openMatch(page, openApp);
+    await page.keyboard.press('KeyP');
+    await page.getByRole('button', { name: 'Options' }).click();
+    await page.getByRole('button', { name: 'Back' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Paused' });
+    await expect(dialog.getByRole('button', { name: 'Options' })).toBeFocused();
+    expect((await snapshot(page)).phase).toBe('paused');
+  });
+});

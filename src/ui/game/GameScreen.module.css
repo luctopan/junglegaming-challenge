@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: var(--color-bg);
+  background: var(--color-backdrop);
 }
 
 .arena {
@@ -14,33 +14,25 @@
 
 .overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   display: grid;
-  gap: 0.75rem;
-  width: min(26rem, calc(100% - 2rem));
-  padding: 1.5rem;
-  transform: translate(-50%, -50%);
-  border-radius: 0.75rem;
-  background: rgb(11 42 60 / 92%);
-  text-align: center;
-}
-
-.overlay h2,
-.overlay p {
-  margin: 0;
+  place-items: center;
+  padding: var(--gutter);
+  background: var(--color-scrim);
 }
 
 .progress {
-  height: 0.75rem;
+  width: min(100%, 320px);
+  height: 14px;
   overflow: hidden;
+  border: 2px solid #8a5a2b;
   border-radius: 999px;
-  background: rgb(253 246 227 / 20%);
+  background: var(--color-row);
 }
 
 .progressFill {
   height: 100%;
-  background: #6cc24a;
+  background: linear-gradient(#8ee06a, #3f9a2c);
   transition: width 120ms linear;
 }
 
@@ -48,103 +40,65 @@
   font-variant-numeric: tabular-nums;
 }
 
-.button {
-  justify-self: center;
-  padding: 0.5rem 1.25rem;
-  border: 2px solid #fdf6e3;
-  border-radius: 0.5rem;
-  background: #8a4b1c;
-  color: #fdf6e3;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.button:focus-visible {
-  outline: 3px solid #ffd54a;
-  outline-offset: 2px;
-}
-
-.backdrop {
+/* Sound and pause, top right (the mockup's pause button). */
+.corner {
   position: absolute;
-  inset: 0;
-  background: rgb(4 18 28 / 55%);
-}
-
-/* Temporary HUD (Phase 4 restyles it with the UI atlas, as in the mockup). */
-.hud {
-  position: absolute;
-  top: max(0.75rem, env(safe-area-inset-top));
-  left: max(0.75rem, env(safe-area-inset-left));
+  top: max(var(--gutter), env(safe-area-inset-top));
+  right: max(var(--gutter), env(safe-area-inset-right));
   display: flex;
-  gap: 0.5rem;
-  pointer-events: none;
+  gap: calc(10px * var(--ui-scale));
 }
 
-.hudItem {
-  margin: 0;
-  padding: 0.3rem 0.75rem;
-  border-radius: 0.5rem;
-  background: rgb(11 42 60 / 85%);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.logo {
+  opacity: 0.9;
 }
 
-.hudLabel {
-  opacity: 0.8;
-  font-size: 0.8em;
-  text-transform: uppercase;
+/* On touch devices the logo sits above the cannon buttons, as in the mockup. */
+@media (pointer: coarse) {
+  .logo {
+    bottom: calc(var(--gutter) + 150px * var(--ui-scale) + 24px);
+  }
 }
 
-.pause {
-  position: absolute;
-  top: max(0.75rem, env(safe-area-inset-top));
-  right: max(0.75rem, env(safe-area-inset-right));
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+/* Hold-to-act controls: shown where touch is the primary input (phones, tablets). */
+.touchControls {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .touchControls {
+    display: contents;
+  }
 }
 
 .controlPad {
   position: absolute;
-  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  bottom: max(var(--gutter), env(safe-area-inset-bottom));
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: calc(12px * var(--ui-scale));
 }
 
 .steering {
-  left: max(0.75rem, env(safe-area-inset-left));
+  left: max(var(--gutter), env(safe-area-inset-left));
 }
 
 .cannons {
-  right: max(0.75rem, env(safe-area-inset-right));
+  right: max(var(--gutter), env(safe-area-inset-right));
 }
 
 /* The middle control sits higher, as in the mockup. */
 .controlPad > :nth-child(2) {
-  margin-bottom: 2.25rem;
+  margin-bottom: calc(44px * var(--ui-scale) + 8px);
 }
 
 .control {
-  width: 3.5rem;
-  height: 3.5rem;
-  border: 3px solid #e2a54a;
-  border-radius: 50%;
-  background: rgb(91 50 18 / 88%);
-  color: #fdf6e3;
-  font: inherit;
-  font-size: 1.4rem;
-  font-weight: 700;
-  cursor: pointer;
   /* Hold-to-act: no scrolling, zooming, text selection or long-press callout. */
   touch-action: none;
-  user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .control[data-pressed='true'] {
-  background: #c97a2a;
   transform: scale(0.94);
 }

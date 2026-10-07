@@ -1,7 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createGameStore, toPercent } from './gameStore';
 
-const match = { score: 0, secondsLeft: 120, hp: 200, maxHp: 200, endReason: null };
+const match = {
+  score: 0,
+  secondsLeft: 120,
+  hp: 200,
+  maxHp: 200,
+  hpTone: 'green',
+  endReason: null,
+  durationMs: null,
+} as const;
 
 describe('gameStore', () => {
   it('notifies subscribers only when a displayed value changes', () => {

@@ -81,7 +81,7 @@ test.describe('abandon and restart', () => {
     expect(restarted).toEqual({ ...fresh, phase: 'running' });
     expect(restarted.enemies).toEqual([]);
     expect(restarted.projectiles).toEqual([]);
-    await expect(page.getByTestId('hud-time')).toHaveText('2:00');
+    await expect(page.getByTestId('hud-time')).toHaveText('02:00');
 
     const secondMatch = await resources(page);
     for (const key of [

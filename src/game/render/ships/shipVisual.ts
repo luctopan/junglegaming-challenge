@@ -1,6 +1,6 @@
 import type { ShipKind } from '../../core';
 import { damageStage } from '../../core';
-import type { BarFill, HpBarArt } from '../theme';
+import type { BarFill, HpBarArt, HpTone } from '../theme';
 import { HP_BARS, SHIP_ART } from '../theme';
 
 /** Atlas frame for a ship of `kind` at damage `stage` (clamped to the stages the art has). */
@@ -24,6 +24,10 @@ export function hpFill(art: HpBarArt, ratio: number): BarFill {
   if (fallback === undefined) throw new Error(`HP bar ${art.frame} has no fills`);
   return art.fills.find((fill) => ratio > fill.minRatio) ?? fallback;
 }
+
+/** Tone of the player's HP bar, for the HUD bar drawn by the UI. */
+export const playerHpTone = (hp: number, maxHp: number): HpTone =>
+  hpFill(HP_BARS.player, maxHp > 0 ? hp / maxHp : 0).tone;
 
 /** HP ratio quantised to whole pixels of the fill, so bars only redraw on visible change. */
 export function hpBarPixels(ratio: number, fillWidth: number): number {

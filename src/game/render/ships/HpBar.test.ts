@@ -4,7 +4,7 @@ import { resourceCounts } from '../../../platform/resourceCounters';
 import { FAKE_FILL_LAYOUT, fakeAtlas } from '../testing.test-support';
 import { HP_BARS } from '../theme';
 import { HpBar } from './HpBar';
-import { hpBarArt, hpBarPixels, hpFill, shipFrame } from './shipVisual';
+import { hpBarArt, hpBarPixels, hpFill, playerHpTone, shipFrame } from './shipVisual';
 
 const fillSprite = (bar: HpBar): Sprite => bar.view.children[1] as Sprite;
 
@@ -74,6 +74,12 @@ describe('ship visuals', () => {
   it('uses green/amber/red for the player and always red for enemies (mockup)', () => {
     const player = hpBarArt('player');
     expect(hpFill(player, 0.8).frame).toBe('health_fill_green');
+    expect([playerHpTone(200, 200), playerHpTone(100, 200), playerHpTone(50, 200)]).toEqual([
+      'green',
+      'amber',
+      'red',
+    ]);
+    expect(playerHpTone(0, 0)).toBe('red');
     expect(hpFill(player, 0.5).frame).toBe('health_fill_amber');
     expect(hpFill(player, 0.2).frame).toBe('health_fill_red');
     const enemy = hpBarArt('chaser');

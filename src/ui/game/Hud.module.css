@@ -1,0 +1,105 @@
+/*
+ * HUD over the arena (assets/sample.png). Sizes follow the art: health_frame
+ * 256×48, counter_panel 160×56, scaled by --hud-scale; the HUD never takes
+ * pointer events, so it cannot block the arena or the controls under it.
+ */
+.hud {
+  --hud-scale: max(0.62, var(--ui-scale));
+  position: absolute;
+  top: max(var(--gutter), env(safe-area-inset-top));
+  left: max(var(--gutter), env(safe-area-inset-left));
+  /* Leaves room on the right for the sound and pause buttons. */
+  right: calc(max(var(--gutter), env(safe-area-inset-right)) + 120px * var(--hud-scale));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12px * var(--hud-scale));
+  pointer-events: none;
+  user-select: none;
+}
+
+.health {
+  display: flex;
+  align-items: center;
+  gap: calc(4px * var(--hud-scale));
+}
+
+.heart {
+  font-size: calc(40px * var(--hud-scale));
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 45%));
+}
+
+.bar {
+  position: relative;
+  width: calc(256px * var(--hud-scale));
+  aspect-ratio: 256 / 48;
+  background: center / 100% 100% no-repeat;
+  background-image: image-set(
+    url('../../../assets/png/default/ui/hud/health_frame.png') 1x,
+    url('../../../assets/png/retina/ui/hud/health_frame.png') 2x
+  );
+}
+
+/* Same box as the frame: the fill art is drawn in frame coordinates, then clipped. */
+.fill {
+  position: absolute;
+  inset: 0;
+  background: center / 100% 100% no-repeat;
+  transition: clip-path 160ms ease-out;
+}
+
+/* Centred on the fill_rect (30,15,196,20 of 256×48). */
+.hpText {
+  position: absolute;
+  top: calc(15 / 48 * 100%);
+  left: calc(30 / 256 * 100%);
+  width: calc(196 / 256 * 100%);
+  height: calc(20 / 48 * 100%);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: max(11px, calc(17px * var(--hud-scale)));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  /* Dark outline: readable over green, amber, red and the empty frame alike. */
+  text-shadow:
+    0 0 2px #000,
+    0 1px 2px #000,
+    0 0 4px rgb(0 0 0 / 80%);
+}
+
+.counters {
+  display: flex;
+  gap: calc(14px * var(--hud-scale));
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10px * var(--hud-scale));
+  width: calc(160px * 0.85 * var(--hud-scale));
+  aspect-ratio: 160 / 56;
+  margin: 0;
+  padding-bottom: calc(2px * var(--hud-scale));
+  background: center / 100% 100% no-repeat;
+  background-image: image-set(
+    url('../../../assets/png/default/ui/hud/counter_panel.png') 1x,
+    url('../../../assets/png/retina/ui/hud/counter_panel.png') 2x
+  );
+  color: var(--color-text);
+  font-size: max(13px, calc(22px * var(--hud-scale)));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.counterIcon {
+  font-size: calc(24px * var(--hud-scale));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+}

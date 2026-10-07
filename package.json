@@ -11,6 +11,7 @@
     "assets:build": "node scripts/build-atlases.mjs",
     "balance": "node scripts/balance.ts",
     "sandbox:shots": "pnpm assets:build && node scripts/sandbox-shots.mjs",
+    "ui:shots": "pnpm assets:build && node scripts/ui-shots.mjs",
     "dev": "pnpm assets:build && vite",
     "build": "pnpm assets:build && tsc -b && vite build && node scripts/verify-dist.mjs",
     "preview": "vite preview",

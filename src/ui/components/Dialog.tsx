@@ -15,6 +15,13 @@ interface DialogProps {
    * dialog uses it for its own resume rules.
    */
   readonly onEscape?: ((event: ReactKeyboardEvent) => void) | undefined;
+  /**
+   * Where focus goes when the dialog closes. Default: the element focused when
+   * it opened. `null`: leave focus alone (the next view manages it).
+   */
+  readonly returnFocusTo?: HTMLElement | null | undefined;
+  /** Runs first for every key; preventing the default skips the dialog's own handling. */
+  readonly onKeyDown?: ((event: ReactKeyboardEvent) => void) | undefined;
   readonly size?: 'menu' | 'wide';
   readonly className?: string | undefined;
   readonly children: ReactNode;
@@ -30,6 +37,8 @@ export function Dialog({
   describedBy,
   initialFocus,
   onEscape,
+  onKeyDown: onKey,
+  returnFocusTo,
   size = 'menu',
   className,
   children,
@@ -39,16 +48,19 @@ export function Dialog({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (dialog === null) return;
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const opener = returnFocusTo === undefined ? active : returnFocusTo;
     const target = initialFocus?.current ?? focusableIn(dialog)[0] ?? dialog;
     target.focus();
     return () => {
       // Back to the opener if it is still on screen (e.g. not when the screen changed).
       if (opener?.isConnected === true) opener.focus();
     };
-  }, [initialFocus]);
+  }, [initialFocus, returnFocusTo]);
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLElement>): void => {
+    onKey?.(event);
+    if (event.defaultPrevented) return;
     // Handled by the innermost dialog only (a dialog may open over another one).
     if (event.key === 'Escape' && onEscape !== undefined) {
       event.stopPropagation();

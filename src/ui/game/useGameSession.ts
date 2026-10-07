@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import type { GameConfig } from '../../config/gameConfig';
-import type { GameSnapshot, GameStore } from '../../game/bridge/gameStore';
+import type { GameSnapshot, GameStore, PauseReason } from '../../game/bridge/gameStore';
 import { createGameStore } from '../../game/bridge/gameStore';
 import type { GameSession } from '../../game/runtime';
 import { createGameSession } from '../../game/runtime';
@@ -13,10 +13,16 @@ export const ASSET_BASE_PATH = `${import.meta.env.BASE_URL}assets/`;
 export interface GameSessionHandle {
   readonly snapshot: GameSnapshot;
   readonly retryAssets: () => void;
-  readonly pause: () => void;
+  readonly pause: (reason?: PauseReason) => void;
   readonly resume: () => void;
-  /** New match with a new seed on the same canvas. */
-  readonly restart: () => void;
+  /** New match with a new seed and `config` (the current Options) on the same canvas. */
+  readonly restart: (config: GameConfig) => void;
+}
+
+interface SessionSettings {
+  /** Config snapshot of the first match. */
+  readonly config: GameConfig;
+  readonly muted: boolean;
 }
 
 /**
@@ -29,10 +35,12 @@ export interface GameSessionHandle {
 export function useGameSession(
   containerRef: RefObject<HTMLDivElement | null>,
   controlsRef: RefObject<HTMLElement | null>,
-  config: GameConfig,
+  { config, muted }: SessionSettings,
 ): GameSessionHandle {
   const [store] = useState<GameStore>(createGameStore);
   const sessionRef = useRef<GameSession | null>(null);
+  // Read when the session is created; later changes go through setMuted below.
+  const mutedRef = useRef(muted);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -44,6 +52,7 @@ export function useGameSession(
       config,
       seed: randomSeed(),
       assetBasePath: ASSET_BASE_PATH,
+      muted: mutedRef.current,
     });
     sessionRef.current = session;
     return () => {
@@ -52,12 +61,17 @@ export function useGameSession(
     };
   }, [containerRef, controlsRef, store, config]);
 
+  useEffect(() => {
+    mutedRef.current = muted;
+    sessionRef.current?.setMuted(muted);
+  }, [muted]);
+
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
   return {
     snapshot,
     retryAssets: () => sessionRef.current?.retryAssets(),
-    pause: () => sessionRef.current?.pause('manual'),
+    pause: (reason = 'manual') => sessionRef.current?.pause(reason),
     resume: () => sessionRef.current?.resume(),
-    restart: () => sessionRef.current?.restart(randomSeed()),
+    restart: (nextConfig) => sessionRef.current?.restart(randomSeed(), nextConfig),
   };
 }

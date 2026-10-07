@@ -16,6 +16,7 @@ import {
   createAudioEngine,
   fitViewport,
   loadCombatAssets,
+  playerHpTone,
   preferredTextureResolution,
   WorldRenderer,
 } from '../render';
@@ -55,8 +56,12 @@ export interface GameSession {
   pause(reason?: PauseReason): void;
   /** Resumes a paused match. Only an explicit player action may call this. */
   resume(): void;
-  /** Fresh match on the same canvas: new world, time, input and pause state. */
-  restart(seed?: number): void;
+  /**
+   * Fresh match on the same canvas: new world, time, input and pause state.
+   * `config` replaces the session's config for this and later matches (the
+   * player may have changed Options since the last one).
+   */
+  restart(seed?: number, config?: GameConfig): void;
   setMuted(muted: boolean): void;
   /** Top layer in world coordinates for dev overlays; null until the arena is shown. */
   readonly overlay: Container | null;
@@ -111,7 +116,8 @@ function countDisplayObjects(root: Container): number {
  * exists for it, so it can never be recorded.
  */
 export function createGameSession(options: GameSessionOptions): GameSession {
-  const { container, store, config, assetBasePath } = options;
+  const { container, store, assetBasePath } = options;
+  let { config } = options;
   const overrides = testControls();
   const clock = overrides?.manualClock ?? options.clock ?? realClock;
   // Test manual clock: frames are rendered on demand (renderPolicy.ts).
@@ -143,12 +149,16 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   const publish = (): void => {
     const { world } = driver;
     const player = getPlayer(world);
+    const ended = world.phase === 'ended';
     store.publishMatch({
       score: world.score,
       secondsLeft: Math.ceil(timeLeftSeconds(world)),
       hp: Math.ceil(player.hp),
       maxHp: player.maxHp,
+      hpTone: playerHpTone(player.hp, player.maxHp),
       endReason: world.endReason,
+      // Only once ended: a running value would change every step.
+      durationMs: ended ? Math.round(world.elapsedSeconds * MS_PER_SECOND) : null,
     });
     store.setPhase(driver.state, driver.pauseReason);
   };
@@ -355,8 +365,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       publish();
       syncTicker();
     },
-    restart(seed) {
+    restart(seed, nextConfig) {
       if (abort.signal.aborted) return;
+      if (nextConfig !== undefined) config = nextConfig;
       // A test seed wins over the UI's random one, so replays stay deterministic.
       driver = newDriver(testControls()?.seed ?? seed ?? options.seed);
       touch?.releaseAll();

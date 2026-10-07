@@ -1,14 +1,19 @@
-import { useEffect, useRef } from 'react';
+import type { KeyboardEvent } from 'react';
+import { useRef, useState } from 'react';
 import type { PauseReason } from '../../game/bridge/gameStore';
-import styles from './GameScreen.module.css';
+import { Button } from '../components/Button';
+import { Dialog } from '../components/Dialog';
+import { OptionsPanel } from '../screens/options/OptionsPanel';
+import screen from '../screens/screen.module.css';
 
 const MESSAGES: Readonly<Record<PauseReason, string>> = {
   manual: 'Ready when you are.',
   blur: 'Paused while the game window was in the background.',
   hidden: 'Paused while the game tab was hidden.',
+  portrait: 'Paused while the screen was in portrait. Play in landscape.',
 };
 
-/** Keys that close the dialog, as they opened it (by physical key, see game keymap). */
+/** Keys that close the pause menu, as they opened it (by physical key, see the game keymap). */
 const RESUME_KEYS = new Set(['Escape', 'KeyP']);
 
 interface PauseDialogProps {
@@ -17,54 +22,85 @@ interface PauseDialogProps {
   readonly onMainMenu: () => void;
 }
 
+type View = 'menu' | 'options';
+
 /**
- * Minimal pause dialog (the styled one with Options and a focus trap comes in
- * Phase 4). Resuming always takes an explicit action: the Resume button, or a
- * fresh Escape/P press. Auto-repeat of the key that paused is ignored, so
- * holding Escape cannot pause and resume in a loop.
+ * Pause menu (assets/sample_pause.png): Resume, Options, Main menu. Resuming
+ * always takes an explicit action: the Resume button, or a fresh Escape/P.
+ * Auto-repeat of the key that paused is ignored, so holding Escape cannot
+ * pause and resume in a loop. Options open in place; changes are saved but
+ * apply to the next battle only (the running match keeps its config snapshot).
  */
 export function PauseDialog({ reason, onResume, onMainMenu }: PauseDialogProps) {
-  const dialogRef = useRef<HTMLElement>(null);
+  const [view, setView] = useState<View>('menu');
+  const [cameBack, setCameBack] = useState(false);
   const resumeRef = useRef<HTMLButtonElement>(null);
+  const optionsRef = useRef<HTMLButtonElement>(null);
+  // Whatever had focus when the game paused gets it back on Resume, across both views.
+  const [opener] = useState(() =>
+    document.activeElement instanceof HTMLElement ? document.activeElement : null,
+  );
 
-  useEffect(() => {
-    resumeRef.current?.focus();
-  }, []);
+  if (view === 'options') {
+    return (
+      <Dialog
+        key="options"
+        labelledBy="pause-options-title"
+        returnFocusTo={null}
+        onEscape={() => {
+          setCameBack(true);
+          setView('menu');
+        }}
+      >
+        <OptionsPanel
+          context="pause"
+          headingId="pause-options-title"
+          doneLabel="Back"
+          onDone={() => {
+            setCameBack(true);
+            setView('menu');
+          }}
+        />
+      </Dialog>
+    );
+  }
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (dialog === null) return;
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (!RESUME_KEYS.has(event.code) || event.repeat) return;
-      // Marks the key as handled, so the game's keyboard source does not pause again.
-      event.preventDefault();
-      onResume();
-    };
-    dialog.addEventListener('keydown', onKeyDown);
-    return () => {
-      dialog.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onResume]);
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (!RESUME_KEYS.has(event.code)) return;
+    // Handled either way, so the game's keyboard source and the dialog ignore it.
+    event.preventDefault();
+    if (!event.repeat) onResume();
+  };
 
   return (
-    <div className={styles.backdrop}>
-      <section
-        ref={dialogRef}
-        className={styles.overlay}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="pause-title"
-        aria-describedby="pause-message"
-      >
-        <h2 id="pause-title">Paused</h2>
-        <p id="pause-message">{MESSAGES[reason]}</p>
-        <button ref={resumeRef} type="button" className={styles.button} onClick={onResume}>
+    <Dialog
+      key="menu"
+      labelledBy="pause-title"
+      describedBy="pause-message"
+      initialFocus={cameBack ? optionsRef : resumeRef}
+      returnFocusTo={opener}
+      onKeyDown={onKeyDown}
+    >
+      <h2 id="pause-title" className={screen.heading}>
+        Paused
+      </h2>
+      <p id="pause-message" className={screen.text}>
+        {MESSAGES[reason]}
+      </p>
+      <div className={screen.actions}>
+        <Button ref={resumeRef} onClick={onResume}>
           Resume
-        </button>
-        <button type="button" className={styles.button} onClick={onMainMenu}>
-          Main menu
-        </button>
-      </section>
-    </div>
+        </Button>
+        <Button
+          ref={optionsRef}
+          onClick={() => {
+            setView('options');
+          }}
+        >
+          Options
+        </Button>
+        <Button onClick={onMainMenu}>Main menu</Button>
+      </div>
+    </Dialog>
   );
 }

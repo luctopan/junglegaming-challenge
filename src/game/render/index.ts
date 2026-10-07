@@ -13,3 +13,5 @@ export type { AudioEngine } from './audio/audioEngine';
 export { fitViewport, preferredTextureResolution, screenToWorld, worldToScreen } from './viewport';
 export type { Size, Viewport } from './viewport';
 export type { WorldView } from './worldView';
+export { playerHpTone } from './ships/shipVisual';
+export type { HpTone } from './theme';

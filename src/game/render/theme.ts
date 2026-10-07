@@ -99,8 +99,12 @@ export const FORT = {
   ],
 } as const;
 
+/** Colour of an HP fill, shared with the HUD so both bars change colour together. */
+export type HpTone = 'green' | 'amber' | 'red';
+
 export interface BarFill {
   readonly frame: string;
+  readonly tone: HpTone;
   /** Used while hp / maxHp > minRatio (fills are checked in order). */
   readonly minRatio: number;
 }
@@ -118,16 +122,16 @@ export const HP_BARS = {
   player: {
     frame: 'health_frame',
     fills: [
-      { frame: 'health_fill_green', minRatio: 0.5 },
-      { frame: 'health_fill_amber', minRatio: 0.25 },
-      { frame: 'health_fill_red', minRatio: 0 },
+      { frame: 'health_fill_green', tone: 'green', minRatio: 0.5 },
+      { frame: 'health_fill_amber', tone: 'amber', minRatio: 0.25 },
+      { frame: 'health_fill_red', tone: 'red', minRatio: 0 },
     ],
     scale: 0.3,
   },
   enemy: {
     frame: 'enemy_health_frame',
     // Always red, as in the mockup: enemies read apart from the player at a glance.
-    fills: [{ frame: 'enemy_health_fill_red', minRatio: 0 }],
+    fills: [{ frame: 'enemy_health_fill_red', tone: 'red', minRatio: 0 }],
     scale: 0.4,
   },
 } as const satisfies { offsetY: number; player: HpBarArt; enemy: HpBarArt };

@@ -16,7 +16,7 @@ export function Backdrop() {
   );
 }
 
-export function BrandLogo({ className }: { readonly className?: string }) {
+export function BrandLogo({ className }: { readonly className?: string | undefined }) {
   return (
     <img
       className={className === undefined ? styles.logo : `${styles.logo} ${className}`}
