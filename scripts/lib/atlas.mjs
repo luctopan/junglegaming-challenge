@@ -219,3 +219,53 @@ export function scaleAtlas(atlas, factor, image, size) {
 export function toJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
+
+/**
+ * Removes the colour step along the shared border of two tiles that are always
+ * drawn next to each other (`a` left of / above `b`), in place: each border
+ * pixel pair moves to its midpoint, with the correction fading out over `width`
+ * pixels into both tiles. Detail is kept; only the step disappears. Only pixels
+ * that are opaque on both sides are touched (the transparent shore is left alone).
+ * @param {RgbaImage} sheet Grid sheet, `tile_N` row-major from 1.
+ * @param {number} tileSize
+ * @param {{ a: number, b: number, axis: 'x' | 'y' }[]} pairs `axis: 'x'` = a|b side by side.
+ * @param {number} width
+ */
+export function healSeams(sheet, tileSize, pairs, width) {
+  const cols = sheet.width / tileSize;
+  const OPAQUE = 250;
+  /** @param {number} id @param {number} x @param {number} y */
+  const index = (id, x, y) => {
+    const col = (id - 1) % cols;
+    const row = Math.floor((id - 1) / cols);
+    return ((row * tileSize + y) * sheet.width + col * tileSize + x) * 4;
+  };
+  const original = new Uint8Array(sheet.data);
+  for (const { a, b, axis } of pairs) {
+    for (let along = 0; along < tileSize; along++) {
+      // Border pixels of a and b, and the step to cancel.
+      const last = tileSize - 1;
+      const pa = axis === 'x' ? index(a, last, along) : index(a, along, last);
+      const pb = axis === 'x' ? index(b, 0, along) : index(b, along, 0);
+      if ((original[pa + 3] ?? 0) < OPAQUE || (original[pb + 3] ?? 0) < OPAQUE) continue;
+      for (let c = 0; c < 3; c++) {
+        const half = ((original[pb + c] ?? 0) - (original[pa + c] ?? 0)) / 2;
+        for (let i = 0; i < width; i++) {
+          const fade = 1 - i / width;
+          const ia = axis === 'x' ? index(a, last - i, along) : index(a, along, last - i);
+          const ib = axis === 'x' ? index(b, i, along) : index(b, along, i);
+          if ((original[ia + 3] ?? 0) >= OPAQUE) {
+            sheet.data[ia + c] = Math.round(
+              Math.min(255, Math.max(0, (sheet.data[ia + c] ?? 0) + half * fade)),
+            );
+          }
+          if ((original[ib + 3] ?? 0) >= OPAQUE) {
+            sheet.data[ib + c] = Math.round(
+              Math.min(255, Math.max(0, (sheet.data[ib + c] ?? 0) - half * fade)),
+            );
+          }
+        }
+      }
+    }
+  }
+}

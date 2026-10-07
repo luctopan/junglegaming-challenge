@@ -26,11 +26,13 @@ import { PNG } from 'pngjs';
 import {
   extrudeGrid,
   gridToPixi,
+  healSeams,
   readPngSize,
   scaleAtlas,
   sparrowToPixi,
   toJson,
 } from './lib/atlas.mjs';
+import { ISLAND_BLOCK_SEAMS } from './lib/islandBlock.mjs';
 import { checkFrameAlignment, composeScaledSheet } from './lib/vectorAtlas.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,6 +42,9 @@ const out = path.join(root, 'public', 'assets');
 const TILE_SIZE = 64;
 /** Edge pixels repeated around each tile (× scale), against seams between adjacent tiles. */
 const TILE_PADDING = 2;
+/** Width (1× px, × scale) over which a border's colour step is faded out. */
+const SEAM_HEAL_WIDTH = 8;
+
 const RETINA = 2;
 /** Mean per-channel difference (0–255) above which a vector frame does not match its raster frame. */
 const VECTOR_FRAME_TOLERANCE = 8;
@@ -150,6 +155,7 @@ function buildTiles() {
     const sheet = PNG.sync.read(readFileSync(source(`tilesheet/${from}`)));
     const tileSize = TILE_SIZE * scale;
     const padding = TILE_PADDING * scale;
+    healSeams(sheet, tileSize, ISLAND_BLOCK_SEAMS, SEAM_HEAL_WIDTH * scale);
     const atlas = gridToPixi({
       image,
       size: { w: sheet.width, h: sheet.height },
