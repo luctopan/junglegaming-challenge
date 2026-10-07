@@ -224,7 +224,7 @@ describe('damage and destruction', () => {
     expect(ofType(events, 'shipDestroyed')).toEqual([
       expect.objectContaining({ shipId: chaser.id, cause: 'ram', killerTeam: 'enemy' }),
     ]);
-    expect(player.hp).toBe(75);
+    expect(player.hp).toBe(player.maxHp - world.cfg.chaser.ramDamage);
     expect(world.score).toBe(0);
     expect(ofType(events, 'scoreChanged')).toHaveLength(0);
   });
