@@ -10,8 +10,9 @@
   "scripts": {
     "assets:build": "node scripts/build-atlases.mjs",
     "balance": "node scripts/balance.ts",
+    "sandbox:shots": "pnpm assets:build && node scripts/sandbox-shots.mjs",
     "dev": "pnpm assets:build && vite",
-    "build": "pnpm assets:build && tsc -b && vite build",
+    "build": "pnpm assets:build && tsc -b && vite build && node scripts/verify-dist.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "eslint .",
@@ -22,7 +23,8 @@
     "test:e2e": "playwright test",
     "test:e2e:docker": "node scripts/e2e-docker.mjs",
     "test:e2e:update": "node scripts/e2e-docker.mjs --update-snapshots",
-    "e2e:serve": "pnpm assets:build && vite build && vite preview --port 4173 --strictPort"
+    "e2e:serve": "pnpm assets:build && vite build && node scripts/verify-dist.mjs && vite preview --port 4173 --strictPort",
+    "e2e:dev": "vite"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -41,12 +43,14 @@
   },
   "dependencies": {
     "msw": "^3.0.2",
+    "pixi.js": "^8.22.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "1.63.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/estree": "^1.0.9",
     "@types/node": "^26.6.4",
     "@types/pngjs": "^6.0.5",

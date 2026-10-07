@@ -120,32 +120,96 @@ export function sparrowToPixi(xml, { image, size, scale = 1 }) {
 }
 
 /**
- * Builds frames for a uniform grid sheet with no margin/spacing, numbered row-major
- * from 1 (`tile_1` is top-left), which is how the delivered `tile_N.png` files map
- * onto `tiles_sheet.png` (verified pixel by pixel in tests/tooling/atlas.test.ts).
- * @param {{ image: string, size: Size, tileSize: number, scale?: number, prefix?: string }} options
+ * Builds frames for a uniform grid sheet, numbered row-major from 1 (`tile_1` is
+ * top-left), which is how the delivered `tile_N.png` files map onto
+ * `tiles_sheet.png` (verified pixel by pixel in tests/tooling/atlas.test.ts).
+ * `size` is the size of the grid as delivered (no margin/spacing); with
+ * `padding`, frames point into a sheet made by `extrudeGrid` with that padding.
+ * @param {{ image: string, size: Size, tileSize: number, scale?: number, prefix?: string, padding?: number }} options
  * @returns {PixiAtlas}
  */
-export function gridToPixi({ image, size, tileSize, scale = 1, prefix = 'tile_' }) {
+export function gridToPixi({ image, size, tileSize, scale = 1, prefix = 'tile_', padding = 0 }) {
   if (size.w % tileSize !== 0 || size.h % tileSize !== 0) {
     throw new Error(`Sheet ${size.w}x${size.h} is not a multiple of tile size ${tileSize}`);
   }
   const cols = size.w / tileSize;
   const rows = size.h / tileSize;
+  const cell = tileSize + 2 * padding;
   /** @type {Record<string, PixiFrame>} */
   const frames = {};
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const index = row * cols + col + 1;
       frames[`${prefix}${index}`] = untrimmedFrame({
-        x: col * tileSize,
-        y: row * tileSize,
+        x: col * cell + padding,
+        y: row * cell + padding,
         w: tileSize,
         h: tileSize,
       });
     }
   }
-  return atlas(frames, image, size, scale);
+  return atlas(frames, image, { w: cols * cell, h: rows * cell }, scale);
+}
+
+/**
+ * @typedef {{ width: number, height: number, data: Uint8Array }} RgbaImage
+ */
+
+/**
+ * Re-packs a grid sheet with `padding` pixels around every tile, filled by
+ * repeating the tile's own edge pixels. Without it, linear filtering at
+ * non-integer scales samples the neighbouring tile of the sheet and draws
+ * visible seams between adjacent tiles.
+ * @param {RgbaImage} sheet
+ * @param {number} tileSize
+ * @param {number} padding
+ * @returns {RgbaImage}
+ */
+export function extrudeGrid(sheet, tileSize, padding) {
+  const cols = sheet.width / tileSize;
+  const rows = sheet.height / tileSize;
+  const cell = tileSize + 2 * padding;
+  const width = cols * cell;
+  const height = rows * cell;
+  const data = new Uint8Array(width * height * 4);
+  const clamp = (/** @type {number} */ v) => Math.min(tileSize - 1, Math.max(0, v));
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      for (let y = 0; y < cell; y++) {
+        for (let x = 0; x < cell; x++) {
+          const sx = col * tileSize + clamp(x - padding);
+          const sy = row * tileSize + clamp(y - padding);
+          const from = (sy * sheet.width + sx) * 4;
+          const to = ((row * cell + y) * width + col * cell + x) * 4;
+          data.set(sheet.data.subarray(from, from + 4), to);
+        }
+      }
+    }
+  }
+  return { width, height, data };
+}
+
+/**
+ * The same frames on a sheet `factor` times larger (e.g. a 2× rasterization of
+ * the same layout); `meta.scale` tells Pixi the textures' resolution.
+ * @param {PixiAtlas} atlas
+ * @param {number} factor
+ * @param {string} image
+ * @param {Size} size
+ * @returns {PixiAtlas}
+ */
+export function scaleAtlas(atlas, factor, image, size) {
+  /** @type {Record<string, PixiFrame>} */
+  const frames = {};
+  for (const [name, { frame }] of Object.entries(atlas.frames)) {
+    frames[name] = untrimmedFrame({
+      x: frame.x * factor,
+      y: frame.y * factor,
+      w: frame.w * factor,
+      h: frame.h * factor,
+    });
+  }
+  return { frames, meta: { ...atlas.meta, image, size, scale: String(factor) } };
 }
 
 /**

@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { PNG } from 'pngjs';
 import { describe, expect, it } from 'vitest';
-import { gridToPixi, readPngSize, sparrowToPixi, toJson } from '../../scripts/lib/atlas.mjs';
+import {
+  extrudeGrid,
+  gridToPixi,
+  readPngSize,
+  sparrowToPixi,
+  toJson,
+} from '../../scripts/lib/atlas.mjs';
 
 const assets = path.resolve(import.meta.dirname, '../../assets');
 const read = (rel: string) => readFileSync(path.join(assets, rel));
@@ -88,28 +94,57 @@ describe('gridToPixi', () => {
     expect(() => gridToPixi({ image: 't.png', size: { w: 100, h: 64 }, tileSize: 64 })).toThrow();
   });
 
-  // Guards the row-major assumption against the delivered art itself.
-  it.each([
-    { sheet: 'tiles_sheet.png', dir: 'png/default/tiles', tileSize: 64 },
-    { sheet: 'tiles_sheet_retina.png', dir: 'png/retina/tiles', tileSize: 128 },
-  ])('maps every tile_N.png onto its $sheet cell pixel-exactly', ({ sheet, dir, tileSize }) => {
-    const png = PNG.sync.read(read(`tilesheet/${sheet}`));
-    const atlas = gridToPixi({
-      image: sheet,
-      size: { w: png.width, h: png.height },
-      tileSize,
-    });
-    expect(Object.keys(atlas.frames)).toHaveLength(96);
+  it('offsets frames into a padded sheet', () => {
+    const atlas = gridToPixi({ image: 't.png', size: { w: 128, h: 64 }, tileSize: 64, padding: 2 });
+    expect(atlas.frames.tile_2?.frame).toEqual({ x: 70, y: 2, w: 64, h: 64 });
+    expect(atlas.meta.size).toEqual({ w: 136, h: 68 });
+  });
 
-    for (const [name, { frame }] of Object.entries(atlas.frames)) {
-      const tile = PNG.sync.read(read(`${dir}/${name}.png`));
-      const cell = Buffer.alloc(frame.w * frame.h * 4);
-      for (let y = 0; y < frame.h; y++) {
-        const start = ((frame.y + y) * png.width + frame.x) * 4;
-        png.data.copy(cell, y * frame.w * 4, start, start + frame.w * 4);
+  // Guards the row-major assumption against the delivered art itself, through the
+  // same extrusion the build applies.
+  it.each([
+    { sheet: 'tiles_sheet.png', dir: 'png/default/tiles', tileSize: 64, padding: 2 },
+    { sheet: 'tiles_sheet_retina.png', dir: 'png/retina/tiles', tileSize: 128, padding: 4 },
+  ])(
+    'maps every tile_N.png onto its extruded $sheet cell pixel-exactly',
+    ({ sheet, dir, tileSize, padding }) => {
+      const source = PNG.sync.read(read(`tilesheet/${sheet}`));
+      const png = extrudeGrid(source, tileSize, padding);
+      const atlas = gridToPixi({
+        image: sheet,
+        size: { w: source.width, h: source.height },
+        tileSize,
+        padding,
+      });
+      expect(Object.keys(atlas.frames)).toHaveLength(96);
+      expect(atlas.meta.size).toEqual({ w: png.width, h: png.height });
+
+      for (const [name, { frame }] of Object.entries(atlas.frames)) {
+        const tile = PNG.sync.read(read(`${dir}/${name}.png`));
+        const cell = Buffer.alloc(frame.w * frame.h * 4);
+        for (let y = 0; y < frame.h; y++) {
+          const start = ((frame.y + y) * png.width + frame.x) * 4;
+          cell.set(png.data.subarray(start, start + frame.w * 4), y * frame.w * 4);
+        }
+        expect(cell.equals(tile.data), name).toBe(true);
       }
-      expect(cell.equals(tile.data), name).toBe(true);
+    },
+  );
+});
+
+describe('extrudeGrid', () => {
+  it('surrounds each tile with copies of its own edge pixels', () => {
+    // Two 2×2 tiles side by side: left tile all 10s, right tile all 200s.
+    const data = new Uint8Array(4 * 2 * 4);
+    for (let y = 0; y < 2; y++) {
+      for (let x = 0; x < 4; x++) data.fill(x < 2 ? 10 : 200, (y * 4 + x) * 4, (y * 4 + x) * 4 + 4);
     }
+    const out = extrudeGrid({ width: 4, height: 2, data }, 2, 1);
+    expect([out.width, out.height]).toEqual([8, 4]);
+    const at = (x: number, y: number) => out.data[(y * out.width + x) * 4];
+    // Padding of the left tile repeats the left tile, never the right one.
+    expect([at(0, 0), at(3, 0), at(3, 3)]).toEqual([10, 10, 10]);
+    expect([at(4, 0), at(7, 3)]).toEqual([200, 200]);
   });
 });
 

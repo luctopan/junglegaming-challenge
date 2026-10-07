@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: 'es2022',
+    // Only index.html is an input: sandbox.html and src/dev/** exist for the dev server alone
+    // (checked after every build by scripts/verify-dist.mjs).
+    rollupOptions: { input: 'index.html' },
     // public/assets/ holds the runtime game assets; keep hashed bundles apart.
     assetsDir: 'static',
     sourcemap: true,
@@ -18,7 +21,9 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/**/*.test.{ts,tsx}',
+        'src/**/*.test-support.ts',
         'src/game/core/testing/**',
+        'src/dev/**',
         'src/main.tsx',
         'src/vite-env.d.ts',
       ],
