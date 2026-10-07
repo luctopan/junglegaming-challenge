@@ -29,22 +29,22 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
 
 ## Scripts
 
-| Command                | What it does                                                        |
-| ---------------------- | ------------------------------------------------------------------- |
-| `pnpm dev`             | Build runtime assets, start the Vite dev server                     |
-| `pnpm build`           | Build runtime assets, typecheck, bundle `dist/`, verify no dev code |
-| `pnpm preview`         | Serve `dist/` locally                                               |
-| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects    |
-| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries)    |
-| `pnpm format`          | Prettier write (`format:check` verifies only)                       |
-| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)       |
-| `pnpm test:watch`      | Vitest in watch mode (no coverage)                                  |
-| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)     |
-| `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)         |
-| `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server     |
-| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image                 |
-| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                 |
-| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)        |
+| Command                | What it does                                                          |
+| ---------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`             | Build runtime assets, start the Vite dev server                       |
+| `pnpm build`           | Build runtime assets, typecheck, bundle `dist/`, verify no dev code   |
+| `pnpm preview`         | Serve `dist/` locally                                                 |
+| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects      |
+| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries)      |
+| `pnpm format`          | Prettier write (`format:check` verifies only)                         |
+| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)         |
+| `pnpm test:watch`      | Vitest in watch mode (no coverage)                                    |
+| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)       |
+| `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)           |
+| `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server       |
+| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image (`--cpus=2` = CI) |
+| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                   |
+| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)          |
 
 ## Testing
 
@@ -61,13 +61,15 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
   otherwise. It controls _when_ time passes and observes, but cannot change rules or state
   (combat tests press real keys and touch real controls):
   - `setSeed(n)` / `?seed=n`: seed of the next match; `useManualClock()` /
-    `?clock=manual`: simulation time only moves with `advance(ms)`, which runs the real
-    game loop in 60 Hz frames.
+    `?clock=manual`: simulation time only moves with `advance(ms)`, which runs the
+    simulation in 60 Hz frames and then renders exactly one frame (no continuous
+    rendering under the manual clock).
   - `snapshot()`: JSON state of the live match (phase, pause reason, time, score, player
     pose/HP/cooldowns, enemies, projectiles, whether any input is held).
   - `resources()`: live apps, canvases, ticker callbacks, listeners, observers, dynamic
     textures, display objects, cached textures. `hudCommits()`: HUD React commits (it must
-    follow the bridge store, ≈ 1 per second, never the frame rate).
+    follow the bridge store, ≈ 1 per second, never the frame rate). `framesRendered()`:
+    frames drawn so far (none while paused).
 - **Workers**: 4 locally, 2 in CI. Every game page renders WebGL on the CPU in headless
   Chromium, and more parallel pages starve each other into start-up timeouts.
 - **Visual baselines** are generated only inside

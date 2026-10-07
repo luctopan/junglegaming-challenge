@@ -140,6 +140,11 @@ places only:
   `visibilitychange` to hidden (also checked when the match starts). Resume needs an explicit
   action: the dialog's Resume button or a fresh `Esc`/`P` (auto-repeat ignored). Effects,
   water and camera shake freeze with the match; audio is silenced through the output gain.
+- **Rendering only when a frame can change** ([renderPolicy.ts](src/game/runtime/renderPolicy.ts)):
+  a pause renders one final frame and stops the Pixi ticker until Resume; under the test
+  manual clock the ticker never runs and `advance(ms)` renders once at its end. A resize
+  redraws once while the ticker is stopped. This keeps paused games and the e2e suite off
+  the CPU (DECISIONS I15).
 - **Abandon**: a match ends without a result when its session is destroyed (Main menu,
   leaving the screen, reload); only `matchEnded` can produce a record (Phase 5), so an
   abandoned match can never be recorded.
