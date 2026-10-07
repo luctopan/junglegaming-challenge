@@ -1,9 +1,11 @@
 import { ISLAND, WATER } from './arenaMap';
+import { shoreShape } from './shoreShape';
 
 /**
  * Checks an arena layout against the constraints that keep it drawable with the
- * provided sand tiles (straight edges and outer corners only) and navigable
- * (channels at least two tiles wide, all water connected). Returns readable issues.
+ * provided shore tiles (each island cell maps to a fill, edge, outer or inner
+ * corner tile, see `shoreShape`) and navigable (channels at least two tiles wide,
+ * all water connected). Returns readable issues.
  */
 export function validateMap(map: readonly string[]): string[] {
   const issues: string[] = [];
@@ -35,11 +37,15 @@ export function validateMap(map: readonly string[]): string[] {
   const inUniformBlock = (col: number, row: number, kind: string): boolean =>
     windowsOf(col, row).some(([c, r]) => windowCells(c, r).every((cell) => cell === kind));
 
+  const isIsland = (col: number, row: number): boolean => at(col, row) === ISLAND;
   let islandCells = 0;
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const kind = at(col, row) ?? WATER;
       if (kind === ISLAND) islandCells++;
+      if (kind === ISLAND && shoreShape(isIsland, col, row).kind === 'unsupported') {
+        issues.push(`island cell (${col},${row}) cannot be drawn with the shore tiles`);
+      }
       if (!inUniformBlock(col, row, kind)) {
         issues.push(
           kind === ISLAND

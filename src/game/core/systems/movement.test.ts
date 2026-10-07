@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { distance } from '../../../shared/math/vec2';
-import { circleRectPushOut } from '../geometry';
+import { circleRoundedRectPushOut } from '../geometry';
 import { getPlayer, hullCircles, hullRadius } from '../ships';
 import { input, place, quietWorld, run, stepsFor } from '../testing/fixtures';
 import { OPEN_MAP } from '../testing/maps';
@@ -13,7 +13,7 @@ function overlapsIsland(world: World, ship: Ship): boolean {
   // Small tolerance: relaxation leaves sub-unit residual contact.
   return hullCircles(world, ship).some((c) =>
     world.arena.islandRects.some((rect) => {
-      const push = circleRectPushOut(c, r - 0.5, rect);
+      const push = circleRoundedRectPushOut(c, r - 0.5, rect);
       return push !== null;
     }),
   );

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_GAME_CONFIG } from '../../../config/defaults';
 import { distance } from '../../../shared/math/vec2';
 import { createMatch } from '../createMatch';
-import { circleRectPushOut } from '../geometry';
+import { circleRoundedRectPushOut } from '../geometry';
 import { aliveEnemies, getPlayer } from '../ships';
 import { step } from '../step';
 import { configWith, ofType, run, stepsFor } from '../testing/fixtures';
@@ -53,7 +53,7 @@ describe('spawner', () => {
       for (const spawn of ofType(step(world, IDLE_INPUT), 'enemySpawned')) {
         expect(distance(spawn.pos, getPlayer(world).pos)).toBeGreaterThanOrEqual(320);
         const blocked = world.arena.islandRects.some(
-          (r) => circleRectPushOut(spawn.pos, world.cfg.spawn.clearanceRadius, r) !== null,
+          (r) => circleRoundedRectPushOut(spawn.pos, world.cfg.spawn.clearanceRadius, r) !== null,
         );
         expect(blocked).toBe(false);
       }

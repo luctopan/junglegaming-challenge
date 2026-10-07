@@ -1,7 +1,7 @@
 import type { EnemyKind, GameConfig, ShipKind } from '../../config/gameConfig';
 import type { Rng } from '../../shared/rng';
 import type { Vec2 } from '../../shared/math/vec2';
-import type { Rect } from './geometry';
+import type { RoundedRect } from './geometry';
 
 export type { EnemyKind, ShipKind } from '../../config/gameConfig';
 
@@ -80,7 +80,8 @@ export interface Arena {
   readonly height: number;
   /** Row-major: `water[row * cols + col]`. */
   readonly water: readonly boolean[];
-  readonly islandRects: readonly Rect[];
+  /** Collision shapes of the islands (convex shore corners rounded). */
+  readonly islandRects: readonly RoundedRect[];
 }
 
 /** Angles of the config converted to radians once per match. */

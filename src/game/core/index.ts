@@ -11,6 +11,8 @@ export { damageStage } from './damageStage';
 export { timeLeftSeconds } from './systems/match';
 export { getPlayer } from './ships';
 export { ARENA_MAP } from './map/arenaMap';
+export { shoreShape } from './map/shoreShape';
+export type { Corner, ShoreShape, Side, SolidAt } from './map/shoreShape';
 export type { DomainEvent, DomainEventType } from './events';
 export type { Rect } from './geometry';
 export { IDLE_INPUT } from './types';

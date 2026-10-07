@@ -1,5 +1,5 @@
 import type { Vec2 } from '../../../shared/math/vec2';
-import { firstRectHit } from '../geometry';
+import { firstRoundedRectHit } from '../geometry';
 import { cellCenter, cellIndexAt, isWaterCell } from '../map/arena';
 import { getPlayer } from '../ships';
 import type { Arena, World } from '../types';
@@ -94,4 +94,4 @@ export function waypointFrom(arena: Arena, distances: readonly number[], pos: Ve
 
 /** True when the segment, thickened by `padding`, crosses no island. */
 export const hasLineOfSight = (world: World, from: Vec2, to: Vec2, padding: number): boolean =>
-  firstRectHit(from, to, world.arena.islandRects, padding) === null;
+  firstRoundedRectHit(from, to, world.arena.islandRects, padding) === null;

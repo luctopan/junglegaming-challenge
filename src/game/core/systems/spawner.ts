@@ -5,7 +5,7 @@ import type { Vec2 } from '../../../shared/math/vec2';
 import { angleOf, distance, sub } from '../../../shared/math/vec2';
 import { nextFloat, pickWeighted } from '../../../shared/rng';
 import type { DomainEvent } from '../events';
-import { circleRectPushOut } from '../geometry';
+import { circleRoundedRectPushOut } from '../geometry';
 import { addShip, aliveEnemies, getPlayer, hullCircles, hullRadius } from '../ships';
 import type { World } from '../types';
 
@@ -72,7 +72,11 @@ function randomEdgePoint(world: World): Vec2 {
 function isClear(world: World, point: Vec2): boolean {
   const { clearanceRadius, minDistanceFromPlayer } = world.cfg.spawn;
   if (distance(point, getPlayer(world).pos) < minDistanceFromPlayer) return false;
-  if (world.arena.islandRects.some((r) => circleRectPushOut(point, clearanceRadius, r) !== null)) {
+  if (
+    world.arena.islandRects.some(
+      (r) => circleRoundedRectPushOut(point, clearanceRadius, r) !== null,
+    )
+  ) {
     return false;
   }
   return world.ships.every((ship) =>

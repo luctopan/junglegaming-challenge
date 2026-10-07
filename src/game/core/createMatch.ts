@@ -6,7 +6,7 @@ import { createRng } from '../../shared/rng';
 import { ARENA_MAP } from './map/arenaMap';
 import { buildArena } from './map/arena';
 import { addShip, hullCircles, hullRadius } from './ships';
-import { circleRectPushOut } from './geometry';
+import { circleRoundedRectPushOut } from './geometry';
 import type { DerivedAngles, World } from './types';
 
 export interface MatchOptions {
@@ -50,7 +50,12 @@ export function createMatch(config: GameConfig, seed: number, options: MatchOpti
   const cfg: GameConfig = cloneDeepFrozen(config);
   const angles = cloneDeepFrozen(deriveAngles(cfg));
   const arena = cloneDeepFrozen(
-    buildArena(options.map ?? ARENA_MAP, cfg.arena.tileSize, cfg.arena.islandCollisionInset),
+    buildArena(
+      options.map ?? ARENA_MAP,
+      cfg.arena.tileSize,
+      cfg.arena.islandCollisionInset,
+      cfg.arena.islandCornerRadius,
+    ),
   );
 
   const world: World = {
@@ -95,7 +100,7 @@ function assertSpawnIsClear(world: World, player: World['ships'][number]): void 
       c.y < radius ||
       c.x > width - radius ||
       c.y > height - radius ||
-      islandRects.some((r) => circleRectPushOut(c, radius, r) !== null),
+      islandRects.some((r) => circleRoundedRectPushOut(c, radius, r) !== null),
   );
   if (blocked) {
     throw new InvalidMatchConfigError([

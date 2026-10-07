@@ -60,6 +60,11 @@ export interface GameConfig {
     readonly tileSize: number;
     /** Shrinks island collision rects on sides facing water, to match rounded tile art. */
     readonly islandCollisionInset: number;
+    /**
+     * Radius of the convex island corners (where both sides face water), matching
+     * the rounded shore art. Junctions between the rects of one island stay square.
+     */
+    readonly islandCornerRadius: number;
   };
   readonly ships: Readonly<Record<ShipKind, ShipStats>>;
   readonly playerSpawn: {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SQUARE_CORNERS } from '../geometry';
 import { buildArena, cellCenter, cellIndexAt } from './arena';
 import { ARENA_MAP } from './arenaMap';
 import { validateMap } from './validateMap';
@@ -53,6 +54,15 @@ describe('validateMap', () => {
     expect(issues).toContainEqual(expect.stringMatching(/diagonal-only contact/));
   });
 
+  it('rejects shapes the shore tiles cannot draw (one-tile staircase joints)', () => {
+    // Two 2×2 blocks joined along a single tile edge: (7,4) would need a bottom
+    // edge and a concave corner in one tile.
+    const issues = validateMap(withIslands([...block(6, 3), ...block(8, 4)]));
+    expect(issues).toContainEqual(
+      expect.stringMatching(/island cell \(7,4\) cannot be drawn with the shore tiles/),
+    );
+  });
+
   it('rejects disconnected water', () => {
     const ring: [number, number][] = [];
     for (let c = 4; c <= 9; c++) ring.push([c, 1], [c, 2], [c, 7], [c, 8]);
@@ -76,7 +86,13 @@ describe('buildArena', () => {
     expect(arena.height).toBe(576);
     expect(arena.water.filter((w) => !w)).toHaveLength(ARENA_MAP.join('').split('#').length - 1);
     // U island top bar spans rows 2–3, cols 2–7.
-    expect(arena.islandRects).toContainEqual({ minX: 128, minY: 128, maxX: 512, maxY: 256 });
+    expect(arena.islandRects).toContainEqual({
+      minX: 128,
+      minY: 128,
+      maxX: 512,
+      maxY: 256,
+      radii: SQUARE_CORNERS,
+    });
     const area = arena.islandRects.reduce((s, r) => s + (r.maxX - r.minX) * (r.maxY - r.minY), 0);
     expect(area).toBe(arena.water.filter((w) => !w).length * 64 * 64);
   });
@@ -84,8 +100,15 @@ describe('buildArena', () => {
   it('insets only the sides that face water', () => {
     const map = withIslands([...block(6, 3), [8, 3], [9, 3], [8, 4], [9, 4]]);
     // One 4×2 island merged into a single rect: every side faces water.
-    expect(buildArena(map, 64, 8).islandRects).toEqual([
-      { minX: 6 * 64 + 8, maxX: 10 * 64 - 8, minY: 3 * 64 + 8, maxY: 5 * 64 - 8 },
+    expect(buildArena(map, 64, 8, 30).islandRects).toEqual([
+      {
+        minX: 6 * 64 + 8,
+        maxX: 10 * 64 - 8,
+        minY: 3 * 64 + 8,
+        maxY: 5 * 64 - 8,
+        // …and every corner is a convex shore corner, so all four are rounded.
+        radii: { topLeft: 30, topRight: 30, bottomLeft: 30, bottomRight: 30 },
+      },
     ]);
     // Two rects of the same island: the shared edge is not inset (no gap opens).
     const arena = buildArena(ARENA_MAP, 64, 8);

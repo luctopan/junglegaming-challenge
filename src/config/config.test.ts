@@ -46,6 +46,8 @@ describe('validateGameConfig', () => {
     ['match.sessionSeconds', (c) => (c.match.sessionSeconds = 125)],
     ['arena.tileSize', (c) => (c.arena.tileSize = -1)],
     ['arena.islandCollisionInset', (c) => (c.arena.islandCollisionInset = 32)],
+    ['arena.islandCornerRadius', (c) => (c.arena.islandCornerRadius = -1)],
+    ['arena.islandCornerRadius', (c) => (c.arena.islandCornerRadius = 65)],
     ['ships.player.maxHp', (c) => (c.ships.player.maxHp = 0)],
     ['ships.chaser.maxSpeed', (c) => (c.ships.chaser.maxSpeed = Number.NaN)],
     ['ships.shooter.hull.circleOffset', (c) => (c.ships.shooter.hull.circleOffset = -1)],

@@ -11,7 +11,9 @@ const HULL: HullConfig = { circleRadius: 24, circleOffset: 18 };
 export const DEFAULT_GAME_CONFIG: GameConfig = cloneDeepFrozen<GameConfig>({
   simulation: { stepSeconds: 1 / 60, maxFrameSeconds: 0.25, maxStepsPerFrame: 8 },
   match: { sessionSeconds: 120 },
-  arena: { tileSize: 64, islandCollisionInset: 0 },
+  // Inset 0: the straight shore art reaches the tile edge (≈1.5 px in). Corner radius 61:
+  // best circle fit of the rounded corner tiles, ≤ 4 px off anywhere (DECISIONS R4).
+  arena: { tileSize: 64, islandCollisionInset: 0, islandCornerRadius: 61 },
   ships: {
     player: {
       maxHp: 200,

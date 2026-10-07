@@ -2,7 +2,7 @@ import { angleDelta, clamp } from '../../../shared/math/angle';
 import type { Vec2 } from '../../../shared/math/vec2';
 import { add, angleOf, distance, fromAngle, sub } from '../../../shared/math/vec2';
 import { HALF } from '../../../shared/math/constants';
-import { firstRectHit } from '../geometry';
+import { firstRoundedRectHit } from '../geometry';
 import { hullRadius } from '../ships';
 import type { Ship, World } from '../types';
 
@@ -50,7 +50,7 @@ export function feelerAvoidance(world: World, ship: Ship, target: Vec2): number 
   const reach = Math.min(feelerLength, distance(ship.pos, target));
   const padding = hullRadius(world, ship);
   const probe = (angle: number): number | null =>
-    firstRectHit(
+    firstRoundedRectHit(
       ship.pos,
       add(ship.pos, fromAngle(angle, reach)),
       world.arena.islandRects,

@@ -1,7 +1,7 @@
 import { angleDelta } from '../../../shared/math/angle';
 import type { Vec2 } from '../../../shared/math/vec2';
 import { add, angleOf, distance, fromAngle, sub } from '../../../shared/math/vec2';
-import { firstRectHit } from '../geometry';
+import { firstRoundedRectHit } from '../geometry';
 import { cellIndexAt } from '../map/arena';
 import { computeDistances, hasLineOfSight, waypointFrom } from '../navigation/flowField';
 import { aliveEnemies, getPlayer, hullRadius } from '../ships';
@@ -135,7 +135,8 @@ function isClear(world: World, player: Ship, heading: number): boolean {
     end.x <= width - EDGE_MARGIN &&
     end.y <= height - EDGE_MARGIN;
   return (
-    insideMargin && firstRectHit(player.pos, end, islandRects, hullRadius(world, player)) === null
+    insideMargin &&
+    firstRoundedRectHit(player.pos, end, islandRects, hullRadius(world, player)) === null
   );
 }
 

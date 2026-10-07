@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   circleRectPushOut,
   expandRect,
-  firstRectHit,
+  firstRoundedRectHit,
+  SQUARE_CORNERS,
   pointInRect,
   segmentCircleHit,
   segmentRectHit,
@@ -62,11 +63,11 @@ describe('geometry', () => {
     });
   });
 
-  it('firstRectHit returns the nearest padded hit', () => {
-    const far = { minX: 50, minY: -5, maxX: 60, maxY: 5 };
-    const near = { minX: 20, minY: -5, maxX: 30, maxY: 5 };
-    expect(firstRectHit({ x: 0, y: 0 }, { x: 100, y: 0 }, [far, near], 0)).toBeCloseTo(0.2);
-    expect(firstRectHit({ x: 0, y: 8 }, { x: 100, y: 8 }, [near], 0)).toBeNull();
-    expect(firstRectHit({ x: 0, y: 8 }, { x: 100, y: 8 }, [near], 5)).toBeCloseTo(0.15);
+  it('firstRoundedRectHit returns the nearest padded hit', () => {
+    const far = { minX: 50, minY: -5, maxX: 60, maxY: 5, radii: SQUARE_CORNERS };
+    const near = { minX: 20, minY: -5, maxX: 30, maxY: 5, radii: SQUARE_CORNERS };
+    expect(firstRoundedRectHit({ x: 0, y: 0 }, { x: 100, y: 0 }, [far, near], 0)).toBeCloseTo(0.2);
+    expect(firstRoundedRectHit({ x: 0, y: 8 }, { x: 100, y: 8 }, [near], 0)).toBeNull();
+    expect(firstRoundedRectHit({ x: 0, y: 8 }, { x: 100, y: 8 }, [near], 5)).toBeCloseTo(0.15);
   });
 });

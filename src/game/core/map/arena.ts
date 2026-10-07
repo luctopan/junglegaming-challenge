@@ -1,6 +1,6 @@
 import type { Vec2 } from '../../../shared/math/vec2';
 import { HALF } from '../../../shared/math/constants';
-import type { Rect } from '../geometry';
+import type { RoundedRect } from '../geometry';
 import type { Arena } from '../types';
 import { ISLAND } from './arenaMap';
 
@@ -54,10 +54,18 @@ function islandRuns(line: string): Run[] {
 
 /**
  * Builds the static arena. `inset` shrinks each rect side whose neighbouring
- * cells are all water, so collision can follow rounded shore art without
- * opening gaps where two rects of the same island touch.
+ * cells are all water. `cornerRadius` rounds each rect corner whose island cell
+ * is a convex shore corner (its two outer neighbours are water), the cells drawn
+ * with the rounded corner tiles. Corners where rects of one island meet stay
+ * square, and a radius never exceeds a tile (validated), so no gap opens at a
+ * junction.
  */
-export function buildArena(map: readonly string[], tileSize: number, inset: number): Arena {
+export function buildArena(
+  map: readonly string[],
+  tileSize: number,
+  inset: number,
+  cornerRadius = 0,
+): Arena {
   const rows = map.length;
   const cols = map[0]?.length ?? 0;
   const water = map.flatMap((line) => Array.from(line, (ch) => ch !== ISLAND));
@@ -68,16 +76,31 @@ export function buildArena(map: readonly string[], tileSize: number, inset: numb
   const span = (from: number, to: number): number[] =>
     Array.from({ length: to - from }, (_, i) => from + i);
 
-  const islandRects = mergeIslandCells(map).map((r): Rect => {
+  const islandRects = mergeIslandCells(map).map((r): RoundedRect => {
     const above = span(r.col0, r.col1).map((col): [number, number] => [col, r.row0 - 1]);
     const below = span(r.col0, r.col1).map((col): [number, number] => [col, r.row1]);
     const left = span(r.row0, r.row1).map((row): [number, number] => [r.col0 - 1, row]);
     const right = span(r.row0, r.row1).map((row): [number, number] => [r.col1, row]);
+    const shore = {
+      left: sideIsShore(left),
+      right: sideIsShore(right),
+      top: sideIsShore(above),
+      bottom: sideIsShore(below),
+    };
+    const round = (a: [number, number], b: [number, number]): number =>
+      isWater(...a) && isWater(...b) ? cornerRadius : 0;
+    const last = { col: r.col1 - 1, row: r.row1 - 1 };
     return {
-      minX: r.col0 * tileSize + (sideIsShore(left) ? inset : 0),
-      maxX: r.col1 * tileSize - (sideIsShore(right) ? inset : 0),
-      minY: r.row0 * tileSize + (sideIsShore(above) ? inset : 0),
-      maxY: r.row1 * tileSize - (sideIsShore(below) ? inset : 0),
+      minX: r.col0 * tileSize + (shore.left ? inset : 0),
+      maxX: r.col1 * tileSize - (shore.right ? inset : 0),
+      minY: r.row0 * tileSize + (shore.top ? inset : 0),
+      maxY: r.row1 * tileSize - (shore.bottom ? inset : 0),
+      radii: {
+        topLeft: round([r.col0 - 1, r.row0], [r.col0, r.row0 - 1]),
+        topRight: round([r.col1, r.row0], [last.col, r.row0 - 1]),
+        bottomLeft: round([r.col0 - 1, last.row], [r.col0, r.row1]),
+        bottomRight: round([r.col1, last.row], [last.col, r.row1]),
+      },
     };
   });
 

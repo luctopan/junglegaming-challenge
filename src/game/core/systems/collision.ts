@@ -1,7 +1,7 @@
 import { HALF } from '../../../shared/math/constants';
 import type { Vec2 } from '../../../shared/math/vec2';
 import { add, distance, scale, sub } from '../../../shared/math/vec2';
-import { circleRectPushOut } from '../geometry';
+import { circleRoundedRectPushOut } from '../geometry';
 import { hullCircles, hullRadius } from '../ships';
 import type { Ship, World } from '../types';
 
@@ -53,7 +53,7 @@ export function resolveStatic(world: World, ship: Ship): void {
   const { width, height, islandRects } = world.arena;
   for (const rect of islandRects) {
     for (const circle of hullCircles(world, ship)) {
-      const push = circleRectPushOut(circle, radius, rect);
+      const push = circleRoundedRectPushOut(circle, radius, rect);
       if (push) ship.pos = add(ship.pos, push);
     }
   }

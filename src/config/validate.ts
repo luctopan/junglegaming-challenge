@@ -97,6 +97,14 @@ export function validateGameConfig(cfg: GameConfig): ConfigValidation {
       arena.islandCollisionInset * 2 < arena.tileSize,
     'must be >= 0 and less than half a tile',
   );
+  // Islands are at least two tiles wide, so two corners of one side always fit.
+  c.check(
+    'arena.islandCornerRadius',
+    Number.isFinite(arena.islandCornerRadius) &&
+      arena.islandCornerRadius >= 0 &&
+      arena.islandCornerRadius <= arena.tileSize - arena.islandCollisionInset,
+    'must be >= 0 and at most one tile minus the inset',
+  );
 
   checkShip(c, 'ships.player', cfg.ships.player);
   for (const kind of ENEMY_KINDS) checkShip(c, `ships.${kind}`, cfg.ships[kind]);

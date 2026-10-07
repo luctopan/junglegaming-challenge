@@ -1,7 +1,7 @@
 import { EPSILON } from '../../../shared/math/constants';
 import { add, length, lerp, scale } from '../../../shared/math/vec2';
 import type { DomainEvent } from '../events';
-import { firstRectHit, segmentCircleHit } from '../geometry';
+import { firstRoundedRectHit, segmentCircleHit } from '../geometry';
 import { hullCircles, hullRadius } from '../ships';
 import type { Projectile, Ship, World } from '../types';
 import { applyDamage } from './damage';
@@ -24,7 +24,7 @@ function moveProjectile(world: World, events: DomainEvent[], p: Projectile, dt: 
   const end = add(start, scale(p.vel, travel / speed));
   const radius = world.cfg.projectile.radius;
 
-  const islandT = firstRectHit(start, end, world.arena.islandRects, radius);
+  const islandT = firstRoundedRectHit(start, end, world.arena.islandRects, radius);
   const shipHit = firstShipHit(world, p, start, end, radius);
 
   if (shipHit && (islandT === null || shipHit.t <= islandT)) {
