@@ -41,7 +41,7 @@ async function play(page) {
 
 /** @type {Scene[]} */
 const SCENES = [
-  { name: '01-menu', run: async () => {} },
+  { name: '01-menu', run: () => Promise.resolve() },
   {
     name: '02-options',
     run: async (page) => {
