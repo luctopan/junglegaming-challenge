@@ -5,8 +5,9 @@ import type { PlayerInput, World } from '../types';
 import { IDLE_INPUT } from '../types';
 
 /**
- * Deterministic "player" used by headless tests and the balance tool: sails
- * at the nearest enemy, turns broadside when close and fires whatever bears.
+ * "Naive" deterministic player for headless tests and the balance tool: sails
+ * straight at the nearest enemy (ignoring islands and Chasers), turns broadside
+ * when close and fires whatever bears. Reacts every step.
  * It reads the world only (no randomness), so a seed fully defines a match.
  */
 const AIM_TOLERANCE = 0.12;
@@ -15,7 +16,7 @@ const BROADSIDE_DISTANCE = 220;
 const STEER_DEADBAND = 0.05;
 const QUARTER_TURN = Math.PI / 2;
 
-export function scriptedBotInput(world: World): PlayerInput {
+export function naiveBotInput(world: World): PlayerInput {
   const player = getPlayer(world);
   if (!player.alive) return IDLE_INPUT;
   const target = aliveEnemies(world).reduce<{

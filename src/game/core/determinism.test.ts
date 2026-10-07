@@ -5,7 +5,7 @@ import type { DomainEvent } from './events';
 import { step } from './step';
 import { createFixedStepper } from './stepper';
 import { configWith, ofType } from './testing/fixtures';
-import { scriptedBotInput } from './testing/scriptedBot';
+import { naiveBotInput } from './testing/naiveBot';
 import { scriptedInputAt } from './testing/scriptedInput';
 import type { PlayerInput, World } from './types';
 
@@ -68,7 +68,7 @@ function playMatch(seed: number): Outcome {
   const events: DomainEvent[] = [];
   const maxSteps = Math.round(180 / cfg.simulation.stepSeconds);
   for (let i = 0; i < maxSteps && world.phase === 'running'; i++) {
-    events.push(...step(world, scriptedBotInput(world)));
+    events.push(...step(world, naiveBotInput(world)));
   }
   return { world, events };
 }
