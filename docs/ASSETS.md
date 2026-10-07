@@ -125,7 +125,8 @@ delivered; `pnpm assets:build` generates Pixi JSON (see ARCHITECTURE.md).
 - `ships_miscellaneous_sheet{,_retina}.{png,xml}` (1024×512 both, 102 frames) —
   **Starling/Sparrow XML** (`<TextureAtlas><SubTexture>`), not natively loaded by
   Pixi. Converted to Pixi JSON at build time by `pnpm assets:build` (frame names
-  without `.png`); only the 1× sheet is shipped since the retina one is identical.
+  without `.png`); the delivered retina sheet is identical to 1×, so a real 2× sheet is
+  rasterized from `assets/vector/` instead (see below).
 
 ## Sounds — `assets/sounds/` (27 WAV, 5.8 MB)
 
@@ -148,4 +149,7 @@ toggle. Converting to OGG/MP3 to reduce size is allowed (document it).
 
 ## Vector — `assets/vector/`
 
-SVG/SWF sources of the Kenney pack. Not needed at runtime.
+SVG/SWF sources of the Kenney pack. `ships_miscellaneous_vector.svg` is a 1280×720 overview in
+the `preview.png` layout (no sprite ids); `pnpm assets:build` rasterizes it at 2× and crops
+the frames located once by `scripts/locate-vector-frames.mjs` into the 2× ship sheet
+(docs/DECISIONS.md R1). Not loaded at runtime.

@@ -59,20 +59,22 @@ can never reach.
 `public/assets/` from `assets/`; it runs automatically before `dev`, `build` and the
 e2e server, and its output is git-ignored.
 
-| Output                         | Source                                                                                             |
-| ------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `ships/ships_sheet.{json,png}` | Sparrow XML → Pixi JSON (102 frames, `.png` suffix dropped)                                        |
-| `ships/ships_sheet@2x.*`       | only if the vector source lines up with the raster frames (it does not: 1× fallback, DECISIONS R1) |
-| `tiles/tiles_sheet{,@2x}.*`    | 16×6 grid → `tile_1..96` row-major, re-packed with 2 px (4 px) edge extrusion against seams        |
-| `ui/ui_sheet{,@2x}.*`          | copied (already Pixi JSON, `ui` layout metadata kept)                                              |
-| `manifest.json`                | Pixi asset bundle `combat` (ships, tiles, ui) + the result of the vector check                     |
-| `sounds/*.wav`, `branding/*`   | copied                                                                                             |
+| Output                         | Source                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
+| `ships/ships_sheet.{json,png}` | Sparrow XML → Pixi JSON (102 frames, `.png` suffix dropped)                                 |
+| `ships/ships_sheet@2x.*`       | 2× vector raster re-packed into the sheet layout via a committed frame map (DECISIONS R1)   |
+| `tiles/tiles_sheet{,@2x}.*`    | 16×6 grid → `tile_1..96` row-major, re-packed with 2 px (4 px) edge extrusion against seams |
+| `ui/ui_sheet{,@2x}.*`          | copied (already Pixi JSON, `ui` layout metadata kept)                                       |
+| `manifest.json`                | Pixi asset bundle `combat` (ships, tiles, ui) + the result of the vector check              |
+| `sounds/*.wav`, `branding/*`   | copied                                                                                      |
 
 `@2x` names let Pixi's resolver pick the resolution: the registry asks for 2× art once one
 world unit covers more than one device pixel (`devicePixelRatio × viewport scale > 1`).
-The 2× ship check rasterizes `assets/vector/ships_miscellaneous_vector.svg` with
-`@resvg/resvg-js` and compares every frame, box-filtered back to 1×, with the raster sheet
-at its XML coordinates ([scripts/lib/vectorAtlas.mjs](scripts/lib/vectorAtlas.mjs), tested in
+The 2× ship sheet rasterizes `assets/vector/ships_miscellaneous_vector.svg` with
+`@resvg/resvg-js` and crops each frame at the position found once by
+[scripts/locate-vector-frames.mjs](scripts/locate-vector-frames.mjs) (the vector uses the
+preview layout and has no sprite ids); it ships only if every frame, box-filtered back to
+1×, matches the raster sheet ([scripts/lib/vectorAtlas.mjs](scripts/lib/vectorAtlas.mjs), tested in
 [tests/tooling/vectorAtlas.test.ts](tests/tooling/vectorAtlas.test.ts)).
 
 Pure conversion helpers live in [scripts/lib/atlas.mjs](scripts/lib/atlas.mjs); a test
@@ -286,8 +288,7 @@ _Phase 5–6._
 - Enemy AI is deliberately simple: no strafing, no prediction of the player's motion, and
   enemies only avoid each other through physical separation.
 - Island art: each Kenney sand tile has its own soft shading, so faint tone steps remain
-  visible between tiles (bleeding seams are gone thanks to the padded atlas). Ship and effect
-  art is 1× only (the vector source does not match the sheet, DECISIONS R1), upscaled on
-  high-density screens.
+  visible between tiles (bleeding seams are gone thanks to the padded atlas). The crew and pole
+  frames (unused) are upscaled 1× art inside the 2× ship sheet (DECISIONS R1).
 - Spawn backlog is unbounded by design (a due spawn is never dropped); with the 25-enemy cap it
   only builds up if the player leaves enemies alive for a long time.

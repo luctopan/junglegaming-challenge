@@ -20,8 +20,8 @@ folder tree and the mockups.
 | A8  | Mockup scale: arena ≈ 14 tiles across; ships ≈ 1/6 of screen height.                                                                                                                                                                          | World = **1024×576 units (16×9 tiles of 64)**, ships at native size.                                                                                                                                                                                                                            |
 | A9  | Sounds: 27 WAV, 5.8 MB; no font; logo is a third-party brand SVG.                                                                                                                                                                             | WAV kept, loaded lazily after first gesture (non-blocking). Self-hosted OFL font. Licenses recorded in README.                                                                                                                                                                                  |
 
-ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization was tried in Phase 2; the
-vector layout does not match the sheet, so the 1× fallback ships (DECISIONS R1). A7: generated JSON is git-ignored and rebuilt by `pnpm assets:build` (DECISIONS T2).
+ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG is rasterized in Phase 2; the
+vector uses the preview layout, so frames were located by template matching and a 2× sheet is built (DECISIONS R1). A7: generated JSON is git-ignored and rebuilt by `pnpm assets:build` (DECISIONS T2).
 
 ## 1. Requirements checklist
 
