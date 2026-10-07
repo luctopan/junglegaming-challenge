@@ -14,6 +14,8 @@ const SLOTS: readonly WeaponSlot[] = ['front', 'left', 'right'];
 const SEEDS = Array.from({ length: 10 }, (_, i) => i + 1);
 /** A hull circle within this distance of an island counts as hugging the shore. */
 const SHORE_MARGIN = 1;
+/** 20 full matches (~90 s simulated each); slower than the default timeout under coverage. */
+const FULL_MATCHES_TIMEOUT_MS = 30_000;
 
 function profileStats(profile: BotProfile): { shoreContactShare: number; ramsPerMinute: number } {
   let steps = 0;
@@ -69,10 +71,14 @@ describe('skilled bot', () => {
 
   // Survival is NOT asserted: with the default config both bots last about as long,
   // because Shooter fire (which neither bot dodges) dominates (docs/DECISIONS.md S17).
-  it('hugs island shores far less and takes fewer Chaser rams than the naive bot', () => {
-    const naive = profileStats('naive');
-    const skilled = profileStats('skilled');
-    expect(skilled.shoreContactShare).toBeLessThan(naive.shoreContactShare / 2);
-    expect(skilled.ramsPerMinute).toBeLessThan(naive.ramsPerMinute);
-  });
+  it(
+    'hugs island shores far less and takes fewer Chaser rams than the naive bot',
+    () => {
+      const naive = profileStats('naive');
+      const skilled = profileStats('skilled');
+      expect(skilled.shoreContactShare).toBeLessThan(naive.shoreContactShare / 2);
+      expect(skilled.ramsPerMinute).toBeLessThan(naive.ramsPerMinute);
+    },
+    FULL_MATCHES_TIMEOUT_MS,
+  );
 });

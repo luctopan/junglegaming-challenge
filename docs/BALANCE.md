@@ -12,21 +12,21 @@ Bot profiles ([src/game/core/testing/](../src/game/core/testing/)):
 - **skilled** — decides every 0.2 s (human-like reaction time), kites Chasers that come within
   200 u, routes around islands with the flow field, keeps off shores and the arena edge, and
   taps a trigger only when that weapon bears. The balancing target applies to this profile:
-  median duration 60–100 s and 20–50 % of matches ending by time_up.
+  median duration 60–110 s and 15–50 % of matches ending by time_up (revised, DECISIONS S17).
 
 Both are proxies for a human player: the numbers describe the shape of a match, and final tuning
 is validated by manual play.
 
-Config: session 120 s · spawn every 3 s · weights chaser 0.5 / shooter 0.5 · chaser speed 105 u/s · ram damage 20 · player HP 100.
+Config: session 120 s · spawn every 3 s · weights chaser 0.5 / shooter 0.5 · chaser speed 105 u/s · ram damage 20 · player HP 200 · Shooter cannon dmg 7, cd 2.5 s, ball speed 420 u/s.
 
 | Metric                    | naive mean | naive median | skilled mean | skilled median |
 | ------------------------- | ---------- | ------------ | ------------ | -------------- |
-| Match duration (s)        | 38.2       | 37.9         | 37.9         | 36.6           |
-| Score (enemies destroyed) | 8.0        | 8.0          | 8.9          | 9.0            |
-| Chasers spawned           | 6.8        | —            | 6.3          | —              |
-| Shooters spawned          | 5.5        | —            | 5.8          | —              |
+| Match duration (s)        | 89.7       | 90.5         | 90.6         | 89.4           |
+| Score (enemies destroyed) | 22.6       | 23.0         | 23.9         | 23.5           |
+| Chasers spawned           | 15.3       | —            | 14.8         | —              |
+| Shooters spawned          | 14.1       | —            | 14.8         | —              |
 
 | End reason | naive matches | naive share | skilled matches | skilled share |
 | ---------- | ------------- | ----------- | --------------- | ------------- |
-| time_up    | 0             | 0 %         | 0               | 0 %           |
-| defeated   | 50            | 100 %       | 50              | 100 %         |
+| time_up    | 2             | 4 %         | 3               | 6 %           |
+| defeated   | 48            | 96 %        | 47              | 94 %          |

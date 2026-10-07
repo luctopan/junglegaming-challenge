@@ -155,7 +155,7 @@ describe('projectiles', () => {
     expect(chaser.hp).toBe(30);
     const hits = ofType(events, 'projectileHit');
     expect(hits.map((h) => h.targetId)).toEqual([player.id]);
-    expect(player.hp).toBe(90);
+    expect(player.hp).toBe(player.maxHp - 10);
   });
 
   it('use swept collision: a very fast ball cannot tunnel through a ship', () => {

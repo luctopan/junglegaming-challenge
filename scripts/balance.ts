@@ -91,12 +91,12 @@ Bot profiles ([src/game/core/testing/](../src/game/core/testing/)):
 - **skilled** — decides every 0.2 s (human-like reaction time), kites Chasers that come within
   200 u, routes around islands with the flow field, keeps off shores and the arena edge, and
   taps a trigger only when that weapon bears. The balancing target applies to this profile:
-  median duration 60–100 s and 20–50 % of matches ending by time_up.
+  median duration 60–110 s and 15–50 % of matches ending by time_up (revised, DECISIONS S17).
 
 Both are proxies for a human player: the numbers describe the shape of a match, and final tuning
 is validated by manual play.
 
-Config: session ${cfg.match.sessionSeconds} s · spawn every ${cfg.spawn.intervalSeconds} s · weights chaser ${cfg.spawn.weights.chaser} / shooter ${cfg.spawn.weights.shooter} · chaser speed ${cfg.ships.chaser.maxSpeed} u/s · ram damage ${cfg.chaser.ramDamage} · player HP ${cfg.ships.player.maxHp}.
+Config: session ${cfg.match.sessionSeconds} s · spawn every ${cfg.spawn.intervalSeconds} s · weights chaser ${cfg.spawn.weights.chaser} / shooter ${cfg.spawn.weights.shooter} · chaser speed ${cfg.ships.chaser.maxSpeed} u/s · ram damage ${cfg.chaser.ramDamage} · player HP ${cfg.ships.player.maxHp} · Shooter cannon dmg ${cfg.weapons.shooterCannon.damage}, cd ${cfg.weapons.shooterCannon.cooldownSeconds} s, ball speed ${cfg.weapons.shooterCannon.projectileSpeed} u/s.
 
 ${header}
 ${divider}

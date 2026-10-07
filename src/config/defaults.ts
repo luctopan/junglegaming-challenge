@@ -14,7 +14,7 @@ export const DEFAULT_GAME_CONFIG: GameConfig = cloneDeepFrozen<GameConfig>({
   arena: { tileSize: 64, islandCollisionInset: 0 },
   ships: {
     player: {
-      maxHp: 100,
+      maxHp: 200,
       maxSpeed: 140,
       acceleration: 160,
       deceleration: 120,
@@ -57,8 +57,8 @@ export const DEFAULT_GAME_CONFIG: GameConfig = cloneDeepFrozen<GameConfig>({
       spacing: 28,
     },
     shooterCannon: {
-      damage: 10,
-      cooldownSeconds: 1.8,
+      damage: 7,
+      cooldownSeconds: 2.5,
       projectileSpeed: 420,
       projectileRange: 380,
       muzzleOffset: 56,

@@ -15,7 +15,7 @@ describe('createMatch', () => {
     expect(world.score).toBe(0);
     expect(world.ships).toHaveLength(1);
     expect(player.pos).toEqual({ x: 512, y: 448 });
-    expect(player.hp).toBe(100);
+    expect(player.hp).toBe(200);
     expect(player.heading).toBeCloseTo(-Math.PI / 2);
   });
 

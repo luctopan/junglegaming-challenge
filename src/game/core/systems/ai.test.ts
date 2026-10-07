@@ -58,7 +58,7 @@ describe('Shooter', () => {
     expect(gap).toBeGreaterThan(world.cfg.shooter.standoffDistance - 40);
     expect(shooter.speed).toBeLessThan(5);
     expect(ofType(events, 'shotFired').length).toBeGreaterThan(1);
-    expect(getPlayer(world).hp).toBeLessThan(100);
+    expect(getPlayer(world).hp).toBeLessThan(getPlayer(world).maxHp);
   });
 
   it('does not fire while out of range', () => {
