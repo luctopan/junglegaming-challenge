@@ -58,6 +58,8 @@ export interface AudioEngine {
   play(cue: SoundCue): void;
   startAmbience(): void;
   setMuted(muted: boolean): void;
+  /** Silences everything while the match is paused (the ambience loop keeps its place). */
+  setPaused(paused: boolean): void;
   readonly muted: boolean;
   /** Stops every source this engine started. */
   destroy(): void;
@@ -73,6 +75,8 @@ export function createAudioEngine({
   muted: initiallyMuted,
 }: AudioEngineOptions): AudioEngine {
   let muted = initiallyMuted;
+  let paused = false;
+  const outputLevel = (): number => (muted || paused ? 0 : 1);
   let output: { context: AudioContext; gain: GainNode } | null = null;
   let ambience: { source: AudioBufferSourceNode; release: () => void } | null = null;
   let wantsAmbience = false;
@@ -87,7 +91,7 @@ export function createAudioEngine({
     if (destroyed || bank === null) return null;
     if (output === null) {
       const gain = bank.context.createGain();
-      gain.gain.value = muted ? 0 : 1;
+      gain.gain.value = outputLevel();
       gain.connect(bank.context.destination);
       output = { context: bank.context, gain };
     }
@@ -130,14 +134,14 @@ export function createAudioEngine({
       tryStartAmbience();
     },
     playEvents(events, playerId) {
-      if (muted || bank === null) return;
+      if (muted || paused || bank === null) return;
       for (const event of events)
         for (const cue of soundCuesFor(event, playerId)) startSource(cue, false);
       // The ambience buffer may finish decoding after the match started.
       tryStartAmbience();
     },
     play(cue) {
-      if (!muted) startSource(cue, false);
+      if (!muted && !paused) startSource(cue, false);
     },
     startAmbience() {
       wantsAmbience = true;
@@ -145,7 +149,11 @@ export function createAudioEngine({
     },
     setMuted(value) {
       muted = value;
-      if (output !== null) output.gain.gain.value = value ? 0 : 1;
+      if (output !== null) output.gain.gain.value = outputLevel();
+    },
+    setPaused(value) {
+      paused = value;
+      if (output !== null) output.gain.gain.value = outputLevel();
     },
     get muted() {
       return muted;

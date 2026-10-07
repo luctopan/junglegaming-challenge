@@ -2,6 +2,7 @@ import { Container, Rectangle, Sprite, Texture } from 'pixi.js';
 import { trackResource } from '../../../platform/resourceCounters';
 import type { Atlas, FillLayout } from '../assets/atlas';
 import type { HpBarArt } from '../theme';
+import type { BarExtents } from './hpBarPlacement';
 import { hpBarPixels, hpFill } from './shipVisual';
 
 /**
@@ -33,6 +34,7 @@ export class HpBar {
   #layout: FillLayout | null = null;
   #fillFrame = '';
   #pixels = -1;
+  #extents: BarExtents = { halfWidth: 0, halfHeight: 0 };
 
   constructor(private readonly atlas: Atlas) {
     this.view.addChild(this.#frame, this.#fill);
@@ -48,8 +50,17 @@ export class HpBar {
     this.#frame.texture = frame;
     this.view.pivot.set(frame.width / 2, frame.height / 2);
     this.view.scale.set(art.scale);
+    this.#extents = {
+      halfWidth: (frame.width * art.scale) / 2,
+      halfHeight: (frame.height * art.scale) / 2,
+    };
     this.#fillFrame = '';
     this.#pixels = -1;
+  }
+
+  /** Half size in world units (the bar is not rotated). */
+  get extents(): BarExtents {
+    return this.#extents;
   }
 
   /** `ratio` = hp / maxHp. */

@@ -3,8 +3,10 @@ import type { ShipKind } from '../../core';
 import type { Atlas } from '../assets/atlas';
 import type { Pose } from '../interpolate';
 import { HP_BARS, SHIP_ART, SHIP_FX } from '../theme';
+import type { Size } from '../viewport';
 import type { ShipState } from '../worldView';
 import { HpBar } from './HpBar';
+import { placeHpBar } from './hpBarPlacement';
 import { hpBarArt, shipFrame, shipStage } from './shipVisual';
 
 const WHITE = 0xffffff;
@@ -27,6 +29,8 @@ export class ShipView {
   constructor(
     private readonly atlas: Atlas,
     uiAtlas: Atlas,
+    /** The bar is kept inside the arena (always fully on screen). */
+    private readonly arenaSize: Size,
   ) {
     this.#hull.anchor.set(0.5);
     this.body.addChild(this.#hull);
@@ -91,7 +95,8 @@ export class ShipView {
       this.body.alpha = 1;
       this.body.scale.set(1);
       this.bar.view.visible = true;
-      this.bar.view.position.set(pose.x, pose.y - HP_BARS.offsetY);
+      const { x, y } = placeHpBar(pose, this.bar.extents, HP_BARS.offsetY, this.arenaSize);
+      this.bar.view.position.set(x, y);
       this.bar.setRatio(ship.hp / ship.maxHp);
     } else {
       // Sinking: fade and shrink over the wreck time; the player's wreck stays readable.

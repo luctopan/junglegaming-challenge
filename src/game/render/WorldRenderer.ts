@@ -50,11 +50,12 @@ export class WorldRenderer {
   readonly #seen = new Map<number, number>();
 
   constructor(atlases: CombatAtlases, arena: ArenaGrid) {
+    const arenaSize = { width: arena.cols * arena.tileSize, height: arena.rows * arena.tileSize };
     this.#arena = new ArenaLayer(atlases.tiles, arena);
     this.#projectiles = new ProjectileLayer(atlases.ships);
     this.#effects = new EffectLayer(atlases.ships);
     this.#shipPool = createPool<ShipView>({
-      create: () => new ShipView(atlases.ships, atlases.ui),
+      create: () => new ShipView(atlases.ships, atlases.ui, arenaSize),
       reset: (view) => {
         view.reset();
       },
