@@ -20,8 +20,8 @@ folder tree and the mockups.
 | A8  | Mockup scale: arena ≈ 14 tiles across; ships ≈ 1/6 of screen height.                                                                                                                                                                          | World = **1024×576 units (16×9 tiles of 64)**, ships at native size.                                                                                                                                                                                                                            |
 | A9  | Sounds: 27 WAV, 5.8 MB; no font; logo is a third-party brand SVG.                                                                                                                                                                             | WAV kept, loaded lazily after first gesture (non-blocking). Self-hosted OFL font. Licenses recorded in README.                                                                                                                                                                                  |
 
-ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is deferred to Phase 2
-(DECISIONS T8). A7: generated JSON is git-ignored and rebuilt by `pnpm assets:build` (DECISIONS T2).
+ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization was tried in Phase 2; the
+vector layout does not match the sheet, so the 1× fallback ships (DECISIONS R1). A7: generated JSON is git-ignored and rebuilt by `pnpm assets:build` (DECISIONS T2).
 
 ## 1. Requirements checklist
 
@@ -29,7 +29,7 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 
 - [ ] React for menus/forms/panels/dialogs — P4 — e2e:navigation
 - [x] TypeScript `strict` — P0 — `pnpm typecheck` in CI
-- [ ] PixiJS for arena, ships, projectiles, effects, over-ship bars — P2 — e2e:visual (arena)
+- [x] PixiJS for arena, ships, projectiles, effects, over-ship bars — P2 — e2e:visual (arena)
 - [ ] TanStack Query for ranking/history reads + submission — P5 — e2e:records, e2e:submission
 - [ ] Axios client — P5 — unit:apiClient
 - [ ] MSW mocks (dev, test, prod) — P6 — e2e:network-resilience
@@ -58,7 +58,7 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 
 ### 2 Arena, collisions, combat
 
-- [ ] Water + ≥1 island blocking ships and projectiles — P1/P2 — unit:collision, e2e:movement
+- [x] Water + ≥1 island blocking ships and projectiles — P1/P2 — unit:collision, e2e:movement
 - [x] Projectiles: direction, speed, damage, range/lifetime — P1 — unit:projectiles
 - [x] Player shots hit enemies; enemy shots hit player (no friendly fire) — P1 — unit:damage
 - [x] Damage applied once; removed on hit/obstacle/expire/out-of-arena — P1 — unit:projectiles
@@ -72,17 +72,17 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 - [x] Ends on time up or HP 0 — P1 — unit:match, e2e:match-end
 - [x] End freezes movement, attacks, damage, spawns, scoring — P1 — unit:match, e2e:match-end
 - [ ] Restart = fresh HP/score/timer/entities — P3 — e2e:match-end
-- [ ] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual
+- [ ] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual (P2: HP bars over every ship done; HUD in P4)
 - [ ] Manual pause + auto-pause on blur/hidden — P3 — e2e:pause
 - [ ] Pause suspends timer, cooldowns, simulation — P1/P3 — unit:stepper, e2e:pause
 - [ ] Resume requires player action; no accumulated movement/shots — P3 — unit:inputState, e2e:pause
 
 ### 2 Animations & feedback
 
-- [ ] Muzzle effects, destruction explosion — P2 — e2e:visual (manual check)
-- [ ] Ship visual deterioration by HP (4 stages) — P2 — unit:damageStage
-- [ ] Perceptible feedback for attacks/hits/damage (flash, shake-lite, sound) — P2
-- [ ] Arena stays readable (effects pooled, short, under HUD) — P2
+- [x] Muzzle effects, destruction explosion — P2 — e2e:visual (manual check)
+- [x] Ship visual deterioration by HP (4 stages) — P2 — unit:damageStage
+- [x] Perceptible feedback for attacks/hits/damage (flash, shake-lite, sound) — P2
+- [x] Arena stays readable (effects pooled, short, under HUD) — P2
 
 ### 3 Screens & config
 
@@ -108,10 +108,10 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 - [ ] Separation: rules / render / input / UI state (lint-enforced) — P0/P1 — `pnpm lint` (P0: enforcement in place + tested)
 - [x] Time-based simulation, frame-rate independent — P1 — unit:stepper (30/60/144 Hz parity)
 - [ ] UI sync without per-frame React renders — P3 — unit:bridge, e2e (render counter in test mode)
-- [ ] Texture load once + reuse; failure handling before combat — P2 — e2e:assets
-- [ ] Canvas fits screen + DPR, preserves aspect, input coords, arena bounds — P2 — e2e:touch (resize)
-- [ ] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md
-- [ ] Correct init/teardown under Strict Mode — P2 — dev runs in StrictMode + e2e:lifecycle
+- [x] Texture load once + reuse; failure handling before combat — P2 — e2e:assets
+- [x] Canvas fits screen + DPR, preserves aspect, input coords, arena bounds — P2 — e2e:touch (resize)
+- [ ] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md (P2: session resources released + counted, e2e:lifecycle green; input listeners in P3)
+- [x] Correct init/teardown under Strict Mode — P2 — dev runs in StrictMode + e2e:lifecycle
 - [x] Continuous combat state lives in simulation — P1
 - [ ] ARCHITECTURE.md — P8
 
@@ -154,7 +154,7 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 - [ ] Desktop + mobile, usable touch, no clipped arena/HUD — P2/P4 — e2e mobile project
 - [ ] Supported mobile orientation defined; layout adapts on resize, rules unchanged — P2 — e2e:touch
 - [ ] Portrait shows rotate overlay + auto-pause during gameplay; menus usable in portrait — P4 — e2e:touch
-- [ ] Visible asset loading progress — P2 — e2e:assets
+- [x] Visible asset loading progress — P2 — e2e:assets
 - [ ] Keyboard nav, visible focus, dialog focus control, labels, contrast, accessible errors — P4 — e2e:a11y
 - [ ] Semantic score/time/state, no per-frame announcements — P4 — e2e:a11y
 - [ ] Game keys captured only during active gameplay — P3 — e2e:a11y
@@ -162,7 +162,7 @@ ASSETS.md was patched with A1–A7 in Phase 0. A6: the SVG rasterization is defe
 ### 8 Playwright (each bullet = spec item)
 
 - [ ] Options navigation/validation/persistence — e2e:options
-- [ ] Asset loading, failure, retry — e2e:assets
+- [x] Asset loading, failure, retry — e2e:assets
 - [ ] Start, movement, rotation, arena bounds, island collision — e2e:movement
 - [ ] Front/side fire, damage, cooldown, score without duplication — e2e:combat
 - [ ] Chaser/Shooter behaviour + spawn interval — e2e:enemies
@@ -502,7 +502,7 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------- |
 | 0 ✅ | Scaffold: Vite+React+TS strict, pnpm, ESLint (ts-eslint strict-type-checked, layer zones), Prettier, Vitest, Playwright (2 projects, report, trace), MSW worker in `public/`, scripts (dev/build/preview/lint/typecheck/test/test:e2e/test:e2e:update), atlas script, `.gitattributes`, CI workflow (GH Actions), docs skeletons (README, ARCHITECTURE, DECISIONS), ASSETS.md fixes | all scripts green on empty app; a smoke e2e passes desktop+mobile; lint fails on a deliberate core→pixi import         | 5        |
 | 1 ✅ | Config + core: types/defaults/validation, rng, clock, stepper, map + islands, movement, steering, weapons, projectiles, collisions, damage, Chaser, Shooter, spawner, match rules, events                                                                                                                                                                                           | ≥ 90 % line coverage on `game/core`; all unit tests in §1 green; headless 180 s simulated match deterministic per seed | 16       |
-| 2    | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                              | 13       |
+| 2 ✅ | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                              | 13       |
 | 3    | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                         | 9        |
 | 4    | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                    | 15       |
 | 5    | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests                                                            | 8        |

@@ -5,9 +5,10 @@ Axios and MSW, tested with Vitest and Playwright. Everything runs in the browser
 ranking and match-history backend is mocked at network level by MSW in every build,
 including the public demo.
 
-> Status: **Phase 1 (config + deterministic simulation core) complete.** Rendering, input and
-> screens arrive in later phases; see [docs/PLAN.md](docs/PLAN.md) for the requirement
-> checklist and phase status.
+> Status: **Phase 2 (assets + PixiJS rendering) complete.** The arena, ships, projectiles,
+> HP bars, effects and sounds render from the deterministic simulation; the player ship is
+> idle until input lands in Phase 3, and the menu is a placeholder until Phase 4. See
+> [docs/PLAN.md](docs/PLAN.md) for the requirement checklist and phase status.
 
 ## Requirements
 
@@ -28,21 +29,22 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
 
 ## Scripts
 
-| Command                | What it does                                                     |
-| ---------------------- | ---------------------------------------------------------------- |
-| `pnpm dev`             | Build runtime assets, start the Vite dev server                  |
-| `pnpm build`           | Build runtime assets, typecheck, production bundle in `dist/`    |
-| `pnpm preview`         | Serve `dist/` locally                                            |
-| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects |
-| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries) |
-| `pnpm format`          | Prettier write (`format:check` verifies only)                    |
-| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)    |
-| `pnpm test:watch`      | Vitest in watch mode (no coverage)                               |
-| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)  |
-| `pnpm test:e2e`        | Playwright on the production bundle, desktop + mobile Chromium   |
-| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image              |
-| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image              |
-| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)     |
+| Command                | What it does                                                        |
+| ---------------------- | ------------------------------------------------------------------- |
+| `pnpm dev`             | Build runtime assets, start the Vite dev server                     |
+| `pnpm build`           | Build runtime assets, typecheck, bundle `dist/`, verify no dev code |
+| `pnpm preview`         | Serve `dist/` locally                                               |
+| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects    |
+| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries)    |
+| `pnpm format`          | Prettier write (`format:check` verifies only)                       |
+| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)       |
+| `pnpm test:watch`      | Vitest in watch mode (no coverage)                                  |
+| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)     |
+| `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)         |
+| `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server     |
+| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image                 |
+| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                 |
+| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)        |
 
 ## Testing
 
@@ -50,11 +52,28 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
   `tests/tooling/` (atlas generation, layer boundaries, CI image version).
 - **E2E** (`pnpm test:e2e`): Playwright builds and serves the production bundle on port
   4173, then runs `desktop-chromium` (1280×720) and `mobile-chromium` (Pixel 7
-  landscape, touch). Any console error fails a test. HTML report in
-  `playwright-report/` (`pnpm exec playwright show-report`); traces are kept on failure.
+  landscape, touch). The `dev-strict-mode` project runs `tests/e2e/dev/` against a Vite
+  dev server on port 5174, because React Strict Mode only double-mounts in development.
+  Any console error fails a test (tests declare the ones they provoke on purpose). HTML
+  report in `playwright-report/` (`pnpm exec playwright show-report`); traces are kept on
+  failure.
+- **Test hook**: with `?test=1` the app exposes `window.__PIRATE_TEST__`
+  (`resources()`: live apps, canvases, ticker callbacks, listeners, observers, dynamic
+  textures, display objects, cached textures). Absent otherwise.
 - **Visual baselines** are generated only inside
   `mcr.microsoft.com/playwright:v<installed version>-noble` so they match CI on any host
   OS: run `pnpm test:e2e:update` (needs Docker running). CI uses the same image.
+
+## Render sandbox (dev only)
+
+`pnpm dev`, then open <http://localhost:5173/sandbox.html>: a full match rendered with
+Pixi where the scripted skilled bot steers the player, with seed, speed (pause … 8×),
+restart, collision overlay and sound controls. Query parameters make a frame
+reproducible: `seed`, `speed`, `stopAt=<sim seconds>`, `pauseOnExplosion=1`,
+`pauseOnFight=1`, `spawn=x,y,headingDeg`, `pilot=forward`, `overlay=1`, `ui=0`.
+`pnpm sandbox:shots [dir]` captures the phase screenshots
+([docs/screenshots/phase2/](docs/screenshots/phase2/)). The sandbox is not a build input
+and `pnpm build` fails if any of its code reaches `dist/`.
 
 ## Project layout
 
@@ -63,6 +82,7 @@ src/
   config/   shared/   platform/          pure config · pure utilities · browser adapters
   game/{core,input,render,runtime,bridge} simulation → input → Pixi views → lifecycle → UI sync
   api/      mocks/    ui/                contracts + queries · MSW backend · React screens
+  dev/                                   dev-server-only render sandbox (never bundled)
 tests/e2e/  tests/tooling/  scripts/
 ```
 

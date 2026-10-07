@@ -19,3 +19,7 @@ blob-report
 Thumbs.db
 *.log
 .env*.local
+
+# Local Claude Code tooling
+.claude/launch.json
+.claude/settings.local.json

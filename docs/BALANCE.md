@@ -21,12 +21,12 @@ Config: session 120 s · spawn every 3 s · weights chaser 0.5 / shooter 0.5 · 
 
 | Metric                    | naive mean | naive median | skilled mean | skilled median |
 | ------------------------- | ---------- | ------------ | ------------ | -------------- |
-| Match duration (s)        | 89.7       | 90.5         | 90.6         | 89.4           |
-| Score (enemies destroyed) | 22.6       | 23.0         | 23.9         | 23.5           |
-| Chasers spawned           | 15.3       | —            | 14.8         | —              |
-| Shooters spawned          | 14.1       | —            | 14.8         | —              |
+| Match duration (s)        | 100.6      | 98.9         | 95.1         | 93.4           |
+| Score (enemies destroyed) | 27.4       | 27.0         | 26.0         | 25.0           |
+| Chasers spawned           | 16.5       | —            | 16.6         | —              |
+| Shooters spawned          | 16.4       | —            | 14.6         | —              |
 
 | End reason | naive matches | naive share | skilled matches | skilled share |
 | ---------- | ------------- | ----------- | --------------- | ------------- |
-| time_up    | 2             | 4 %         | 3               | 6 %           |
-| defeated   | 48            | 96 %        | 47              | 94 %          |
+| time_up    | 12            | 24 %        | 2               | 4 %           |
+| defeated   | 38            | 76 %        | 48              | 96 %          |
