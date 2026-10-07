@@ -1,0 +1,19 @@
+:root {
+  color-scheme: dark;
+  --color-bg: #0b2a3c;
+  --color-text: #fdf6e3;
+  font-family: system-ui, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+}

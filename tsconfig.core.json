@@ -1,0 +1,13 @@
+{
+  // The simulation core and gameplay config must stay portable and deterministic:
+  // no DOM lib and no ambient types, so any browser/Node global used there
+  // (or in a shared module they import) fails typecheck.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.core.tsbuildinfo",
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/game/core", "src/config"],
+  "exclude": ["src/**/*.test.ts"]
+}
