@@ -54,11 +54,29 @@ const VECTOR_FRAME_MAP = path.join(root, 'scripts', 'data', 'ships-vector-frames
 /** @param {string} rel */
 const source = (rel) => path.join(src, rel);
 
+/** Every file this run writes; anything else left in `out` is stale and pruned at the end. */
+const written = new Set();
+
 /** @param {string} rel */
 function target(rel) {
   const file = path.join(out, rel);
   mkdirSync(path.dirname(file), { recursive: true });
+  written.add(file);
   return file;
+}
+
+/**
+ * Removes files of earlier builds that this run did not write. The output is
+ * rebuilt in place instead of deleted up front: a dev server started at the
+ * same time (the e2e web servers start in parallel) scans `public/` once and,
+ * on file systems without change events (Docker bind mounts from Windows),
+ * would otherwise keep serving a deleted file as the HTML fallback.
+ */
+function pruneStale() {
+  for (const entry of readdirSync(out, { recursive: true, withFileTypes: true })) {
+    const file = path.join(entry.parentPath, entry.name);
+    if (entry.isFile() && !written.has(file)) rmSync(file);
+  }
 }
 
 /** @param {string} from @param {string} to */
@@ -203,7 +221,6 @@ function copyBranding() {
   copy('ui_scene_background.png', 'branding/ui_scene_background.png');
 }
 
-rmSync(out, { recursive: true, force: true });
 const ships = buildShips();
 const tiles = buildTiles();
 const ui = copyUi();
@@ -216,5 +233,6 @@ writeFileSync(
     vectorShips: ships.vector,
   }),
 );
+pruneStale();
 console.log(`Assets built into ${path.relative(root, out)}`);
 console.log(`Ship sheet 2× from vector: ${ships.vector.status} (${ships.vector.reason})`);
