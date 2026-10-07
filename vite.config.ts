@@ -16,8 +16,17 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/main.tsx', 'src/vite-env.d.ts'],
-      reporter: ['text', 'html'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/game/core/testing/**',
+        'src/main.tsx',
+        'src/vite-env.d.ts',
+      ],
+      reporter: ['text-summary', 'html'],
+      // `pnpm test` runs with coverage, so dropping below this fails the run (and CI).
+      thresholds: {
+        'src/game/core/**/*.ts': { lines: 90 },
+      },
     },
   },
 });

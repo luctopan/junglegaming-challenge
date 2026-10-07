@@ -56,6 +56,24 @@ export default defineConfig(
     ],
   },
   ...boundariesConfig,
+  {
+    // All balancing lives in the typed config: simulation code may only use
+    // 0/1/-1 and named constants (TAU, HALF, EPSILON… from shared/math).
+    files: ['src/game/core/**/*.ts'],
+    ignores: ['src/game/core/**/*.test.ts', 'src/game/core/testing/**'],
+    rules: {
+      '@typescript-eslint/no-magic-numbers': [
+        'error',
+        {
+          ignore: [0, 1, -1],
+          ignoreEnums: true,
+          ignoreNumericLiteralTypes: true,
+          ignoreReadonlyClassProperties: true,
+          ignoreTypeIndexes: true,
+        },
+      ],
+    },
+  },
 
   {
     files: ['*.{js,ts}', 'eslint/**/*.js', 'scripts/**/*.mjs', 'tests/**/*.ts'],
