@@ -1,0 +1,62 @@
+/* Round button art is 64×64 with the icon (32×32) centred: icon = half the button. */
+.round {
+  --round-size: calc(46px * var(--ui-scale));
+  display: inline-grid;
+  place-items: center;
+  width: var(--round-size);
+  height: var(--round-size);
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: center / contain no-repeat;
+  background-image: image-set(
+    url('../../../assets/png/default/ui/controls/button_round_normal.png') 1x,
+    url('../../../assets/png/retina/ui/controls/button_round_normal.png') 2x
+  );
+  font-size: calc(var(--round-size) / 2);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.small {
+  --round-size: max(32px, calc(38px * var(--ui-scale)));
+}
+
+.large {
+  --round-size: max(44px, calc(60px * var(--ui-scale)));
+}
+
+.round:hover:not(:disabled) {
+  background-image: image-set(
+    url('../../../assets/png/default/ui/controls/button_round_hover.png') 1x,
+    url('../../../assets/png/retina/ui/controls/button_round_hover.png') 2x
+  );
+}
+
+.round:active:not(:disabled),
+.round[aria-pressed='true'],
+.round[data-pressed='true'] {
+  background-image: image-set(
+    url('../../../assets/png/default/ui/controls/button_round_pressed.png') 1x,
+    url('../../../assets/png/retina/ui/controls/button_round_pressed.png') 2x
+  );
+}
+
+/* No disabled art for round buttons in the atlas (A4). */
+.round:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(0.7);
+  opacity: 0.7;
+}
+
+.round:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.icon {
+  font-size: inherit;
+}

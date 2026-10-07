@@ -1,0 +1,28 @@
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background: center / contain no-repeat;
+  flex: none;
+}
+
+.drawn {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: none;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Two strokes: a dark outline under the cream line, like the atlas icons. */
+.outline {
+  stroke: #4a2a12;
+  stroke-width: 5;
+}
+
+.stroke {
+  stroke: #fbe9c6;
+  stroke-width: 2.6;
+}

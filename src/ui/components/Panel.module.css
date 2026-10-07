@@ -1,0 +1,39 @@
+/*
+ * 9-slice of panel_menu (384×480): `borders` 32/40/32/40 in logical px. The
+ * slice is given in percent of the image (40/480, 32/384 = 8.333 %), so the
+ * 1× and 2× PNGs of the image-set cut at the same place.
+ */
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: calc(100dvh - 2 * var(--gutter));
+  overflow: auto;
+  border-style: solid;
+  border-width: calc(45px * var(--ui-scale)) calc(36px * var(--ui-scale));
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/panel_menu.png') 1x,
+    url('../../../assets/png/retina/ui/menu/panel_menu.png') 2x
+  );
+  border-image-slice: 8.3333% fill;
+  border-image-repeat: stretch;
+  /* Matches the painted navy, for contrast tools that cannot read the image. */
+  background-color: var(--color-panel);
+  background-clip: padding-box;
+  color: var(--color-text);
+  text-align: center;
+  scrollbar-color: var(--color-label) transparent;
+}
+
+.menu {
+  width: min(calc(560px * var(--ui-scale)), calc(100vw - 2 * var(--gutter)));
+  padding: calc(16px * var(--ui-scale)) calc(24px * var(--ui-scale));
+  gap: calc(14px * var(--ui-scale));
+}
+
+.wide {
+  width: min(calc(1000px * var(--ui-scale) + 120px), calc(100vw - 2 * var(--gutter)));
+  padding: calc(6px * var(--ui-scale)) calc(20px * var(--ui-scale));
+  gap: calc(10px * var(--ui-scale));
+}

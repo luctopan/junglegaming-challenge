@@ -1,0 +1,101 @@
+/*
+ * Menu buttons (256×88 art, rivets at both ends). Drawn as a horizontal
+ * 3-slice: the 50 px end caps (19.53 % of the width) keep their shape and the
+ * middle stretches, so buttons can be wider than the art like in the mockups.
+ */
+.button {
+  --button-height: calc(66px * var(--ui-scale));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--button-height);
+  min-width: calc(250px * var(--ui-scale));
+  margin: 0;
+  padding: 0 calc(8px * var(--ui-scale)) calc(2px * var(--ui-scale));
+  border-style: solid;
+  border-width: 0 calc(var(--button-height) * 50 / 88);
+  border-image-slice: 0 19.53% fill;
+  border-image-repeat: stretch;
+  background: none;
+  font-size: max(var(--min-font), calc(24px * var(--ui-scale)));
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.small {
+  --button-height: calc(48px * var(--ui-scale));
+  min-width: calc(180px * var(--ui-scale));
+  font-size: max(var(--min-font), calc(16px * var(--ui-scale)));
+}
+
+/* Our focus ring follows the visible button shape (the art has no focus state). */
+.button:focus-visible {
+  outline: none;
+  border-radius: calc(var(--button-height) * 0.32);
+  box-shadow: var(--focus-ring);
+}
+
+.primary {
+  color: var(--color-button-text);
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_primary_normal.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_primary_normal.png') 2x
+  );
+}
+
+.primary:hover:not(:disabled) {
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_primary_hover.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_primary_hover.png') 2x
+  );
+}
+
+/* The pressed art is darker; brightened a little so the label keeps 4.5:1 (contrast test). */
+.primary:active:not(:disabled) {
+  filter: brightness(1.18);
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_primary_pressed.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_primary_pressed.png') 2x
+  );
+}
+
+.primary:disabled {
+  color: #2b2b2b;
+  cursor: not-allowed;
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_primary_disabled.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_primary_disabled.png') 2x
+  );
+}
+
+.secondary {
+  color: var(--color-text);
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_secondary_normal.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_secondary_normal.png') 2x
+  );
+}
+
+/* No hover art for secondary buttons in the atlas (A4): brighten the normal one. */
+.secondary:hover:not(:disabled) {
+  filter: brightness(1.2);
+}
+
+.secondary:active:not(:disabled) {
+  filter: none;
+  border-image-source: image-set(
+    url('../../../assets/png/default/ui/menu/button_secondary_pressed.png') 1x,
+    url('../../../assets/png/retina/ui/menu/button_secondary_pressed.png') 2x
+  );
+}
+
+.secondary:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(0.8);
+}

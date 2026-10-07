@@ -1,0 +1,69 @@
+/*
+ * Design tokens of the UI. Colours are checked for contrast against the panel
+ * art by tests/tooling/contrast.test.ts (keep the `--color-*` names in sync).
+ */
+:root {
+  /* Panel navy sampled from panel_menu.png: mean, and the lightest pixel (worst case). */
+  --color-panel: #263546;
+  --color-panel-light: #334455;
+  --color-row: #1b2738;
+  --color-row-highlight: #4a4630;
+  --color-backdrop: #0b2a3c;
+  --color-scrim: rgb(4 16 28 / 45%);
+
+  /* Text on the panel (all ≥ 4.5:1 against --color-panel-light). */
+  --color-text: #fdf3dc;
+  --color-heading: #fbe6b8;
+  --color-text-muted: #c9d3df;
+  --color-label: #b8c4d2;
+  --color-gold: #f7c45a;
+  --color-danger: #ffaa99;
+  --color-success: #b5ecae;
+  /* Labels drawn on the gold primary buttons. */
+  --color-button-text: #24140a;
+
+  /* Our focus ring (the atlas has no focus state): cream ring with a dark halo. */
+  --color-focus: #fff4cc;
+  --color-focus-halo: #0b1622;
+  --focus-ring:
+    0 0 0 3px var(--color-focus-halo), 0 0 0 6px var(--color-focus),
+    0 0 12px 6px rgb(255 244 204 / 45%);
+
+  --font-ui: 'Archivo Variable', 'Arial', system-ui, sans-serif;
+  --heading-shadow: 0 2px 0 rgb(0 0 0 / 55%), 0 0 12px rgb(0 0 0 / 35%);
+
+  /*
+   * One scale for the art-sized UI (panels, buttons, HUD), stepped by the
+   * viewport so the mockup proportions hold from 1280×720 down to phones.
+   * Text never scales below --min-font.
+   */
+  --ui-scale: 1;
+  --min-font: 12px;
+  --gutter: 16px;
+}
+
+@media (max-height: 760px), (max-width: 900px) {
+  :root {
+    --ui-scale: 0.85;
+  }
+}
+
+@media (max-height: 620px), (max-width: 700px) {
+  :root {
+    --ui-scale: 0.72;
+  }
+}
+
+@media (max-height: 480px), (max-width: 520px) {
+  :root {
+    --ui-scale: 0.6;
+    --gutter: 10px;
+  }
+}
+
+@media (max-height: 380px) {
+  :root {
+    --ui-scale: 0.5;
+    --gutter: 8px;
+  }
+}
