@@ -32,8 +32,14 @@ export interface PirateTestHook {
   setSeed(seed: number): void;
   /** Game sessions created from now on run on a clock that only `advance` moves. */
   useManualClock(): void;
-  /** Moves the manual clock by `ms` in 60 Hz frames, running the real game loop for each. */
+  /**
+   * Moves the manual clock by `ms` in 60 Hz frames, running the simulation for
+   * each, then renders exactly one frame (under the manual clock frames are
+   * rendered on demand only).
+   */
   advance(ms: number): void;
+  /** Frames rendered so far by the live sessions. */
+  framesRendered(): number;
   /** State of the live match; null while no arena is shown. */
   snapshot(): StateSnapshot | null;
   /** Commits of the HUD component so far (it must follow the store, not the frame rate). */
@@ -83,13 +89,16 @@ export function installTestHook(target: Window, search: string): void {
       }
       for (let left = ms; left > 0; left -= FRAME_MS) {
         clock.advance(Math.min(FRAME_MS, left));
-        for (const session of sessionInternals()) session.frame();
+        for (const session of sessionInternals()) session.simulate();
       }
+      for (const session of sessionInternals()) session.render();
     },
     snapshot() {
       const [session] = sessionInternals();
       return session?.snapshot() ?? null;
     },
     hudCommits: () => commitCount('hud'),
+    framesRendered: () =>
+      sessionInternals().reduce((sum, session) => sum + session.framesRendered(), 0),
   };
 }

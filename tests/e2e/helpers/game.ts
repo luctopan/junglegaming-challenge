@@ -59,6 +59,7 @@ interface TestHook {
   advance(ms: number): void;
   snapshot(): StateSnapshot | null;
   hudCommits(): number;
+  framesRendered(): number;
 }
 
 interface TestWindow {
@@ -148,6 +149,13 @@ export async function advance(page: Page, ms: number, chunkMs = 1000): Promise<v
 export async function hudCommits(page: Page): Promise<number> {
   return page.evaluate(
     () => (globalThis as unknown as TestWindow).__PIRATE_TEST__?.hudCommits() ?? 0,
+  );
+}
+
+/** Frames rendered so far (ticker frames and on-demand renders). */
+export async function framesRendered(page: Page): Promise<number> {
+  return page.evaluate(
+    () => (globalThis as unknown as TestWindow).__PIRATE_TEST__?.framesRendered() ?? 0,
   );
 }
 

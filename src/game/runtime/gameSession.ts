@@ -5,6 +5,7 @@ import { realClock } from '../../platform/clock';
 import { trackResource } from '../../platform/resourceCounters';
 import type { Clock } from '../../shared/clock';
 import { MS_PER_SECOND } from '../../shared/math/constants';
+import type { DomainEvent } from '../core';
 import { getPlayer, timeLeftSeconds } from '../core';
 import type { GameStore, PauseReason } from '../bridge/gameStore';
 import { toPercent } from '../bridge/gameStore';
@@ -24,6 +25,7 @@ import type { PixiHost } from './pixiHost';
 import { createPixiHost } from './pixiHost';
 import type { StateSnapshot } from './stateSnapshot';
 import { snapshotState } from './stateSnapshot';
+import { tickerShouldRun } from './renderPolicy';
 import { testControls } from './testControls';
 
 export interface GameSessionOptions {
@@ -67,8 +69,12 @@ export interface GameSession {
 
 /** Test-hook access to a session (see testHook.ts); not part of the UI-facing API. */
 export interface SessionInternals {
-  /** Runs one frame exactly as the ticker does. */
-  frame(): void;
+  /** Runs the simulation steps due on the clock, without rendering. */
+  simulate(): void;
+  /** Runs one full frame (events, views, store) and renders it now. */
+  render(): void;
+  /** Frames rendered so far (ticker frames and on-demand renders). */
+  framesRendered(): number;
   /** Null until the arena is shown. */
   snapshot(): StateSnapshot | null;
 }
@@ -108,6 +114,8 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   const { container, store, config, assetBasePath } = options;
   const overrides = testControls();
   const clock = overrides?.manualClock ?? options.clock ?? realClock;
+  // Test manual clock: frames are rendered on demand (renderPolicy.ts).
+  const renderOnDemand = overrides !== null && overrides.manualClock === clock;
   const abort = new AbortController();
   const scope = new DisposableScope();
   const frameListeners = new Set<(world: WorldView) => void>();
@@ -128,6 +136,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
   let renderer: WorldRenderer | null = null;
   let lastFrameMs: number | null = null;
   let resumeRetry: (() => void) | null = null;
+  let framesRendered = 0;
+  /** Events of simulation-only frames, played by the next rendered frame. */
+  let unplayedEvents: DomainEvent[] = [];
 
   const publish = (): void => {
     const { world } = driver;
@@ -144,15 +155,17 @@ export function createGameSession(options: GameSessionOptions): GameSession {
 
   const frame = (): void => {
     if (renderer === null) return;
-    const running = driver.state === 'running';
+    const animating = driver.state !== 'paused';
     const now = clock.now();
     const dtSeconds =
-      lastFrameMs === null || !running
+      lastFrameMs === null || !animating
         ? 0
         : Math.min(config.simulation.maxFrameSeconds, (now - lastFrameMs) / MS_PER_SECOND);
-    lastFrameMs = running ? now : null;
+    lastFrameMs = animating ? now : null;
     const alpha = driver.tick();
-    const events = driver.drainEvents();
+    const events = [...unplayedEvents, ...driver.drainEvents()];
+    unplayedEvents = [];
+    framesRendered += 1;
     if (events.length > 0) {
       renderer.playEvents(events, driver.world);
       audio.playEvents(events, driver.world.playerId);
@@ -164,6 +177,20 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     for (const listener of frameListeners) listener(driver.world);
   };
 
+  /** One frame rendered right now, for a stopped ticker (paused, manual clock, resize). */
+  const renderNow = (): void => {
+    if (host === null || renderer === null) return;
+    frame();
+    host.app.render();
+  };
+
+  /** Starts or stops continuous rendering for the current state (renderPolicy.ts). */
+  const syncTicker = (): void => {
+    if (host === null) return;
+    if (tickerShouldRun(renderOnDemand, driver.state)) host.app.ticker.start();
+    else host.app.ticker.stop();
+  };
+
   const releaseHeldInput = (): void => {
     driver.input.clear();
     touch?.releaseAll();
@@ -173,7 +200,9 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     if (renderer === null || !driver.pause(reason)) return;
     releaseHeldInput();
     audio.setPaused(true);
-    publish();
+    // One last frame shows the paused state; then nothing renders until Resume.
+    renderNow();
+    syncTicker();
   };
 
   const waitForRetry = (): Promise<void> =>
@@ -233,6 +262,8 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     // A match that starts in a background tab must not run unseen.
     if (document.visibilityState === 'hidden') pause('hidden');
     publish();
+    syncTicker();
+    if (host !== null && !host.app.ticker.started) renderNow();
   };
 
   const unlockAudio = (): void => {
@@ -287,7 +318,11 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     renderer = new WorldRenderer(atlases, driver.world.arena);
     pixi.app.stage.addChild(renderer.root);
     renderer.setViewport(pixi.viewport);
-    pixi.onViewportChange((viewport) => renderer?.setViewport(viewport));
+    pixi.onViewportChange((viewport) => {
+      renderer?.setViewport(viewport);
+      // A resized canvas is cleared: redraw it even when the ticker is stopped.
+      if (!pixi.app.ticker.started) renderNow();
+    });
     pixi.app.ticker.add(frame);
     const releaseTicker = trackResource('tickerCallbacks');
     scope.add(() => {
@@ -318,6 +353,7 @@ export function createGameSession(options: GameSessionOptions): GameSession {
       lastFrameMs = null;
       audio.setPaused(false);
       publish();
+      syncTicker();
     },
     restart(seed) {
       if (abort.signal.aborted) return;
@@ -357,7 +393,15 @@ export function createGameSession(options: GameSessionOptions): GameSession {
     },
   };
   liveSessions.set(session, {
-    frame,
+    simulate() {
+      if (renderer === null) return;
+      driver.tick();
+      const events = driver.drainEvents();
+      // Effects of frames never shown are dropped; the rendered frame plays the latest ones.
+      if (events.length > 0) unplayedEvents = events;
+    },
+    render: renderNow,
+    framesRendered: () => framesRendered,
     snapshot: () =>
       renderer === null
         ? null
