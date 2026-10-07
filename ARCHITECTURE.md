@@ -181,13 +181,14 @@ _Phase 5–6._
   bots ([src/game/core/testing/](src/game/core/testing/), test support only): **naive** (straight
   at the nearest enemy, reacts every step) and **skilled** (0.2 s reaction time, kites Chasers,
   routes around islands with the flow field, fires only when a weapon bears).
-- Balancing target for the skilled bot: median duration 60–100 s and 20–50 % time_up. The
-  prescribed steps were applied (Chaser speed 125 → 105, spawn mix 60/40 → 50/50, ram damage
-  25 → 20). The skilled median moved from 36.2 s to 36.6 s, with 0 % time_up before and after,
-  so **the target is not met**. Before/after table and proposed next changes (player HP, Shooter
-  damage/cooldown): [docs/DECISIONS.md](docs/DECISIONS.md) S17–S18. Shooter fire, which neither
-  bot dodges, dominates damage taken. **Final tuning will be validated by manual play in
-  Phases 3–4.**
+- Balancing target for the skilled bot, revised from 60–100 s / 20–50 %: median duration
+  60–110 s and 15–50 % time_up. Applied: Chaser speed 125 → 105, spawn mix 60/40 → 50/50, ram
+  damage 25 → 20, then fallback variant A (player HP 100 → 200, Shooter dmg 10 → 7, cooldown
+  1.8 → 2.5 s). A grid with slower Shooter balls (280/320 u/s) barely moved the numbers,
+  because the bots never steer away from incoming balls. Skilled median 36.2 s → 89.4 s,
+  time_up 0 % → 6 %, so **the time_up bound is still not met**. Full table:
+  [docs/DECISIONS.md](docs/DECISIONS.md) S17–S18. **Final tuning will be validated by manual
+  play in Phases 3–4.**
 - Enemy AI is deliberately simple: no strafing, no prediction of the player's motion, and
   enemies only avoid each other through physical separation.
 - Spawn backlog is unbounded by design (a due spawn is never dropped); with the 25-enemy cap it
