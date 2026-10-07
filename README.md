@@ -5,10 +5,10 @@ Axios and MSW, tested with Vitest and Playwright. Everything runs in the browser
 ranking and match-history backend is mocked at network level by MSW in every build,
 including the public demo.
 
-> Status: **Phase 2 (assets + PixiJS rendering) complete.** The arena, ships, projectiles,
-> HP bars, effects and sounds render from the deterministic simulation; the player ship is
-> idle until input lands in Phase 3, and the menu is a placeholder until Phase 4. See
-> [docs/PLAN.md](docs/PLAN.md) for the requirement checklist and phase status.
+> Status: **Phase 3 (input, pause and session lifecycle) complete.** The match is playable
+> with keyboard or on-screen touch controls, pauses manually or automatically, and shows a
+> temporary text HUD; menus, Options and the Result screen are placeholders until Phase 4.
+> See [docs/PLAN.md](docs/PLAN.md) for the requirement checklist and phase status.
 
 ## Requirements
 
@@ -57,9 +57,19 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
   Any console error fails a test (tests declare the ones they provoke on purpose). HTML
   report in `playwright-report/` (`pnpm exec playwright show-report`); traces are kept on
   failure.
-- **Test hook**: with `?test=1` the app exposes `window.__PIRATE_TEST__`
-  (`resources()`: live apps, canvases, ticker callbacks, listeners, observers, dynamic
-  textures, display objects, cached textures). Absent otherwise.
+- **Test hook**: with `?test=1` the app exposes `window.__PIRATE_TEST__`; it is absent
+  otherwise. It controls _when_ time passes and observes, but cannot change rules or state
+  (combat tests press real keys and touch real controls):
+  - `setSeed(n)` / `?seed=n`: seed of the next match; `useManualClock()` /
+    `?clock=manual`: simulation time only moves with `advance(ms)`, which runs the real
+    game loop in 60 Hz frames.
+  - `snapshot()`: JSON state of the live match (phase, pause reason, time, score, player
+    pose/HP/cooldowns, enemies, projectiles, whether any input is held).
+  - `resources()`: live apps, canvases, ticker callbacks, listeners, observers, dynamic
+    textures, display objects, cached textures. `hudCommits()`: HUD React commits (it must
+    follow the bridge store, ≈ 1 per second, never the frame rate).
+- **Workers**: 4 locally, 2 in CI. Every game page renders WebGL on the CPU in headless
+  Chromium, and more parallel pages starve each other into start-up timeouts.
 - **Visual baselines** are generated only inside
   `mcr.microsoft.com/playwright:v<installed version>-noble` so they match CI on any host
   OS: run `pnpm test:e2e:update` (needs Docker running). CI uses the same image.
@@ -91,7 +101,41 @@ decisions and assumptions are recorded in [docs/DECISIONS.md](docs/DECISIONS.md)
 
 ## Controls
 
-_Phase 3/4._ Planned mapping in [docs/DECISIONS.md](docs/DECISIONS.md).
+Keys are matched by physical position (`KeyboardEvent.code`), so they work the same on
+QWERTY, AZERTY or ABNT layouts and with Caps Lock on. They are captured only while a match
+is running; menus, dialogs and page scrolling keep their normal keys.
+
+| Action               | Keyboard           | Touch / mouse (on-screen) |
+| -------------------- | ------------------ | ------------------------- |
+| Sail forward         | `W` or `↑`         | ↑ (bottom left, raised)   |
+| Turn left / right    | `A` `D` or `←` `→` | ↶ / ↷ (bottom left)       |
+| Fire front cannon    | `Space` or `K`     | ● (bottom right, raised)  |
+| Fire left broadside  | `Q` or `J`         | ⇇ (bottom right)          |
+| Fire right broadside | `E` or `L`         | ⇉ (bottom right)          |
+| Pause / resume       | `Esc` or `P`       | ❚❚ (top right) / Resume   |
+
+Hold a control to keep acting (weapons fire again as soon as their cooldown allows); move
+and fire at the same time with several keys or fingers. The match also pauses by itself
+when the window loses focus or the tab is hidden; it only resumes on an explicit Resume
+(button, or a fresh `Esc`/`P` press), and nothing held before the pause acts again until
+it is pressed again. Leaving the game screen or reloading abandons the match (it is never
+recorded).
+
+### Balance overrides (dev server only)
+
+For manual balancing on `pnpm dev`, any number or boolean of the gameplay config can be
+overridden from the URL with `cfg.<path>=<value>`, e.g.
+
+```
+http://localhost:5173/?cfg.ships.player.maxHp=150&cfg.weapons.shooterCannon.projectileSpeed=300
+```
+
+Paths follow [src/config/gameConfig.ts](src/config/gameConfig.ts) (array entries by index,
+e.g. `cfg.damage.stageThresholds.1=0.25`). Each override is applied in order and must keep
+the whole config valid; unknown paths, non-numbers and invalid values are ignored with a
+`[dev config]` console warning, and the active overrides are listed in the console. The
+production build ignores them: the parser is not even bundled (`pnpm build` fails if it
+is, see `scripts/verify-dist.mjs`).
 
 ## Gameplay configuration
 

@@ -43,8 +43,8 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Side shots, 3 parallel projectiles, separate left/right commands — P1 — unit:weapons, e2e:combat
 - [x] Limited HP, reduced by enemy projectiles and Chaser impact — P1 — unit:damage, e2e:enemies
 - [x] Restricted to visible arena, cannot cross islands — P1 — unit:collision, e2e:movement
-- [ ] Keyboard + touch controls for move/rotate/attacks — P3 — e2e:touch, e2e:combat
-- [ ] Move and fire simultaneously — P3 — e2e:combat
+- [x] Keyboard + touch controls for move/rotate/attacks — P3 — e2e:touch, e2e:combat
+- [x] Move and fire simultaneously — P3 — e2e:combat
 - [ ] Controls shown in UI (menu help + on-screen) — P4 — e2e:navigation
 
 ### 2 Gameplay — Enemies
@@ -71,11 +71,11 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] +1 per enemy destroyed by player; Chaser self-destruct = 0 — P1 — unit:match, e2e:combat
 - [x] Ends on time up or HP 0 — P1 — unit:match, e2e:match-end
 - [x] End freezes movement, attacks, damage, spawns, scoring — P1 — unit:match, e2e:match-end
-- [ ] Restart = fresh HP/score/timer/entities — P3 — e2e:match-end
+- [x] Restart = fresh HP/score/timer/entities — P3 — e2e:match-end
 - [ ] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual (P2: HP bars over every ship done; HUD in P4)
-- [ ] Manual pause + auto-pause on blur/hidden — P3 — e2e:pause
-- [ ] Pause suspends timer, cooldowns, simulation — P1/P3 — unit:stepper, e2e:pause
-- [ ] Resume requires player action; no accumulated movement/shots — P3 — unit:inputState, e2e:pause
+- [x] Manual pause + auto-pause on blur/hidden — P3 — e2e:pause
+- [x] Pause suspends timer, cooldowns, simulation — P1/P3 — unit:stepper, e2e:pause
+- [x] Resume requires player action; no accumulated movement/shots — P3 — unit:inputState, e2e:pause
 
 ### 2 Animations & feedback
 
@@ -98,19 +98,19 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Spawn interval positive with documented limits — P1 — unit:config, README
 - [x] Config snapshot frozen at match start — P1 — unit:match
 - [ ] Changing Options from the pause menu affects only the next match — P4 — e2e:options
-- [ ] Reload / leaving combat ends match — P3 — e2e:navigation
+- [x] Reload / leaving combat ends match — P3 — e2e:navigation
 - [ ] Persist options + last completed result — P4 — e2e:options, e2e:result
-- [ ] Abandoned match never recorded — P3/P5 — e2e:navigation
+- [ ] Abandoned match never recorded — P3/P5 — e2e:navigation (P3: abandon = destroy before `matchEnded`, e2e:navigation asserts no write; P5 records only on `matchEnded`)
 - [ ] English UI/identifiers/docs; menu identity coherent with assets — all
 
 ### 4 PixiJS & architecture
 
 - [ ] Separation: rules / render / input / UI state (lint-enforced) — P0/P1 — `pnpm lint` (P0: enforcement in place + tested)
 - [x] Time-based simulation, frame-rate independent — P1 — unit:stepper (30/60/144 Hz parity)
-- [ ] UI sync without per-frame React renders — P3 — unit:bridge, e2e (render counter in test mode)
+- [x] UI sync without per-frame React renders — P3 — unit:bridge, e2e (render counter in test mode)
 - [x] Texture load once + reuse; failure handling before combat — P2 — e2e:assets
 - [x] Canvas fits screen + DPR, preserves aspect, input coords, arena bounds — P2 — e2e:touch (resize)
-- [ ] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md (P2: session resources released + counted, e2e:lifecycle green; input listeners in P3)
+- [x] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md (P2: session resources released + counted, e2e:lifecycle green; input listeners in P3) (P3: input/pause listeners counted; play/exit cycles back to baseline)
 - [x] Correct init/teardown under Strict Mode — P2 — dev runs in StrictMode + e2e:lifecycle
 - [x] Continuous combat state lives in simulation — P1
 - [ ] ARCHITECTURE.md — P8
@@ -157,25 +157,25 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Visible asset loading progress — P2 — e2e:assets
 - [ ] Keyboard nav, visible focus, dialog focus control, labels, contrast, accessible errors — P4 — e2e:a11y
 - [ ] Semantic score/time/state, no per-frame announcements — P4 — e2e:a11y
-- [ ] Game keys captured only during active gameplay — P3 — e2e:a11y
+- [x] Game keys captured only during active gameplay — P3 — e2e:a11y (e2e:keyboard)
 
 ### 8 Playwright (each bullet = spec item)
 
 - [ ] Options navigation/validation/persistence — e2e:options
 - [x] Asset loading, failure, retry — e2e:assets
-- [ ] Start, movement, rotation, arena bounds, island collision — e2e:movement
-- [ ] Front/side fire, damage, cooldown, score without duplication — e2e:combat
+- [x] Start, movement, rotation, arena bounds, island collision — e2e:movement
+- [ ] Front/side fire, damage, cooldown, score without duplication — e2e:combat (P3: fire + cooldown in e2e:combat; damage/score in P7)
 - [ ] Chaser/Shooter behaviour + spawn interval — e2e:enemies
 - [ ] End by time/death, simulation stop, clean restart — e2e:match-end
-- [ ] Pause, blur, resume without timer drift — e2e:pause
+- [x] Pause, blur, resume without timer drift — e2e:pause
 - [ ] Result display + persistence after refresh — e2e:result
-- [ ] Abandon, repeated navigation, touch controls — e2e:navigation, e2e:touch
+- [x] Abandon, repeated navigation, touch controls — e2e:navigation, e2e:touch, e2e:lifecycle
 - [ ] Ranking/History query + pagination incl. loading/empty/error — e2e:records
 - [ ] Submit, both tabs updated, pending recovery after refresh — e2e:submission
 - [ ] Resend after timeout w/o duplication; late responses don't overwrite — e2e:network-resilience
 - [x] Chromium desktop + mobile — playwright.config
 - [ ] Visual regression: menu, stable arena, result; versioned baselines — e2e:visual
-- [ ] Seed + simulation time control; real inputs in combat tests — test hook
+- [ ] Seed + simulation time control; real inputs in combat tests — test hook (P3: test hook done)
 - [ ] Isolated state per test; HTML report + traces on failure — playwright.config (P0: report + traces done; isolation fixture completed in P7)
 
 ### 9 Performance
@@ -202,7 +202,7 @@ vector uses the preview layout, so frames were located by template matching and 
 - [ ] Records store `playerId` + name-at-match-time — P5
 - [ ] `YOU` badge by `playerId`; History subtitle `<NAME> · YOUR RECENT BATTLES` — P4/P5 — e2e:records
 - [ ] Fixture captains never collide with player identity — P6 — unit:fixtures
-- [ ] `window.__PIRATE_TEST__` only in test mode — P3 — e2e:lifecycle (absent without `?test=1`)
+- [x] `window.__PIRATE_TEST__` only in test mode — P3 — e2e:lifecycle (absent without `?test=1`)
 
 ## 2. Architecture
 
@@ -503,7 +503,7 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | 0 ✅ | Scaffold: Vite+React+TS strict, pnpm, ESLint (ts-eslint strict-type-checked, layer zones), Prettier, Vitest, Playwright (2 projects, report, trace), MSW worker in `public/`, scripts (dev/build/preview/lint/typecheck/test/test:e2e/test:e2e:update), atlas script, `.gitattributes`, CI workflow (GH Actions), docs skeletons (README, ARCHITECTURE, DECISIONS), ASSETS.md fixes | all scripts green on empty app; a smoke e2e passes desktop+mobile; lint fails on a deliberate core→pixi import         | 5        |
 | 1 ✅ | Config + core: types/defaults/validation, rng, clock, stepper, map + islands, movement, steering, weapons, projectiles, collisions, damage, Chaser, Shooter, spawner, match rules, events                                                                                                                                                                                           | ≥ 90 % line coverage on `game/core`; all unit tests in §1 green; headless 180 s simulated match deterministic per seed | 16       |
 | 2 ✅ | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                              | 13       |
-| 3    | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                         | 9        |
+| 3 ✅ | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                         | 9        |
 | 4    | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                    | 15       |
 | 5    | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests                                                            | 8        |
 | 6    | MSW: db persistence, fixtures, ranking sort, all scenarios, dev panel, reset, prod worker                                                                                                                                                                                                                                                                                           | every scenario reachable via `?scenario=`; e2e network-resilience green                                                | 8        |

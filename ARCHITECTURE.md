@@ -11,7 +11,7 @@ src/
   config/        typed gameplay config, defaults, validation (pure)
   game/core/     deterministic simulation (pure TypeScript)
     testing/     scripted bots + test helpers (test-only layer, never bundled)
-  game/input/    keyboard/touch → abstract InputState
+  game/input/    keyboard/touch → abstract InputState (pure keymap + held state, thin DOM sources)
   game/render/   PixiJS views, effects, asset registry, viewport
   game/runtime/  GameSession: wires core + input + render + clock; lifecycle
   game/bridge/   external store with low-frequency snapshots for React
@@ -96,16 +96,53 @@ worker fails to start, a visible startup error is rendered and the error is logg
 React owns screens and overlays; Pixi owns one canvas per game screen. They meet in three
 places only:
 
-1. **`useGameSession(containerRef, config)`** ([src/ui/game/](src/ui/game/)) creates a
+1. **`useGameSession(containerRef, controlsRef, config)`** ([src/ui/game/](src/ui/game/)) creates a
    `GameSession` ([src/game/runtime/gameSession.ts](src/game/runtime/gameSession.ts)) in an
    effect and destroys it in the cleanup. The game screen is lazy-loaded, so Pixi and the
    runtime are not part of the menu's initial bundle.
 2. **Bridge store** ([src/game/bridge/gameStore.ts](src/game/bridge/gameStore.ts)): the runtime
    publishes every frame, but subscribers are notified only when a displayed value changes
-   (loading in whole percent, whole seconds left, HP points, score, phase), read with
-   `useSyncExternalStore`. React never renders per frame.
-3. **Commands** from React to the session (`retryAssets`, later pause/resume) are plain
-   method calls.
+   (loading in whole percent, whole seconds left, HP points, score, phase, pause reason),
+   read with `useSyncExternalStore`. React never renders per frame: the memoised HUD gets a
+   new match object only when one of its values changed, and the e2e suite counts its
+   commits through the test hook (≈ 1 per second, never per frame).
+3. **Commands** from React to the session (`retryAssets`, `pause`, `resume`, `restart`)
+   are plain method calls. The on-screen controls are plain buttons tagged with
+   `data-game-action`; the runtime listens to their pointer events by delegation, so React
+   holds no input state.
+
+## Input and pause
+
+- **Mapping** ([src/game/input/keymap.ts](src/game/input/keymap.ts), pure): keys by
+  `KeyboardEvent.code` (layout and Caps Lock independent). `interpretKeyDown(event, active)`
+  decides per keydown: ignore (not a game key, Ctrl/Alt/Meta shortcuts, or gameplay not
+  running), swallow (auto-repeat: prevented but never acts), press a held action, or an edge
+  command (pause).
+- **Held state** ([inputState.ts](src/game/input/inputState.ts), pure): each action is held by
+  a set of sources (`key:KeyW`, `pointer:3`), so two keys or two fingers on one action, and
+  steering with one finger while firing with another, just work. A press is latched until
+  the next simulation sample, so a tap shorter than a step still acts once. `clear()` drops
+  everything.
+- **DOM sources** (thin): the keyboard source listens on `window`, prevents the default of
+  game keys only while the match runs (no scroll on Space/arrows, no button activation), and
+  also prevents the keyup of a key whose keydown it captured, so releasing Space after
+  pausing cannot click the focused Resume button. It ignores events the UI already handled
+  (`defaultPrevented`). The touch source uses pointer events with pointer capture on the
+  pressed control; `pointerup`, `pointercancel` and `lostpointercapture` release that
+  pointer; `contextmenu` is prevented on controls, whose CSS sets `touch-action: none` and
+  disables selection and the long-press callout.
+- **Match driver** ([src/game/runtime/matchDriver.ts](src/game/runtime/matchDriver.ts), no
+  DOM/Pixi, unit-tested): world + fixed stepper + `InputState` + pause state. While paused
+  the stepper is not ticked, so the timer, cooldowns, AI and spawns stand still. Pausing and
+  resuming both clear held input; resuming resets the stepper baseline, so paused wall-clock
+  time never enters the accumulator (the first frame after Resume only sets the baseline).
+- **Pause sources**: the Pause button or `Esc`/`P` (manual), window `blur`, and
+  `visibilitychange` to hidden (also checked when the match starts). Resume needs an explicit
+  action: the dialog's Resume button or a fresh `Esc`/`P` (auto-repeat ignored). Effects,
+  water and camera shake freeze with the match; audio is silenced through the output gain.
+- **Abandon**: a match ends without a result when its session is destroyed (Main menu,
+  leaving the screen, reload); only `matchEnded` can produce a record (Phase 5), so an
+  abandoned match can never be recorded.
 
 Each Pixi ticker frame: the fixed stepper consumes clock time in 1/60 s steps (domain events
 are collected), the renderer plays the events (effects, flashes, camera shake) and the audio
@@ -122,7 +159,8 @@ tests. Renderer randomness (debris) uses its own seeded RNG, never the simulatio
 **Views** ([src/game/render/](src/game/render/)): `ArenaLayer` (built once per screen from the
 collision grid: drifting deep water, shallow ring, autotiled islands, decoration, dimmed
 letterbox), `ShipView` (hull frame by damage stage, fire at stage ≥ 1, hit flash, sinking
-wreck, HP bar), `ProjectileLayer` (ball + trail), `EffectLayer` (muzzle, hit, puff,
+wreck, HP bar kept fully inside the arena: above the ship, or below it when there is no
+room, then clamped to the edges — `placeHpBar`, unit-tested), `ProjectileLayer` (ball + trail), `EffectLayer` (muzzle, hit, puff,
 explosion, splash, debris). Ship views, balls, effects and HP bars are pooled and keyed by
 entity id; a restart releases them for reuse. HP bars clip the fill sprite's private texture
 frame to `fill_rect.x + ratio × fill_rect.w` (the atlas `ui.layout`), updated only when the
@@ -243,8 +281,11 @@ DOM lib). Public API: [src/game/core/index.ts](src/game/core/index.ts).
   (`?test=1`) adds live sessions, canvases, display objects (stage walk) and cached textures.
   E2E checks that leaving the game returns every count to 0 and that repeated matches do not
   accumulate; Phase 8 reuses it for the memory check.
-- **Restart** (`session.restart`) creates a new world from the frozen config and releases all
-  entity views to their pools; arena art, app and textures are reused.
+- **Restart** (`session.restart`, the Play again button) builds a new `MatchDriver`: a fresh
+  world from the frozen config, stepper, input state and pause state, with no pending events;
+  all entity views go back to their pools. Arena art, the Pixi app and textures are reused
+  (PLAN §2.8), so Play again needs no WebGL start-up. Leaving the screen destroys the whole
+  session; e2e checks that repeated play/exit cycles return every counter to baseline.
 
 ## Local persistence
 
@@ -262,9 +303,18 @@ _Phase 5–6._
   inputs; helpers live in `src/game/core/testing/` (excluded from coverage and from the
   magic-number rule).
 - Playwright against the production bundle (`pnpm e2e:serve` on port 4173),
-  projects `desktop-chromium` and `mobile-chromium`; shared fixture
+  projects `desktop-chromium` and `mobile-chromium` (touch specs use CDP multi-touch, so
+  Chromium produces real touch pointer events); shared fixture
   ([tests/e2e/fixtures/test.ts](tests/e2e/fixtures/test.ts)) fails any test that logs a
   console error and waits for the mock backend.
+- Test hook (`?test=1` only, [testHook.ts](src/game/runtime/testHook.ts)): seed and manual
+  clock for the next sessions (`?seed=`, `?clock=manual`), `advance(ms)` running the real
+  frame function in 60 Hz frames, a JSON `snapshot()`, resource and HUD-commit counters. It
+  has no setter for game state: combat tests press real keys and touch real controls.
+- Dev-only balance overrides (`?cfg.<path>=<value>`,
+  [configOverrides.ts](src/config/configOverrides.ts)) are applied only when
+  `import.meta.env.DEV`; Rollup drops the module from production, and
+  [verify-dist](scripts/verify-dist.mjs) fails the build if it or its log text appears.
 - Visual baselines: pinned image `mcr.microsoft.com/playwright:v<version>-noble`,
   no platform suffix in snapshot paths; CI runs in the same image
   ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
