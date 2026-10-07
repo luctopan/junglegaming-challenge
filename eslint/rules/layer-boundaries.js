@@ -6,6 +6,7 @@ import path from 'node:path';
  * @property {string} dir Directory of the layer, relative to the lint cwd (POSIX separators).
  * @property {readonly string[]} imports Other layers this layer may import from.
  * @property {readonly string[]} [forbiddenPackages] Bare package names this layer must not import.
+ * @property {boolean} [testOnly] Test support code: only test files (and the layer itself) may import it.
  */
 
 /**
@@ -18,17 +19,20 @@ import path from 'node:path';
 const toPosix = (p) => p.split(path.sep).join('/');
 
 /**
- * Finds the layer that owns a repo-relative POSIX path.
- * Layers never nest, so the first prefix match is the owner.
+ * Finds the layer that owns a repo-relative POSIX path. Layers may nest (e.g.
+ * `game/core/testing` inside `game/core`): the longest matching directory wins.
  * @param {string} relPath
  * @param {Record<string, LayerSpec>} layers
  * @returns {string | undefined}
  */
 export function findLayer(relPath, layers) {
-  return Object.entries(layers).find(
-    ([, spec]) => relPath === spec.dir || relPath.startsWith(`${spec.dir}/`),
-  )?.[0];
+  return Object.entries(layers)
+    .filter(([, spec]) => relPath === spec.dir || relPath.startsWith(`${spec.dir}/`))
+    .sort(([, a], [, b]) => b.dir.length - a.dir.length)[0]?.[0];
 }
+
+/** @param {string} relPath */
+const isTestFile = (relPath) => /\.test\.tsx?$/.test(relPath);
 
 /**
  * @param {string} specifier
@@ -53,6 +57,8 @@ export const layerBoundaries = {
       outsideLayers:
         "Layer '{{from}}' must not import '{{target}}', which is outside every layer (composition root).",
       forbiddenPackage: "Layer '{{from}}' must not import package '{{pkg}}'.",
+      testOnly:
+        "Layer '{{to}}' is test support code: only test files may import it (keeps it out of the app bundle).",
     },
   },
   create(context) {
@@ -85,7 +91,14 @@ export const layerBoundaries = {
         context.report({ node, messageId: 'outsideLayers', data: { from: fromLayer, target } });
         return;
       }
-      if (toLayer !== fromLayer && !spec.imports.includes(toLayer)) {
+      if (toLayer === fromLayer) return;
+      if (options.layers[toLayer]?.testOnly) {
+        if (!isTestFile(filename)) {
+          context.report({ node, messageId: 'testOnly', data: { to: toLayer } });
+        }
+        return;
+      }
+      if (!spec.imports.includes(toLayer)) {
         context.report({
           node,
           messageId: 'forbiddenLayer',

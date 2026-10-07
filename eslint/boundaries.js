@@ -31,6 +31,13 @@ export const LAYERS = {
     imports: ['config', 'shared'],
     forbiddenPackages: FRAMEWORK_PACKAGES,
   },
+  coreTesting: {
+    // Scripted bots and test helpers: used by unit tests and scripts/, never by the app.
+    dir: 'src/game/core/testing',
+    imports: ['core', 'config', 'shared'],
+    forbiddenPackages: FRAMEWORK_PACKAGES,
+    testOnly: true,
+  },
   input: {
     dir: 'src/game/input',
     imports: ['core', 'config', 'shared', 'platform'],

@@ -35,6 +35,15 @@ describe('layer boundaries', () => {
     ['src/game/render/probe.ts', "import { App } from '../../ui/app/App';", "layer 'ui'"],
     ['src/api/probe.ts', "export * from '../mocks/handlers';", "layer 'mocks'"],
     ['src/game/core/probe.ts', "const m = await import('../runtime/session');", "'runtime'"],
+    // Scripted bots/test helpers must never reach the app bundle.
+    ['src/game/core/index.ts', "export * from './testing/bots';", "'coreTesting' is test support"],
+    ['src/game/core/step.ts', "import { run } from './testing/fixtures';", 'test support'],
+    [
+      'src/ui/probe.tsx',
+      "import { BOT_PROFILES } from '../game/core/testing/bots';",
+      'test support',
+    ],
+    ['src/game/core/testing/probe.ts', "import { Sprite } from 'pixi.js';", 'pixi.js'],
   ])('%s: rejects `%s`', async (file, code, expected) => {
     const errors = await boundaryErrors(file, code);
     expect(errors).toHaveLength(1);
@@ -52,6 +61,13 @@ describe('layer boundaries', () => {
     ['src/api/probe.ts', "import { storage } from '../platform/storage';"],
     ['src/mocks/probe.ts', "import { http } from 'msw';"],
     ['src/main.tsx', "import { anything } from './game/core';"],
+    ['src/game/core/step.test.ts', "import { run } from './testing/fixtures';"],
+    ['src/game/core/systems/ai.test.ts', "import { place } from '../testing/fixtures';"],
+    ['src/game/core/testing/probe.ts', "import { step } from '../step';"],
+    [
+      'src/game/core/testing/probe.ts',
+      "import { DEFAULT_GAME_CONFIG } from '../../../config/defaults';",
+    ],
   ])('%s: allows `%s`', async (file, code) => {
     expect(await boundaryErrors(file, code)).toEqual([]);
   });
