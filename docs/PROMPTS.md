@@ -1,6 +1,7 @@
 # Prompts for Claude Code — Pirate Battle
 
 How to use:
+
 1. Already done: spec in `docs/CHALLENGE.md`, asset inventory in `docs/ASSETS.md`,
    `CLAUDE.md` at the root.
 2. Run the **Kickoff** prompt in plan mode. Review the plan and the estimate
@@ -74,6 +75,7 @@ Read CLAUDE.md, docs/PLAN.md and the "Phase N" section. Implement Phase N only.
 ### Extra notes per phase (append to the prompt above)
 
 **Phase 0 – Scaffold**
+
 ```
 Vite + React + TS strict, ESLint (typescript-eslint strict, import boundaries
 between layers), Prettier, Vitest, Playwright (Chromium desktop + mobile
@@ -83,6 +85,7 @@ test:e2e:update. Use pnpm and commit the lockfile.
 ```
 
 **Phase 1 – Core simulation**
+
 ```
 Pure TypeScript, no Pixi/DOM. Typed GameConfig with defaults and validation.
 Seeded RNG, injectable clock, fixed-timestep stepper. Player movement/rotation,
@@ -96,6 +99,7 @@ end freezes everything, restart = fresh state). Emit domain events
 ```
 
 **Phase 2 – PixiJS rendering**
+
 ```
 Asset registry with progress, failure handling and retry before combat starts;
 textures loaded once and reused. Views for ships (damage states by HP),
@@ -106,6 +110,7 @@ StrictMode. Sounds via the provided WAVs, respecting autoplay rules.
 ```
 
 **Phase 3 – Input & session**
+
 ```
 Keyboard + touch (on-screen controls) mapped to abstract commands, simultaneous
 move + fire. Keys captured only while gameplay is active. Manual pause and
@@ -115,6 +120,7 @@ abandons the match (never recorded).
 ```
 
 **Phase 4 – React UI**
+
 ```
 Main menu (Play, Options, controls help, Ranking and Match History tabs),
 Options (validated, persisted), Game screen (HUD synced via the bridge,
@@ -125,6 +131,7 @@ dialogs with focus trap, contrast checked.
 ```
 
 **Phase 5 – API layer**
+
 ```
 Axios client with timeout; typed contracts; TanStack Query for ranking and
 history (pagination with placeholderData, loading/empty/error states,
@@ -135,6 +142,7 @@ gameplay. Guard against stale/out-of-order responses.
 ```
 
 **Phase 6 – MSW**
+
 ```
 Handlers, fixtures and contracts shared by dev, tests and production build.
 Scenarios: success, empty, multi-page, slow, variable latency, out-of-order,
@@ -146,6 +154,7 @@ before rendering.
 ```
 
 **Phase 7 – Playwright**
+
 ```
 Cover every item in spec section 8. Isolated state per test (fresh storage,
 scenario reset). Combat tests drive real keyboard/touch input and assert via
@@ -156,6 +165,7 @@ Docker image. HTML report and traces on failure.
 ```
 
 **Phase 8 – Performance & docs**
+
 ```
 Production build profiling: 3-minute match recording FPS, p95 frame time and
 entity count (in-game metrics overlay behind a flag + Chrome performance
@@ -168,6 +178,7 @@ sources/licenses.
 ```
 
 **Phase 9 – Deploy preparation (no deploy)**
+
 ```
 Add vercel.json (SPA rewrites, correct headers for mockServiceWorker.js),
 verify `pnpm build && pnpm preview` works from a clean clone with MSW active,

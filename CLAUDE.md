@@ -91,7 +91,7 @@ Principles:
 
 - No `any`, no non-null assertions without a comment justifying it, no
   `@ts-ignore`. Prefer `unknown` + narrowing.
-- Functions small and named by intent. Comments explain *why*, not *what*.
+- Functions small and named by intent. Comments explain _why_, not _what_.
 - Pure core logic gets Vitest unit tests (collisions, damage-once, cooldowns,
   spawner placement, match end rules, ranking tie-break, config validation).
 - Errors are handled, never swallowed. Console must stay free of unhandled
