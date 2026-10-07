@@ -81,6 +81,9 @@ See `docs/reference/tiles_grid.png`. Key groups:
 
 Islands must be built from these tiles on a grid. Collision shapes come from
 the island layout data (tile grid → rectangles/polygons), never from pixels.
+The sand-with-grass tiles 6–9 / 22–25 / 38–41 / 54–57 are one painted 4×4
+island (lit from the top-left): they tile without seams only in that order, so
+the arena uses 4×4 islands (docs/DECISIONS.md R14).
 
 Atlases: `assets/tilesheet/tiles_sheet.png` (1024×384) / `tiles_sheet_retina.png`
 (2048×768): a 16×6 grid of 64 px (128 px) cells, no margin, per `tilesheets.txt`.

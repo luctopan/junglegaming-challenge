@@ -129,10 +129,13 @@ frame to `fill_rect.x + ratio × fill_rect.w` (the atlas `ui.layout`), updated o
 visible width changes, so all bars still batch (no masks).
 
 **Arena art from the collision grid.** `shoreShape` (core) classifies every solid cell as
-fill / edge / outer corner / inner corner; the renderer maps those to the grass-island tile
-set and, for the dilated mask around the islands, to the shallow-water set. `validateMap`
-rejects any layout with a cell no tile can draw, so a valid map is always drawable (a
-property test checks random valid maps). Decoration sits only on land and never collides.
+fill / edge / outer corner / inner corner; `validateMap` rejects any layout with a cell no tile
+can draw, so a valid map is always drawable (a property test checks random valid maps). The
+grass-island tiles are one painted 4×4 island, so each island cell takes the tile at its
+position along its row and column runs; the map only uses 4×4 islands, the one size the art
+draws seamlessly, and the build heals the small colour steps left inside the painting
+(DECISIONS R14). The dilated mask around the islands uses the shallow-water set by shape.
+Decoration (a hand-placed fort, seeded plants and rocks) sits only on land and never collides.
 
 **Viewport.** The 1024×576 world is fitted into the container ("contain") and centred;
 renderer resolution = `min(devicePixelRatio, 2)` with `autoDensity`. A `ResizeObserver`
@@ -281,14 +284,15 @@ _Phase 5–6._
   damage 25 → 20, then fallback variant A (player HP 100 → 200, Shooter dmg 10 → 7, cooldown
   1.8 → 2.5 s). A grid with slower Shooter balls (280/320 u/s) barely moved the numbers,
   because the bots never steer away from incoming balls. Skilled median 36.2 s → 89.4 s,
-  time_up 0 % → 6 %; after the Phase 2 map change and rounded corners 93.4 s / 4 %, so
-  **the time_up bound is still not met**. Full table:
+  time_up 0 % → 6 %; after the Phase 2 maps and rounded corners 112.3 s / 26 %: the time_up
+  share is now inside the target, the median 2.3 s above it (DECISIONS R15). Full table:
   [docs/DECISIONS.md](docs/DECISIONS.md) S17–S18. **Final tuning will be validated by manual
   play in Phases 3–4.**
 - Enemy AI is deliberately simple: no strafing, no prediction of the player's motion, and
   enemies only avoid each other through physical separation.
-- Island art: each Kenney sand tile has its own soft shading, so faint tone steps remain
-  visible between tiles (bleeding seams are gone thanks to the padded atlas). The crew and pole
-  frames (unused) are upscaled 1× art inside the 2× ship sheet (DECISIONS R1).
+- Island art: the delivered grass-island tiles only tile seamlessly as one 4×4 island, so
+  every island is 4×4 (DECISIONS R14); larger or irregular islands like the mockup's would need
+  new art. The crew and pole frames (unused) are upscaled 1× art inside the 2× ship sheet
+  (DECISIONS R1).
 - Spawn backlog is unbounded by design (a due spawn is never dropped); with the 25-enemy cap it
   only builds up if the player leaves enemies alive for a long time.
