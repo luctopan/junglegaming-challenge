@@ -49,11 +49,14 @@ export function Dialog({
   }, [initialFocus]);
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLElement>): void => {
+    // Handled by the innermost dialog only (a dialog may open over another one).
     if (event.key === 'Escape' && onEscape !== undefined) {
+      event.stopPropagation();
       onEscape(event);
       return;
     }
     if (event.key !== 'Tab') return;
+    event.stopPropagation();
     const focusables = focusableIn(event.currentTarget);
     const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const target = wrapTarget(focusables, active, event.shiftKey);

@@ -52,7 +52,7 @@ test.describe('abandon and restart', () => {
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-msw', 'ready');
 
-    await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
     await expectSessionReleased(page);
     expect(writes).toEqual([]);
   });

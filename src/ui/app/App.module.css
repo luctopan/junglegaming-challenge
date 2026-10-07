@@ -1,32 +1,39 @@
+.shell {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.backdrop {
+  position: absolute;
+  inset: -12px;
+  background: var(--color-backdrop) center / cover no-repeat;
+  /* The 918×515 illustration is upscaled: a light blur hides it, dimming keeps text legible. */
+  filter: blur(2px) brightness(0.72) saturate(1.05);
+}
+
 .screen {
+  position: relative;
   display: grid;
-  min-height: 100dvh;
-  place-content: center;
+  place-items: center;
+  height: 100%;
+  padding: var(--gutter);
+  overflow: auto;
+}
+
+.logo {
+  position: absolute;
+  right: calc(var(--gutter) + 8px);
+  bottom: calc(var(--gutter) + 4px);
+  z-index: 1;
+  width: max(72px, calc(128px * var(--ui-scale)));
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.message {
+  display: grid;
   gap: 0.5rem;
-  text-align: center;
-}
-
-.title {
-  margin: 0;
-  font-size: clamp(2rem, 6vw, 4rem);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.play {
-  justify-self: center;
-  padding: 0.6rem 2rem;
-  border: 2px solid #fdf6e3;
-  border-radius: 0.5rem;
-  background: #2e7d32;
-  color: #fdf6e3;
-  font: inherit;
-  font-size: 1.25rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.play:focus-visible {
-  outline: 3px solid #ffd54a;
-  outline-offset: 2px;
+  justify-items: center;
 }

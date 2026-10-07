@@ -8,9 +8,11 @@ interface StartupErrorProps {
 export function StartupError({ message }: StartupErrorProps) {
   return (
     <main className={styles.screen} role="alert">
-      <h1 className={styles.title}>Pirate Battle</h1>
-      <p>The game could not start: {message}</p>
-      <p>Reload the page to try again.</p>
+      <div className={styles.message}>
+        <h1>Pirate Battle</h1>
+        <p>The game could not start: {message}</p>
+        <p>Reload the page to try again.</p>
+      </div>
     </main>
   );
 }

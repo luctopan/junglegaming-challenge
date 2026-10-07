@@ -87,8 +87,9 @@ export const SESSION_RESOURCES = [
   'displayObjects',
 ] as const satisfies readonly (keyof ResourceReport)[];
 
+/** Main menu → Play (a captain is seeded by the fixture, so no name dialog). */
 export async function startGame(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'Play' }).click();
+  await page.getByRole('button', { name: 'Play', exact: true }).click();
 }
 
 /**
@@ -206,7 +207,7 @@ export async function leaveGame(page: Page): Promise<void> {
   const pause = page.getByRole('button', { name: 'Pause' });
   if (await pause.isVisible()) await pause.click();
   await page.getByRole('button', { name: 'Main menu' }).click();
-  await expect(page.getByRole('button', { name: 'Play' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
 }
 
 export async function expectSessionReleased(page: Page): Promise<void> {

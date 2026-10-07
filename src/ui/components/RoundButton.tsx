@@ -12,7 +12,7 @@ type RoundButtonProps = Omit<ComponentPropsWithRef<'button'>, 'children'> & {
   /** Accessible name (the button shows only an icon). */
   readonly label: string;
   readonly icon: RoundIcon;
-  readonly size?: 'small' | 'medium' | 'large';
+  readonly size?: 'small' | 'medium' | 'large' | undefined;
 };
 
 /** Round icon button from the UI atlas (normal / hover / pressed; disabled derived in CSS). */

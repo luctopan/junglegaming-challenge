@@ -29,6 +29,9 @@
 
 .input {
   width: 3.2ch;
+  min-width: 1ch;
+  /* Hugs the value, so "3 s" and "120 s" both sit centred between the buttons. */
+  field-sizing: content;
   padding: 0;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -37,6 +40,12 @@
   font-weight: inherit;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+@supports (field-sizing: content) {
+  .input {
+    width: auto;
+  }
 }
 
 .input:hover {

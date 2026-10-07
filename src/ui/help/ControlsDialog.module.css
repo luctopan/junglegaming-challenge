@@ -1,0 +1,65 @@
+.summary {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: max(var(--min-font), calc(14px * var(--ui-scale)));
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.label {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.key {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.3em;
+  border: 1px solid rgb(253 243 220 / 40%);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--color-row);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.92em;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.table {
+  width: min(100%, 720px);
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  font-size: max(var(--min-font), calc(15px * var(--ui-scale)));
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: 0.4em 0.8em;
+}
+
+.table thead th {
+  color: var(--color-label);
+  font-size: 0.85em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table tbody th,
+.table tbody td {
+  background: var(--color-row);
+  color: var(--color-text);
+}
+
+.table tbody th {
+  border-radius: 6px 0 0 6px;
+  font-weight: 700;
+}
+
+.table tbody td:last-child {
+  border-radius: 0 6px 6px 0;
+  color: var(--color-text-muted);
+}

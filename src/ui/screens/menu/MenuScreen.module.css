@@ -1,0 +1,43 @@
+.toolbar {
+  position: absolute;
+  top: var(--gutter);
+  right: var(--gutter);
+  z-index: 2;
+  display: flex;
+  gap: calc(10px * var(--ui-scale));
+}
+
+.panel {
+  gap: calc(12px * var(--ui-scale));
+}
+
+.title {
+  margin: 0;
+  line-height: 0;
+}
+
+.titleArt {
+  width: min(calc(380px * var(--ui-scale)), 100%);
+  height: auto;
+}
+
+.tagline {
+  margin: 0;
+  color: var(--color-text);
+  font-size: max(var(--min-font), calc(14px * var(--ui-scale)));
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.ship {
+  width: calc(30px * var(--ui-scale));
+  height: auto;
+}
+
+@media (max-height: 480px) {
+  /* Short landscape phones: the decorative ship gives its room to the buttons. */
+  .ship {
+    display: none;
+  }
+}

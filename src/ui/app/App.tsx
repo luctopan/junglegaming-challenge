@@ -1,41 +1,28 @@
-import { lazy, Suspense, useState } from 'react';
-import styles from './App.module.css';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { OptionsScreen } from '../screens/options/OptionsScreen';
+import { MenuScreen } from '../screens/menu/MenuScreen';
+import { MatchLayout } from './MatchLayout';
+import { MenuShell } from './MenuShell';
 
-// Pixi and the game runtime load with the first match, not with the menu.
-const GameScreen = lazy(() =>
-  import('../game/GameScreen').then((module) => ({ default: module.GameScreen })),
-);
-
-type Screen = 'menu' | 'game';
-
-/** Placeholder navigation until the real menu and router land in Phase 4. */
+/**
+ * Screens (docs/DECISIONS.md "Routing"): menu routes share the dimmed
+ * backdrop; `/play` and `/result` share one layout so a finished match can
+ * show its result at `/result` without unmounting the arena.
+ */
 export function App() {
-  const [screen, setScreen] = useState<Screen>('menu');
-
-  if (screen === 'game') {
-    return (
-      <Suspense fallback={<p className={styles.screen}>Preparing the fleet…</p>}>
-        <GameScreen
-          onExit={() => {
-            setScreen('menu');
-          }}
-        />
-      </Suspense>
-    );
-  }
   return (
-    <main className={styles.screen}>
-      <h1 className={styles.title}>Pirate Battle</h1>
-      <p>Set sail. Take command.</p>
-      <button
-        type="button"
-        className={styles.play}
-        onClick={() => {
-          setScreen('game');
-        }}
-      >
-        Play
-      </button>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MenuShell />}>
+          <Route index element={<MenuScreen />} />
+          <Route path="options" element={<OptionsScreen />} />
+        </Route>
+        <Route element={<MatchLayout />}>
+          <Route path="play" element={null} />
+          <Route path="result" element={null} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

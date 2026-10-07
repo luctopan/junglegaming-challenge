@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import styles from './GameScreen.module.css';
 import { Hud } from './Hud';
 import { MatchEndPanel } from './MatchEndPanel';
+import { optionsStore } from '../state/settings';
 import { matchConfig } from './matchConfig';
 import { PauseDialog } from './PauseDialog';
 import { TouchControls } from './TouchControls';
@@ -19,7 +20,8 @@ interface GameScreenProps {
 export function GameScreen({ onExit }: GameScreenProps) {
   const screenRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [config] = useState(matchConfig);
+  // The config snapshot of this match: later Options changes apply to the next one.
+  const [config] = useState(() => matchConfig(optionsStore.getSnapshot().value));
   const { snapshot, retryAssets, pause, resume, restart } = useGameSession(
     containerRef,
     screenRef,

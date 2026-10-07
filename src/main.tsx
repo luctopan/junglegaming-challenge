@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { isTestMode } from './platform/testMode';
 import { App } from './ui/app/App';
 import { StartupError } from './ui/app/StartupError';
+import '@fontsource-variable/archivo/wght.css';
 import './ui/styles/global.css';
 
 // Composition root: the only module allowed to wire every layer together.
