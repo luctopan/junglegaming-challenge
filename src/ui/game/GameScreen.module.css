@@ -1,0 +1,72 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.arena {
+  position: absolute;
+  inset: 0;
+  /* Pixi owns this element's only child (the canvas); touch never scrolls the page. */
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  gap: 0.75rem;
+  width: min(26rem, calc(100% - 2rem));
+  padding: 1.5rem;
+  transform: translate(-50%, -50%);
+  border-radius: 0.75rem;
+  background: rgb(11 42 60 / 92%);
+  text-align: center;
+}
+
+.overlay h2,
+.overlay p {
+  margin: 0;
+}
+
+.progress {
+  height: 0.75rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(253 246 227 / 20%);
+}
+
+.progressFill {
+  height: 100%;
+  background: #6cc24a;
+  transition: width 120ms linear;
+}
+
+.percent {
+  font-variant-numeric: tabular-nums;
+}
+
+.button {
+  justify-self: center;
+  padding: 0.5rem 1.25rem;
+  border: 2px solid #fdf6e3;
+  border-radius: 0.5rem;
+  background: #8a4b1c;
+  color: #fdf6e3;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 3px solid #ffd54a;
+  outline-offset: 2px;
+}
+
+.exit {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+}

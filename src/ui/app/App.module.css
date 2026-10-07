@@ -12,3 +12,21 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+.play {
+  justify-self: center;
+  padding: 0.6rem 2rem;
+  border: 2px solid #fdf6e3;
+  border-radius: 0.5rem;
+  background: #2e7d32;
+  color: #fdf6e3;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.play:focus-visible {
+  outline: 3px solid #ffd54a;
+  outline-offset: 2px;
+}
