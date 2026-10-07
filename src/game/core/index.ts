@@ -1,5 +1,30 @@
 /**
  * Public API of the simulation core (pure, deterministic TypeScript).
- * Populated in Phase 1; see ARCHITECTURE.md for the layer rules.
+ * See ARCHITECTURE.md "Simulation loop" and "Collisions".
  */
-export {};
+export { createMatch, InvalidMatchConfigError } from './createMatch';
+export type { MatchOptions } from './createMatch';
+export { step } from './step';
+export { createFixedStepper } from './stepper';
+export type { FixedStepper, FixedStepperOptions, TickResult } from './stepper';
+export { damageStage } from './damageStage';
+export { timeLeftSeconds } from './systems/match';
+export { getPlayer } from './ships';
+export { ARENA_MAP } from './map/arenaMap';
+export type { DomainEvent, DomainEventType } from './events';
+export type { Rect } from './geometry';
+export { IDLE_INPUT } from './types';
+export type {
+  Arena,
+  CannonKind,
+  EndReason,
+  EnemyKind,
+  MatchPhase,
+  PlayerInput,
+  Projectile,
+  Ship,
+  ShipKind,
+  Team,
+  WeaponSlot,
+  World,
+} from './types';
