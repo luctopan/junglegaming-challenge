@@ -6,7 +6,11 @@ import path from 'node:path';
  * @property {string} dir Directory of the layer, relative to the lint cwd (POSIX separators).
  * @property {readonly string[]} imports Other layers this layer may import from.
  * @property {readonly string[]} [forbiddenPackages] Bare package names this layer must not import.
- * @property {boolean} [testOnly] Test support code: only test files (and the layer itself) may import it.
+ * @property {boolean} [testOnly] Test support code: only test files, layers with
+ *   `mayImportTestSupport` and the layer itself may import it.
+ * @property {boolean} [mayImportTestSupport] May import `testOnly` layers (dev-only tooling).
+ * @property {boolean} [devOnly] Dev-server-only code: no other file may import it, so it can
+ *   never reach the production bundle through the app's import graph.
  */
 
 /**
@@ -59,6 +63,8 @@ export const layerBoundaries = {
       forbiddenPackage: "Layer '{{from}}' must not import package '{{pkg}}'.",
       testOnly:
         "Layer '{{to}}' is test support code: only test files may import it (keeps it out of the app bundle).",
+      devOnly:
+        "Layer '{{to}}' is dev-server-only code: nothing may import it (keeps it out of the app bundle).",
     },
   },
   create(context) {
@@ -66,15 +72,14 @@ export const layerBoundaries = {
     const cwd = context.cwd;
     const filename = toPosix(path.relative(cwd, context.filename));
     const fromLayer = findLayer(filename, options.layers);
-    if (fromLayer === undefined) return {};
-    const spec = /** @type {LayerSpec} */ (options.layers[fromLayer]);
+    const spec = fromLayer === undefined ? undefined : options.layers[fromLayer];
 
     /** @param {import('estree').Node} node @param {unknown} value */
     const check = (node, value) => {
       if (typeof value !== 'string') return;
 
       if (!value.startsWith('.')) {
-        const pkg = spec.forbiddenPackages?.find((p) => isPackage(value, p));
+        const pkg = spec?.forbiddenPackages?.find((p) => isPackage(value, p));
         if (pkg !== undefined) {
           context.report({ node, messageId: 'forbiddenPackage', data: { from: fromLayer, pkg } });
         }
@@ -87,15 +92,23 @@ export const layerBoundaries = {
       if (!target.startsWith(`${options.sourceRoot}/`)) return;
 
       const toLayer = findLayer(target, options.layers);
-      if (toLayer === undefined) {
-        context.report({ node, messageId: 'outsideLayers', data: { from: fromLayer, target } });
+      if (toLayer === fromLayer) return;
+      // Files outside every layer (the composition root) only answer to the
+      // dev-only and test-only rules.
+      const toSpec = toLayer === undefined ? undefined : options.layers[toLayer];
+      if (toSpec?.devOnly) {
+        context.report({ node, messageId: 'devOnly', data: { to: toLayer } });
         return;
       }
-      if (toLayer === fromLayer) return;
-      if (options.layers[toLayer]?.testOnly) {
-        if (!isTestFile(filename)) {
+      if (toSpec?.testOnly) {
+        if (!isTestFile(filename) && !spec?.mayImportTestSupport) {
           context.report({ node, messageId: 'testOnly', data: { to: toLayer } });
         }
+        return;
+      }
+      if (fromLayer === undefined || spec === undefined) return;
+      if (toLayer === undefined) {
+        context.report({ node, messageId: 'outsideLayers', data: { from: fromLayer, target } });
         return;
       }
       if (!spec.imports.includes(toLayer)) {

@@ -44,6 +44,13 @@ describe('layer boundaries', () => {
       'test support',
     ],
     ['src/game/core/testing/probe.ts', "import { Sprite } from 'pixi.js';", 'pixi.js'],
+    ['src/main.tsx', "import { BOT_PROFILES } from './game/core/testing/bots';", 'test support'],
+    // The dev sandbox may use the bots, but nothing may import the sandbox.
+    ['src/main.tsx', "import { Sandbox } from './dev/sandbox';", "'dev' is dev-server-only"],
+    ['src/ui/probe.tsx', "import { Sandbox } from '../dev/sandbox';", 'dev-server-only'],
+    ['src/game/runtime/probe.ts', "export * from '../../dev/sandbox';", 'dev-server-only'],
+    ['src/dev/probe.tsx', "import { App } from '../ui/app/App';", "layer 'ui'"],
+    ['src/dev/probe.tsx', "import { http } from 'msw';", "package 'msw'"],
   ])('%s: rejects `%s`', async (file, code, expected) => {
     const errors = await boundaryErrors(file, code);
     expect(errors).toHaveLength(1);
@@ -68,6 +75,11 @@ describe('layer boundaries', () => {
       'src/game/core/testing/probe.ts',
       "import { DEFAULT_GAME_CONFIG } from '../../../config/defaults';",
     ],
+    ['src/dev/sandbox.tsx', "import { skilledBotInput } from '../game/core/testing/skilledBot';"],
+    ['src/dev/sandbox.tsx', "import { createGameSession } from '../game/runtime/session';"],
+    ['src/dev/sandbox.tsx', "import { Application } from 'pixi.js';"],
+    ['src/dev/sandbox.tsx', "import { createRoot } from 'react-dom/client';"],
+    ['src/dev/controls.tsx', "import { Sandbox } from './sandbox';"],
   ])('%s: allows `%s`', async (file, code) => {
     expect(await boundaryErrors(file, code)).toEqual([]);
   });

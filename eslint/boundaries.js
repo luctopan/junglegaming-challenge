@@ -73,6 +73,15 @@ export const LAYERS = {
     imports: ['runtime', 'bridge', 'api', 'config', 'shared', 'platform'],
     forbiddenPackages: withoutPackages('react', 'react-dom', 'react-router', '@tanstack'),
   },
+  dev: {
+    // Dev-server-only pages (sandbox.html): may wire the scripted bots into the real
+    // runtime; nothing may import them, and they are not a Vite build input.
+    dir: 'src/dev',
+    imports: ['core', 'input', 'render', 'runtime', 'bridge', 'config', 'shared', 'platform'],
+    forbiddenPackages: withoutPackages('react', 'react-dom', 'pixi.js', '@pixi'),
+    mayImportTestSupport: true,
+    devOnly: true,
+  },
 };
 
 /**
