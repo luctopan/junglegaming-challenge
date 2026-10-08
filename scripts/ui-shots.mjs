@@ -19,11 +19,24 @@ const outDir = path.resolve(root, outArg ?? 'docs/screenshots/phase4');
 const JPEG_QUALITY = 85;
 const ARENA_TIMEOUT_MS = 30_000;
 const CAPTAIN = { playerId: '0b5e7a52-3c1d-4f7e-9a2b-6c8d0e1f2a3b', name: 'Captain Jack' };
+/** A finished match of the captain, so the records show a `YOU` row and a history. */
+const LAST_RESULT = {
+  matchId: '7d1f3c2a-9b8e-4f6d-a5c4-3b2a1f0e9d8c',
+  playerId: CAPTAIN.playerId,
+  playerName: CAPTAIN.name,
+  playedAt: '2026-09-08T19:36:00.000Z',
+  score: 24,
+  durationMs: 120_000,
+  endReason: 'time_up',
+  config: { sessionSeconds: 120, spawnIntervalSeconds: 3 },
+};
+/** @param {Page} page */
+const settle = (page) => page.getByRole('table').or(page.getByRole('alert')).first().waitFor();
 
 /**
  * @typedef {import('@playwright/test').Page} Page
- * @typedef {{ name: string, captain?: boolean, options?: object, query?: string,
- *   portrait?: boolean, run: (page: Page) => Promise<void> }} Scene
+ * @typedef {{ name: string, captain?: boolean, lastResult?: boolean, query?: string,
+ *   path?: string, portrait?: boolean, run: (page: Page) => Promise<void> }} Scene
  */
 
 /** @param {Page} page @param {number} ms */
@@ -101,6 +114,41 @@ const SCENES = [
       await page.getByRole('button', { name: 'Options' }).click();
     },
   },
+  {
+    name: '09-ranking',
+    path: '/records/ranking',
+    query: '&records=demo',
+    lastResult: true,
+    run: settle,
+  },
+  {
+    name: '10-history',
+    path: '/records/history',
+    query: '&records=demo',
+    lastResult: true,
+    run: settle,
+  },
+  {
+    name: '11-records-loading',
+    path: '/records/ranking',
+    query: '&records=loading',
+    run: async (page) => {
+      await page.getByRole('status').filter({ hasText: 'Loading' }).waitFor();
+    },
+  },
+  {
+    name: '12-records-error',
+    path: '/records/ranking',
+    query: '&records=error',
+    run: settle,
+  },
+  {
+    name: '13-history-empty',
+    path: '/records/history',
+    run: async (page) => {
+      await page.getByText('No battles yet').waitFor();
+    },
+  },
 ];
 
 const VIEWPORTS = [
@@ -133,8 +181,14 @@ try {
           JSON.stringify(CAPTAIN),
         );
       }
+      if (scene.lastResult === true) {
+        await context.addInitScript(
+          (result) => localStorage.setItem('pirate.lastResult.v1', result),
+          JSON.stringify(LAST_RESULT),
+        );
+      }
       const page = await context.newPage();
-      await page.goto(`${base}/?test=1&seed=5&clock=manual${scene.query ?? ''}`);
+      await page.goto(`${base}${scene.path ?? '/'}?test=1&seed=5&clock=manual${scene.query ?? ''}`);
       await page.locator('html[data-msw="ready"]').waitFor();
       await scene.run(page);
       // Let images and fonts settle (no animation runs under the manual clock).

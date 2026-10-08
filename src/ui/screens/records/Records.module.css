@@ -1,0 +1,207 @@
+.subtitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: max(var(--min-font), calc(14px * var(--ui-scale)));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* The ranking subtitle doubles as the config selector, styled as text with a caret. */
+.select {
+  appearance: none;
+  max-width: 100%;
+  padding: 0.25em 1.8em 0.25em 0.6em;
+  border: 1px solid rgb(253 243 220 / 25%);
+  border-radius: 6px;
+  background: transparent
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23fdf3dc' stroke-width='1.6'/%3E%3C/svg%3E")
+    right 0.55em center / 0.7em no-repeat;
+  color: var(--color-text);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.select:hover {
+  border-color: rgb(253 243 220 / 55%);
+}
+
+.select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.select option {
+  background: var(--color-panel);
+  color: var(--color-text);
+  text-transform: none;
+}
+
+/* Rows are separate rounded bars on the panel, as in the mockup. */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 calc(6px * var(--ui-scale));
+  font-size: max(var(--min-font), calc(17px * var(--ui-scale)));
+  text-align: left;
+  transition: opacity 120ms;
+}
+
+.table[aria-busy='true'] {
+  opacity: 0.6;
+}
+
+.table th,
+.table td {
+  padding: calc(9px * var(--ui-scale)) calc(14px * var(--ui-scale));
+  white-space: nowrap;
+}
+
+.table thead th {
+  padding-bottom: 0;
+  color: var(--color-label);
+  font-size: max(var(--min-font), calc(12px * var(--ui-scale)));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.table tbody th,
+.table tbody td {
+  background: var(--color-row);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.table tbody tr > :first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.table tbody tr > :last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.table tbody .highlight > * {
+  background: var(--color-row-highlight);
+}
+
+.table tbody .highlight > :first-child {
+  box-shadow: inset 2px 0 0 var(--color-gold);
+}
+
+.rank,
+.points {
+  color: var(--color-gold) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.captain {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.star {
+  font-size: 1.3em;
+  margin-left: -0.15em;
+}
+
+.badge {
+  padding: 0.05em 0.4em;
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  color: var(--color-gold);
+  font-size: 0.6em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.when,
+.date small {
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.date small {
+  color: var(--color-text-muted);
+}
+
+.timeUp,
+.defeated {
+  font-size: 0.8em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timeUp {
+  color: var(--color-success) !important;
+}
+
+.defeated {
+  color: var(--color-danger) !important;
+}
+
+.state {
+  display: grid;
+  justify-items: center;
+  gap: calc(10px * var(--ui-scale));
+  width: 100%;
+  padding: calc(16px * var(--ui-scale)) 0;
+}
+
+.stateText {
+  margin: 0;
+  color: var(--color-text);
+  font-size: max(var(--min-font), calc(17px * var(--ui-scale)));
+  font-weight: 600;
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.retry {
+  padding: 0.3em 1.1em;
+  border: 2px solid var(--color-danger);
+  border-radius: 999px;
+  background: var(--color-row);
+  color: var(--color-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retry:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.skeleton {
+  display: grid;
+  gap: calc(6px * var(--ui-scale));
+  width: 100%;
+}
+
+.skeletonRow {
+  height: calc(42px * var(--ui-scale));
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-row) 0%, #24324a 50%, var(--color-row) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .table th,
+  .table td {
+    padding-inline: 8px;
+  }
+}

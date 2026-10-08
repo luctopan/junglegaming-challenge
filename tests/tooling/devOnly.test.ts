@@ -41,4 +41,12 @@ describe('findDevOnlyCode (scripts/verify-dist.mjs)', () => {
       'static/a.js.map: contains scripted test bot module',
     ]);
   });
+
+  it('flags the temporary records source once Phase 5 removes it', () => {
+    const map = [{ file: 'static/index.js.map', content: 'src/ui/records/temporaryRecords.ts' }];
+    expect(findDevOnlyCode(map, { temporaryRecordsRemoved: false })).toEqual([]);
+    expect(findDevOnlyCode(map, { temporaryRecordsRemoved: true })).toEqual([
+      'static/index.js.map: contains temporary records source (Phase 4)',
+    ]);
+  });
 });

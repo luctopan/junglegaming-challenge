@@ -26,8 +26,13 @@
   scrollbar-color: var(--color-label) transparent;
 }
 
+/* Short screens scroll the panel; its content keeps its size instead of being squeezed. */
+.panel > * {
+  flex-shrink: 0;
+}
+
 .menu {
-  width: min(calc(560px * var(--ui-scale)), calc(100vw - 2 * var(--gutter)));
+  width: min(max(calc(560px * var(--ui-scale)), 440px), calc(100vw - 2 * var(--gutter)));
   padding: calc(16px * var(--ui-scale)) calc(24px * var(--ui-scale));
   gap: calc(14px * var(--ui-scale));
 }

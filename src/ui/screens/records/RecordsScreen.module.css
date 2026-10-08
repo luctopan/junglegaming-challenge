@@ -1,0 +1,17 @@
+.panel {
+  gap: calc(10px * var(--ui-scale));
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(24px * var(--ui-scale));
+}
+
+.tabpanel {
+  display: grid;
+  justify-items: center;
+  gap: calc(10px * var(--ui-scale));
+  width: 100%;
+}

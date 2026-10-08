@@ -21,15 +21,37 @@ const FORBIDDEN_CONTENT = [
 ];
 
 /**
+ * Phase 4 feeds the Captain's Log from temporary in-memory fixtures (with a
+ * `?records=` override). Phase 5 replaces them with the API layer and flips
+ * this flag, so a leftover of the temporary source fails the build.
+ */
+export const TEMPORARY_RECORDS_REMOVED = false;
+
+/** @type {{ pattern: RegExp, label: string, in?: RegExp }[]} */
+const TEMPORARY_RECORDS = [
+  {
+    pattern: /src\/ui\/records\/temporaryRecords/,
+    label: 'temporary records source (Phase 4)',
+  },
+];
+
+/**
  * @param {{ file: string, content: string }[]} files Paths relative to dist/.
+ * @param {{ temporaryRecordsRemoved?: boolean }} [options]
  * @returns {string[]} Human-readable findings (empty when clean).
  */
-export function findDevOnlyCode(files) {
+export function findDevOnlyCode(
+  files,
+  { temporaryRecordsRemoved = TEMPORARY_RECORDS_REMOVED } = {},
+) {
+  const markers = temporaryRecordsRemoved
+    ? [...FORBIDDEN_CONTENT, ...TEMPORARY_RECORDS]
+    : FORBIDDEN_CONTENT;
   /** @type {string[]} */
   const findings = [];
   for (const { file, content } of files) {
     if (FORBIDDEN_FILES.some((re) => re.test(file))) findings.push(`${file}: dev-only page`);
-    for (const { pattern, label, in: scope } of FORBIDDEN_CONTENT) {
+    for (const { pattern, label, in: scope } of markers) {
       if ((scope === undefined || scope.test(file)) && pattern.test(content)) {
         findings.push(`${file}: contains ${label}`);
       }

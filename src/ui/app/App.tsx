@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { OptionsScreen } from '../screens/options/OptionsScreen';
 import { MenuScreen } from '../screens/menu/MenuScreen';
+import { RecordsScreen } from '../screens/records/RecordsScreen';
 import { MatchLayout } from './MatchLayout';
 import { MenuShell } from './MenuShell';
 
@@ -16,6 +17,8 @@ export function App() {
         <Route element={<MenuShell />}>
           <Route index element={<MenuScreen />} />
           <Route path="options" element={<OptionsScreen />} />
+          <Route path="records/:tab" element={<RecordsScreen />} />
+          <Route path="records" element={<Navigate to="/records/ranking" replace />} />
         </Route>
         <Route element={<MatchLayout />}>
           <Route path="play" element={null} />
