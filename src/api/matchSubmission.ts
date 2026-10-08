@@ -1,5 +1,5 @@
-import type { EndReason, MatchSubmission } from '../../api/contracts';
-import { OPTION_BOUNDS, isWithinBounds } from '../../config/options';
+import type { EndReason, MatchSubmission } from './contracts';
+import { OPTION_BOUNDS, isWithinBounds } from '../config/options';
 
 const END_REASONS: readonly EndReason[] = ['time_up', 'defeated'];
 
@@ -9,8 +9,8 @@ const isNonNegativeInteger = (value: unknown): value is number =>
 const isText = (value: unknown): value is string => typeof value === 'string' && value !== '';
 
 /**
- * Validates the stored last result (untrusted). It is the match exactly as it
- * will be submitted (Phase 5), so the same shape serves the Result screen.
+ * Validates a stored match submission (untrusted: the last result and the
+ * pending queue). The Result screen shows the same shape that is submitted.
  */
 export function parseMatchSubmission(stored: unknown): MatchSubmission | null {
   if (typeof stored !== 'object' || stored === null) return null;

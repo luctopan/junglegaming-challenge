@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_GAME_CONFIG } from '../../config/defaults';
 import { applyOptions } from '../../config/options';
-import { parseMatchSubmission } from '../state/lastResult';
+import { parseMatchSubmission } from '../../api/matchSubmission';
 import { buildMatchResult } from './matchResult';
 
 const running = {

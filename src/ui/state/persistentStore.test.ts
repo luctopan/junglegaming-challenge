@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { parsePlayerOptions } from '../../config/options';
 import type { KeyValueStorage } from '../../platform/storage';
 import { memoryStorage } from '../../platform/storage';
-import { parseMatchSubmission } from './lastResult';
+import { parseMatchSubmission } from '../../api/matchSubmission';
 import { createPersistentStore } from './persistentStore';
 
 const KEY = 'pirate.options.v1';

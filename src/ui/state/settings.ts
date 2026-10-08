@@ -6,7 +6,7 @@ import { optionsFromConfig, parsePlayerOptions } from '../../config/options';
 import { browserStorage } from '../../platform/storage';
 import type { CaptainProfile } from '../profile/captainName';
 import { parseCaptainProfile } from '../profile/captainName';
-import { parseMatchSubmission } from './lastResult';
+import { parseMatchSubmission } from '../../api/matchSubmission';
 import type { Persisted, PersistentStore } from './persistentStore';
 import { createPersistentStore } from './persistentStore';
 
