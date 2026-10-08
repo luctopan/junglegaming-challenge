@@ -19,10 +19,12 @@ test.describe('HUD', () => {
     page,
     openApp,
   }) => {
+    // Each chunk renders its frames on the CPU (software WebGL in CI): allow for it.
+    test.setTimeout(90_000);
     await openMatch(page, openApp);
     const before = await hudCommits(page);
-    // 300 frames in 100 ms chunks, so React gets the chance to render between them.
-    await advance(page, 5000, 100);
+    // 300 frames in 250 ms chunks, so React gets the chance to render between them.
+    await advance(page, 5000, 250);
     await expect(page.getByTestId('hud-time')).toHaveText('01:55');
     const commits = (await hudCommits(page)) - before;
     // 5 timer changes, plus HP/score changes if an enemy arrives: far below 300.
