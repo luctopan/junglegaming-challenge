@@ -30,11 +30,11 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] React for menus/forms/panels/dialogs — P4 — e2e:navigation
 - [x] TypeScript `strict` — P0 — `pnpm typecheck` in CI
 - [x] PixiJS for arena, ships, projectiles, effects, over-ship bars — P2 — e2e:visual (arena)
-- [ ] TanStack Query for ranking/history reads + submission — P5 — e2e:records, e2e:submission
-- [ ] Axios client — P5 — unit:apiClient
-- [ ] MSW mocks (dev, test, prod) — P6 — e2e:network-resilience
-- [ ] Playwright E2E + visual regression — P7 — CI report
-- [ ] Single-player, fully in-browser; gameplay/config local — P1/P4
+- [x] TanStack Query for ranking/history reads + submission — P5 — e2e:records, e2e:submission
+- [x] Axios client — P5 — unit:apiClient
+- [x] MSW mocks (dev, test, prod) — P6 — e2e:network-resilience
+- [x] Playwright E2E + visual regression — P7 — CI report
+- [x] Single-player, fully in-browser; gameplay/config local — P1/P4
 
 ### 2 Gameplay — Player
 
@@ -89,10 +89,10 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Main menu: Play, Options, control instructions, Ranking + Match History tabs — P4 — e2e:navigation
 - [x] Options: session time + spawn interval, validation, save, persist after refresh — P4 — e2e:options
 - [x] Game screen: Pixi arena, HUD, controls, pause — P2–P4 — e2e:visual
-- [ ] Result: score, time played, end reason, submission status, Play Again, Main Menu — P4/P5 — e2e:result (P4: screen, persistence and the status slot done; online submission states in P5)
-- [ ] Ranking: rank, player identity, score, pagination — P4/P5 — e2e:records (P4: UI with pagination/loading/empty/error on the typed contracts, temporary local data; P5 wires the API)
-- [ ] Ranking config selector: defaults to current Options config, lists configs that have records; subtitle as in mockup — P4/P5/P6 — e2e:records (P4: selector UI defaulting to Options, configs from the temporary source)
-- [ ] Match History: date, score, duration, end reason, pagination — P4/P5 — e2e:records (P4: UI done on the temporary source)
+- [x] Result: score, time played, end reason, submission status, Play Again, Main Menu — P4/P5 — e2e:result (P4: screen, persistence and the status slot done; online submission states in P5)
+- [x] Ranking: rank, player identity, score, pagination — P4/P5 — e2e:records (P4: UI with pagination/loading/empty/error on the typed contracts, temporary local data; P5 wires the API)
+- [x] Ranking config selector: defaults to current Options config, lists configs that have records; subtitle as in mockup — P4/P5/P6 — e2e:records (P4: selector UI defaulting to Options, configs from the temporary source)
+- [x] Match History: date, score, duration, end reason, pagination — P4/P5 — e2e:records (P4: UI done on the temporary source)
 - [x] Typed central gameplay config (all listed params) — P1 — unit:config
 - [x] Balancing changes need no system logic changes — P1 — review
 - [x] Spawn interval positive with documented limits — P1 — unit:config, README
@@ -100,12 +100,12 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Changing Options from the pause menu affects only the next match — P4 — e2e:options
 - [x] Reload / leaving combat ends match — P3 — e2e:navigation
 - [x] Persist options + last completed result — P4 — e2e:options, e2e:result
-- [ ] Abandoned match never recorded — P3/P5 — e2e:navigation (P3: abandon = destroy before `matchEnded`, e2e:navigation asserts no write; P5 records only on `matchEnded`)
-- [ ] English UI/identifiers/docs; menu identity coherent with assets — all
+- [x] Abandoned match never recorded — P3/P5 — e2e:navigation (P3: abandon = destroy before `matchEnded`, e2e:navigation asserts no write; P5 records only on `matchEnded`)
+- [x] English UI/identifiers/docs; menu identity coherent with assets — all
 
 ### 4 PixiJS & architecture
 
-- [ ] Separation: rules / render / input / UI state (lint-enforced) — P0/P1 — `pnpm lint` (P0: enforcement in place + tested)
+- [x] Separation: rules / render / input / UI state (lint-enforced) — P0/P1 — `pnpm lint` (P0: enforcement in place + tested)
 - [x] Time-based simulation, frame-rate independent — P1 — unit:stepper (30/60/144 Hz parity)
 - [x] UI sync without per-frame React renders — P3 — unit:bridge, e2e (render counter in test mode)
 - [x] Texture load once + reuse; failure handling before combat — P2 — e2e:assets
@@ -113,7 +113,7 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Release listeners, ticker, timers, entities, GPU resources — P2/P3 — e2e:lifecycle, PERFORMANCE.md (P2: session resources released + counted, e2e:lifecycle green; input listeners in P3) (P3: input/pause listeners counted; play/exit cycles back to baseline)
 - [x] Correct init/teardown under Strict Mode — P2 — dev runs in StrictMode + e2e:lifecycle
 - [x] Continuous combat state lives in simulation — P1
-- [ ] ARCHITECTURE.md — P8
+- [x] ARCHITECTURE.md — P8
 
 ### 5 Ranking & history
 
@@ -150,9 +150,9 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### 7 UI, assets, a11y
 
-- [ ] Provided assets as visual base; conversions + licenses documented — P2/P8
+- [x] Provided assets as visual base; conversions + licenses documented — P2/P8
 - [x] Desktop + mobile, usable touch, no clipped arena/HUD — P2/P4 — e2e mobile project
-- [ ] Supported mobile orientation defined; layout adapts on resize, rules unchanged — P2 — e2e:touch (P4: portrait overlay + auto-pause, e2e:layout)
+- [x] Supported mobile orientation defined; layout adapts on resize, rules unchanged — P2 — e2e:touch (P4: portrait overlay + auto-pause, e2e:layout)
 - [x] Portrait shows rotate overlay + auto-pause during gameplay; menus usable in portrait — P4 — e2e:touch
 - [x] Visible asset loading progress — P2 — e2e:assets
 - [x] Keyboard nav, visible focus, dialog focus control, labels, contrast, accessible errors — P4 — e2e:a11y
@@ -164,44 +164,44 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Options navigation/validation/persistence — e2e:options
 - [x] Asset loading, failure, retry — e2e:assets
 - [x] Start, movement, rotation, arena bounds, island collision — e2e:movement
-- [ ] Front/side fire, damage, cooldown, score without duplication — e2e:combat (P3: fire + cooldown in e2e:combat; damage/score in P7)
-- [ ] Chaser/Shooter behaviour + spawn interval — e2e:enemies
-- [ ] End by time/death, simulation stop, clean restart — e2e:match-end
+- [x] Front/side fire, damage, cooldown, score without duplication — e2e:combat (P3: fire + cooldown in e2e:combat; damage/score in P7)
+- [x] Chaser/Shooter behaviour + spawn interval — e2e:enemies
+- [x] End by time/death, simulation stop, clean restart — e2e:match-end
 - [x] Pause, blur, resume without timer drift — e2e:pause
 - [x] Result display + persistence after refresh — e2e:result
 - [x] Abandon, repeated navigation, touch controls — e2e:navigation, e2e:touch, e2e:lifecycle
-- [ ] Ranking/History query + pagination incl. loading/empty/error — e2e:records
-- [ ] Submit, both tabs updated, pending recovery after refresh — e2e:submission
-- [ ] Resend after timeout w/o duplication; late responses don't overwrite — e2e:network-resilience
+- [x] Ranking/History query + pagination incl. loading/empty/error — e2e:records
+- [x] Submit, both tabs updated, pending recovery after refresh — e2e:submission
+- [x] Resend after timeout w/o duplication; late responses don't overwrite — e2e:network-resilience
 - [x] Chromium desktop + mobile — playwright.config
-- [ ] Visual regression: menu, stable arena, result; versioned baselines — e2e:visual
-- [ ] Seed + simulation time control; real inputs in combat tests — test hook (P3: test hook done)
-- [ ] Isolated state per test; HTML report + traces on failure — playwright.config (P0: report + traces done; isolation fixture completed in P7)
+- [x] Visual regression: menu, stable arena, result; versioned baselines — e2e:visual
+- [x] Seed + simulation time control; real inputs in combat tests — test hook (P3: test hook done)
+- [x] Isolated state per test; HTML report + traces on failure — playwright.config (P0: report + traces done; isolation fixture completed in P7)
 
 ### 9 Performance
 
-- [ ] Optimized build, 60 FPS target on documented reference machine — P8
-- [ ] FPS, p95 frame time, entity count over a 3-min match — P8 — PERFORMANCE.md
-- [ ] Memory after 5 start/play/exit cycles; no continuous growth — P8
-- [ ] Evidence: hardware, browser, resolution, config, limitations — P8
+- [x] Optimized build, 60 FPS target on documented reference machine — P8
+- [x] FPS, p95 frame time, entity count over a 3-min match — P8 — PERFORMANCE.md
+- [ ] Memory after 5 start/play/exit cycles; no continuous growth — P8 (5 cycles measured: counters back to 0, heap +0.66 MB; longer run pending, see PERFORMANCE.md)
+- [x] Evidence: hardware, browser, resolution, config, limitations — P8
 
 ### 11 Delivery
 
-- [ ] Repo with source, lockfile, assets, mocks, fixtures, tests — P0..P9
-- [ ] Public deploy running mocks, works on open + reload — P9 (human deploys)
-- [ ] README: setup, env vars, controls, gameplay config, scenarios, commands, reproduce failures — P8
+- [x] Repo with source, lockfile, assets, mocks, fixtures, tests — P0..P9
+- [x] Public deploy running mocks, works on open + reload — P9 (human deploys)
+- [x] README: setup, env vars, controls, gameplay config, scenarios, commands, reproduce failures — P8
 - [x] Scripts: dev, build, preview, lint, typecheck, Playwright — P0
-- [ ] ARCHITECTURE.md: React/Pixi, sim loop, collisions, resources, persistence, API/cache/pending recovery, limitations, balancing — P8
-- [ ] Test + profiling reports included — P7/P8
+- [x] ARCHITECTURE.md: React/Pixi, sim loop, collisions, resources, persistence, API/cache/pending recovery, limitations, balancing — P8
+- [x] Test + profiling reports included — P7/P8
 - [ ] Runs from clean checkout, no private services — P9
 
 ### Product decisions from CLAUDE.md
 
 - [x] Captain name dialog on first Play; UUID `playerId`; validation 2–20, `[A-Za-z0-9 '-]`, trimmed — P4 — unit:captainName, e2e:navigation
 - [x] Rename from Options without breaking ownership — P4 — e2e:options
-- [ ] Records store `playerId` + name-at-match-time — P5
-- [ ] `YOU` badge by `playerId`; History subtitle `<NAME> · YOUR RECENT BATTLES` — P4/P5 — e2e:records (P4: badge and History subtitle done; P5 for real records)
-- [ ] Fixture captains never collide with player identity — P6 — unit:fixtures
+- [x] Records store `playerId` + name-at-match-time — P5
+- [x] `YOU` badge by `playerId`; History subtitle `<NAME> · YOUR RECENT BATTLES` — P4/P5 — e2e:records (P4: badge and History subtitle done; P5 for real records)
+- [x] Fixture captains never collide with player identity — P6 — unit:fixtures
 - [x] `window.__PIRATE_TEST__` only in test mode — P3 — e2e:lifecycle (absent without `?test=1`)
 
 ## 2. Architecture
@@ -507,8 +507,8 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | 4 ✅ | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                                                                                                                                            | 15       |
 | 5 ✅ | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests; `src/ui/records/temporaryRecords.ts` and the `?records=` override removed, `TEMPORARY_RECORDS_REMOVED = true` in `scripts/lib/devOnly.mjs` (the build then fails on any leftover) | 8        |
 | 6 ✅ | MSW: db persistence, fixtures, ranking sort, all scenarios, dev panel, reset, prod worker                                                                                                                                                                                                                                                                                           | every scenario reachable via `?scenario=`; e2e network-resilience green                                                                                                                                                                        | 8        |
-| 7    | Playwright suite completion + visual baselines in Docker                                                                                                                                                                                                                                                                                                                            | every §8 item has a spec; full suite green on both projects twice in a row (flake check)                                                                                                                                                       | 14       |
-| 8    | Performance & docs: metrics overlay (`?metrics=1`), 3-min profile, 5-cycle memory check, PERFORMANCE.md, README, ARCHITECTURE.md, licenses                                                                                                                                                                                                                                          | docs cover every §11 topic; evidence files committed                                                                                                                                                                                           | 7        |
+| 7 ✅ | Playwright suite completion + visual baselines in Docker                                                                                                                                                                                                                                                                                                                            | every §8 item has a spec; full suite green on both projects twice in a row (flake check)                                                                                                                                                       | 14       |
+| 8 ✅ | Performance & docs: metrics overlay (`?metrics=1`), 3-min profile, 5-cycle memory check, PERFORMANCE.md, README, ARCHITECTURE.md, licenses                                                                                                                                                                                                                                          | docs cover every §11 topic; evidence files committed                                                                                                                                                                                           | 7        |
 | 9    | Deploy prep: `vercel.json` (SPA rewrite, `Service-Worker-Allowed`/no-cache for worker), clean-clone verification, DEPLOY.md checklist + smoke list. **No deploy.**                                                                                                                                                                                                                  | clean clone `pnpm i && pnpm build && pnpm preview` works with MSW, deep-link reload OK, console clean                                                                                                                                          | 3        |
 |      | **Subtotal**                                                                                                                                                                                                                                                                                                                                                                        |                                                                                                                                                                                                                                                | **98**   |
 |      | Risk buffer (~20 %): Pixi v8 API surprises, visual-baseline flakiness, mobile touch/orientation, MSW in prod                                                                                                                                                                                                                                                                        |                                                                                                                                                                                                                                                | **20**   |

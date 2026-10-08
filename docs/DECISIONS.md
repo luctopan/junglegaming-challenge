@@ -31,6 +31,16 @@ Newest phase first within each section.
 | Styling            | CSS Modules + CSS variables; atlas images via `border-image`/background; self-hosted OFL font.                                                                                                                                     |
 | Missing UI assets  | No hover/disabled for secondary buttons, no disabled round button, no focus states, no mute/help icons: derived via CSS (filters, our own focus ring) and small inline SVGs matching the style.                                    |
 
+## Phases 7–8 — Playwright completion and performance
+
+| #   | Decision                                                                                                                                                                                                                                                    |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | **Gameplay e2e on seed 42** (manual clock, idle player): spawns at 3/6/9 s, a Shooter that holds ~187 u and hits for 7, two Chasers ramming at 13 s. The time-up spec uses **seed 7**, the first seed where an idle ship survives a 60 s / 10 s battle.     |
+| Q2  | **Visual specs run only on Linux** (`test.skip` elsewhere): baselines come from the pinned Playwright image, which CI uses; on Windows/macOS `pnpm test:e2e:docker` runs them. Screenshots disable animations and allow 1 % differing pixels.               |
+| Q3  | **The manual-clock HUD commit check advances in 250 ms chunks** with a 90 s timeout: 100 ms chunks meant 50 round trips of software-WebGL frames, which timed out on the 2-vCPU CI runner.                                                                  |
+| Q4  | **Performance is measured by `pnpm perf`** (rAF probe + test-hook reads in a real-clock production match) instead of the planned in-game `?metrics=1` overlay: same numbers, reproducible, no extra UI to ship.                                             |
+| Q5  | **`pnpm perf` uses the installed Google Chrome** (`channel: 'chrome'`, headed): Playwright's bundled `chrome.exe` could not be spawned on the reference machine, and headless Chromium renders WebGL on the CPU, which says nothing about real frame rates. |
+
 ## Phases 5–6 — API layer and mock backend
 
 | #   | Decision                                                                                                                                                                                                                                                                                               |
