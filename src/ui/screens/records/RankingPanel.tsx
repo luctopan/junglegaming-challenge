@@ -1,12 +1,10 @@
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { ConfigKey, Page, RankingEntry } from '../../../api/contracts';
-import { configKeyOf, PAGE_SIZE, parseConfigKey } from '../../../api/contracts';
+import { configKeyOf, parseConfigKey } from '../../../api/contracts';
+import { useRankedConfigs, useRankingPage } from '../../../api/hooks';
 import { AtlasIcon } from '../../components/Icon';
 import { Pagination } from '../../components/Pagination';
 import { describeConfig, formatPlayedAt, rankLabel } from '../../records/format';
-import { fetchRankedConfigs, fetchRankingPage } from '../../records/temporaryRecords';
-import { useRecordsContext } from '../../records/useRecordsContext';
-import { useRecordsQuery } from '../../records/useRecordsQuery';
 import { optionsStore, profileStore, usePersistedValue } from '../../state/settings';
 import { QueryState } from './QueryState';
 import styles from './Records.module.css';
@@ -28,26 +26,17 @@ export function RankingPanel() {
   const id = useId();
   const options = usePersistedValue(optionsStore);
   const profile = usePersistedValue(profileStore);
-  const context = useRecordsContext();
   const [configKey, setConfigKey] = useState<ConfigKey>(() => configKeyOf(options));
   const [page, setPage] = useState(1);
 
-  const fetchConfigs = useCallback(
-    (signal: AbortSignal) => fetchRankedConfigs(context, signal),
-    [context],
-  );
-  const configs = useRecordsQuery(`configs:${context.key}`, fetchConfigs);
-  const fetchPage = useCallback(
-    (signal: AbortSignal) => fetchRankingPage(configKey, page, PAGE_SIZE, context, signal),
-    [configKey, page, context],
-  );
-  const ranking = useRecordsQuery(`ranking:${configKey}:${page}:${context.key}`, fetchPage);
+  const configs = useRankedConfigs();
+  const ranking = useRankingPage(configKey, page);
 
   const choices = useMemo(() => {
     const keys = new Set<ConfigKey>([configKeyOf(options), configKey]);
-    if (configs.status === 'success') for (const c of configs.data) keys.add(c.configKey);
+    for (const c of configs.data ?? []) keys.add(c.configKey);
     return [...keys].sort(byConfig);
-  }, [configs, options, configKey]);
+  }, [configs.data, options, configKey]);
 
   const selected = parseConfigKey(configKey);
   return (
@@ -83,10 +72,7 @@ export function RankingPanel() {
       >
         {(data) => (
           <>
-            <table
-              className={styles.table}
-              aria-busy={ranking.status === 'success' && ranking.isFetching}
-            >
+            <table className={styles.table} aria-busy={ranking.isFetching}>
               <caption className="visually-hidden">
                 Ranking, {selected === null ? configKey : describeConfig(selected)}, page{' '}
                 {data.page} of {data.totalPages}
@@ -131,10 +117,10 @@ export function RankingPanel() {
               </tbody>
             </table>
             <Pagination
-              page={data.page}
+              page={page}
               totalPages={data.totalPages}
               label="ranking"
-              busy={ranking.status === 'success' && ranking.isFetching}
+              busy={ranking.isFetching}
               onChange={setPage}
             />
           </>

@@ -1,22 +1,11 @@
+import { useApi } from '../../../api/apiContext';
+import { useSubmissionStatus } from '../../../api/hooks';
+import type { SubmissionStatus as Status } from '../../../api/submissions';
 import { assertNever } from '../../../shared/assertNever';
 import styles from './SubmissionStatus.module.css';
 
-/**
- * Where the match record stands. Phase 4 only stores the result on this
- * device (`local`); the online states come with the API layer (Phase 5),
- * which feeds this same component.
- */
-export type SubmissionState =
-  | { readonly kind: 'local' }
-  | { readonly kind: 'saving' }
-  | { readonly kind: 'saved' }
-  | { readonly kind: 'pending' }
-  | { readonly kind: 'failed'; readonly retry: () => void };
-
-function message(state: SubmissionState): string {
-  switch (state.kind) {
-    case 'local':
-      return 'Result saved on this device.';
+function message(status: Status): string {
+  switch (status) {
     case 'saving':
       return 'Saving your battle to the ranking…';
     case 'saved':
@@ -26,19 +15,33 @@ function message(state: SubmissionState): string {
     case 'failed':
       return 'Could not save your battle.';
     default:
-      return assertNever(state);
+      return assertNever(status);
   }
 }
 
-/** Polite status line (announced when it changes), with Retry when saving failed. */
-export function SubmissionStatus({ state }: { readonly state: SubmissionState }) {
+/**
+ * Polite status line of the match record (announced when it changes), with
+ * Retry while it is not saved. Never blocks Play again: the record waits in
+ * the persisted queue whatever happens here.
+ */
+export function SubmissionStatus({ matchId }: { readonly matchId: string }) {
+  const { submissions } = useApi();
+  // Unknown and not queued: confirmed earlier (e.g. before a refresh).
+  const status = useSubmissionStatus(matchId) ?? 'saved';
+  const canRetry = status === 'pending' || status === 'failed';
   return (
     <div className={styles.status}>
-      <p role="status" className={styles[state.kind]} data-testid="submission-status">
-        {message(state)}
+      <p role="status" className={styles[status]} data-testid="submission-status">
+        {message(status)}
       </p>
-      {state.kind === 'failed' ? (
-        <button type="button" className={styles.retry} onClick={state.retry}>
+      {canRetry ? (
+        <button
+          type="button"
+          className={styles.retry}
+          onClick={() => {
+            submissions.retry(matchId);
+          }}
+        >
           Retry
         </button>
       ) : null}

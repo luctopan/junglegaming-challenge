@@ -205,3 +205,16 @@
     padding-inline: 8px;
   }
 }
+
+.staleNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em 1em;
+  font-weight: 600;
+}
+
+.staleNotice p {
+  margin: 0;
+}

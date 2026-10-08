@@ -12,7 +12,6 @@
   margin: 0;
 }
 
-.local,
 .saving {
   color: var(--color-text-muted);
 }

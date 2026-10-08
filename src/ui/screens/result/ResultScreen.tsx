@@ -22,7 +22,6 @@ export function ResultScreen() {
         <Panel aria-labelledby="result-title">
           <ResultPanel
             result={result}
-            submission={{ kind: 'local' }}
             headingId="result-title"
             onPlayAgain={() => {
               requestMatch();

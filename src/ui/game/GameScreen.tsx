@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useApi } from '../../api/apiContext';
 import { newUuid } from '../../platform/uuid';
 import { BrandLogo } from '../app/Backdrop';
 import { Button } from '../components/Button';
@@ -50,6 +51,7 @@ export function GameScreen({ onExit, onMatchEnded, onRestarted }: GameScreenProp
   const [matchId, setMatchId] = useState(newUuid);
   const matchConfigRef = useRef(config);
   const playAgainRef = useRef<HTMLButtonElement>(null);
+  const { submissions } = useApi();
   const lastResult = usePersistedValue(lastResultStore);
   const { muted } = usePersistedValue(audioStore);
   const { snapshot, retryAssets, pause, resume, restart } = useGameSession(
@@ -75,8 +77,10 @@ export function GameScreen({ onExit, onMatchEnded, onRestarted }: GameScreenProp
     );
     if (built === null) return;
     lastResultStore.set(built);
+    // Queued (persisted) before the request: a failure or a refresh never loses it.
+    submissions.submit(built);
     onMatchEnded();
-  }, [phase, match, matchId, result, onMatchEnded]);
+  }, [phase, match, matchId, result, onMatchEnded, submissions]);
 
   const pauseForPortrait = useCallback(() => {
     pause('portrait');
@@ -122,7 +126,6 @@ export function GameScreen({ onExit, onMatchEnded, onRestarted }: GameScreenProp
             <Dialog labelledBy="result-title" initialFocus={playAgainRef}>
               <ResultPanel
                 result={result}
-                submission={{ kind: 'local' }}
                 headingId="result-title"
                 playAgainRef={playAgainRef}
                 onPlayAgain={playAgain}

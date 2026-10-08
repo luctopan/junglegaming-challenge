@@ -1,11 +1,18 @@
 import type { ReactNode } from 'react';
-import type { RecordsQuery } from '../../records/useRecordsQuery';
 import styles from './Records.module.css';
 
 const SKELETON_ROWS = 5;
 
+/** The part of a TanStack Query result the records lists use. */
+export interface QueryView<T> {
+  readonly status: 'pending' | 'error' | 'success';
+  readonly data: T | undefined;
+  readonly isFetching: boolean;
+  readonly refetch: () => unknown;
+}
+
 interface QueryStateProps<T> {
-  readonly query: RecordsQuery<T>;
+  readonly query: QueryView<T>;
   /** "the ranking", "your match history" */
   readonly what: string;
   readonly isEmpty: (data: T) => boolean;
@@ -13,9 +20,34 @@ interface QueryStateProps<T> {
   readonly children: (data: T) => ReactNode;
 }
 
-/** Loading, error (with Retry), empty and loaded states of a records list. */
+/**
+ * Loading, error (with Retry), empty and loaded states of a records list.
+ * When a background refresh fails, the cached rows stay with a notice.
+ */
 export function QueryState<T>({ query, what, isEmpty, empty, children }: QueryStateProps<T>) {
-  if (query.status === 'pending') {
+  const { data } = query;
+  const retry = (
+    <button
+      type="button"
+      className={styles.retry}
+      onClick={() => {
+        void query.refetch();
+      }}
+    >
+      Retry
+    </button>
+  );
+  if (data === undefined && query.status === 'error') {
+    return (
+      <div className={styles.state} role="alert">
+        <p className={`${styles.stateText} ${styles.error}`}>
+          Could not load {what}. Check your connection and try again.
+        </p>
+        {retry}
+      </div>
+    );
+  }
+  if (data === undefined) {
     return (
       <div className={styles.state} aria-busy="true">
         <p role="status" className={styles.stateText}>
@@ -29,26 +61,29 @@ export function QueryState<T>({ query, what, isEmpty, empty, children }: QuerySt
       </div>
     );
   }
-  if (query.status === 'error') {
-    return (
-      <div className={styles.state} role="alert">
-        <p className={`${styles.stateText} ${styles.error}`}>
-          Could not load {what}. Check your connection and try again.
-        </p>
-        <button type="button" className={styles.retry} onClick={query.refetch}>
-          Retry
-        </button>
+  const stale =
+    query.status === 'error' && !query.isFetching ? (
+      <div className={styles.staleNotice} role="alert">
+        <p className={styles.error}>Could not refresh {what}; showing saved data.</p>
+        {retry}
       </div>
+    ) : null;
+  if (isEmpty(data)) {
+    return (
+      <>
+        {stale}
+        <div className={styles.state}>
+          <p role="status" className={styles.stateText}>
+            {empty}
+          </p>
+        </div>
+      </>
     );
   }
-  if (isEmpty(query.data)) {
-    return (
-      <div className={styles.state}>
-        <p role="status" className={styles.stateText}>
-          {empty}
-        </p>
-      </div>
-    );
-  }
-  return <>{children(query.data)}</>;
+  return (
+    <>
+      {stale}
+      {children(data)}
+    </>
+  );
 }

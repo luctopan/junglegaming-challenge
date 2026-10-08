@@ -41,3 +41,11 @@
     display: none;
   }
 }
+
+/* Discreet entry to the mock backend panel (demo and testers). */
+.footer {
+  position: absolute;
+  bottom: calc(var(--gutter) / 2);
+  left: 50%;
+  transform: translateX(-50%);
+}

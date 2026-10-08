@@ -1,0 +1,42 @@
+.field {
+  display: grid;
+  justify-items: center;
+  gap: calc(6px * var(--ui-scale));
+  width: 100%;
+}
+
+.select {
+  min-width: min(100%, 26ch);
+  padding: 0.35em 0.6em;
+  border: 2px solid #8a5a2b;
+  border-radius: 8px;
+  background: var(--color-row);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+}
+
+.select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+.footerLink {
+  padding: 0.2em 0.4em;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: max(var(--min-font), calc(12px * var(--ui-scale)));
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.footerLink:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

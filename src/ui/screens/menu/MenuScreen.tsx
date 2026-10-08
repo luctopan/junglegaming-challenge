@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router';
 import ship from '../../../../assets/png/default/ships/ship_2.png';
 import title from '../../../../assets/png/default/ui/menu/title_pirate_battle.png';
 import title2x from '../../../../assets/png/retina/ui/menu/title_pirate_battle.png';
@@ -8,19 +9,28 @@ import { Panel } from '../../components/Panel';
 import { RoundButton } from '../../components/RoundButton';
 import { SoundToggle } from '../../components/SoundToggle';
 import { ControlsDialog, ControlsSummary } from '../../help/ControlsDialog';
+import { MockPanel } from '../../network/MockPanel';
+import mockStyles from '../../network/MockPanel.module.css';
 import { CaptainNameDialog } from '../../profile/CaptainNameDialog';
 import { createCaptain } from '../../state/profile';
 import { profileStore, usePersistedValue } from '../../state/settings';
 import screen from '../screen.module.css';
 import styles from './MenuScreen.module.css';
 
-type MenuDialog = 'captain' | 'controls' | null;
+type MenuDialog = 'captain' | 'controls' | 'mock' | null;
+
+/** `?dev=1` opens the mock backend panel with the menu. */
+const devPanelRequested = (search: string): boolean =>
+  new URLSearchParams(search).get('dev') === '1';
 
 /** Main menu (assets/sample_menu.png), plus the controls help and the sound toggle. */
 export function MenuScreen() {
   const navigate = useAppNavigate();
   const profile = usePersistedValue(profileStore);
-  const [dialog, setDialog] = useState<MenuDialog>(null);
+  const { search } = useLocation();
+  const [dialog, setDialog] = useState<MenuDialog>(() =>
+    devPanelRequested(search) ? 'mock' : null,
+  );
 
   const startMatch = (): void => {
     requestMatch();
@@ -94,6 +104,16 @@ export function MenuScreen() {
           </Button>
         </div>
       </Panel>
+      <button
+        type="button"
+        className={`${mockStyles.footerLink} ${styles.footer}`}
+        aria-haspopup="dialog"
+        onClick={() => {
+          setDialog('mock');
+        }}
+      >
+        Mock backend
+      </button>
 
       {dialog === 'captain' ? (
         <CaptainNameDialog
@@ -105,6 +125,13 @@ export function MenuScreen() {
             createCaptain(name);
             setDialog(null);
             startMatch();
+          }}
+        />
+      ) : null}
+      {dialog === 'mock' ? (
+        <MockPanel
+          onClose={() => {
+            setDialog(null);
           }}
         />
       ) : null}

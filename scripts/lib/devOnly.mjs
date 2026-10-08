@@ -21,11 +21,11 @@ const FORBIDDEN_CONTENT = [
 ];
 
 /**
- * Phase 4 feeds the Captain's Log from temporary in-memory fixtures (with a
- * `?records=` override). Phase 5 replaces them with the API layer and flips
- * this flag, so a leftover of the temporary source fails the build.
+ * Phase 4 fed the Captain's Log from temporary in-memory fixtures (with a
+ * `?records=` override). Phase 5 replaced them with the API layer over MSW,
+ * so any leftover of the temporary source now fails the build.
  */
-export const TEMPORARY_RECORDS_REMOVED = false;
+export const TEMPORARY_RECORDS_REMOVED = true;
 
 /** @type {{ pattern: RegExp, label: string, in?: RegExp }[]} */
 const TEMPORARY_RECORDS = [

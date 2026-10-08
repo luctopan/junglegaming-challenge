@@ -117,21 +117,21 @@ const SCENES = [
   {
     name: '09-ranking',
     path: '/records/ranking',
-    query: '&records=demo',
+    query: '',
     lastResult: true,
     run: settle,
   },
   {
     name: '10-history',
     path: '/records/history',
-    query: '&records=demo',
+    query: '',
     lastResult: true,
     run: settle,
   },
   {
     name: '11-records-loading',
     path: '/records/ranking',
-    query: '&records=loading',
+    query: '&scenario=timeout',
     run: async (page) => {
       await page.getByRole('status').filter({ hasText: 'Loading' }).waitFor();
     },
@@ -139,7 +139,7 @@ const SCENES = [
   {
     name: '12-records-error',
     path: '/records/ranking',
-    query: '&records=error',
+    query: '&scenario=ranking-fail',
     run: settle,
   },
   {

@@ -4,13 +4,11 @@ import { Button } from '../../components/Button';
 import { formatDuration, spokenDuration } from '../../game/formatClock';
 import screen from '../screen.module.css';
 import { END_REASON_LABEL } from './endReason';
-import type { SubmissionState } from './SubmissionStatus';
 import { SubmissionStatus } from './SubmissionStatus';
 import styles from './ResultPanel.module.css';
 
 interface ResultPanelProps {
   readonly result: MatchSubmission;
-  readonly submission: SubmissionState;
   readonly headingId: string;
   readonly onPlayAgain: () => void;
   readonly onMainMenu: () => void;
@@ -26,7 +24,6 @@ const MS_PER_SECOND = 1000;
  */
 export function ResultPanel({
   result,
-  submission,
   headingId,
   onPlayAgain,
   onMainMenu,
@@ -56,7 +53,7 @@ export function ResultPanel({
         {points}. Time played: {spokenDuration(Math.floor(result.durationMs / MS_PER_SECOND))}.{' '}
         {reason}.
       </p>
-      <SubmissionStatus state={submission} />
+      <SubmissionStatus matchId={result.matchId} />
       <div className={screen.actions}>
         <Button ref={playAgainRef} onClick={onPlayAgain}>
           Play again
