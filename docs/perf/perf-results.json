@@ -1,0 +1,1229 @@
+{
+  "date": "2026-10-08T03:56:09.302Z",
+  "environment": {
+    "os": "Windows_NT 10.0.26200 x64",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "cores": 20,
+    "memoryGb": 15.7,
+    "browser": "Google Chrome 155.0.8059.40 (headed)",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002560) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "deviceScaleFactor": 1,
+    "build": "production (vite build), served by vite preview",
+    "config": {
+      "sessionSeconds": 180,
+      "spawnIntervalSeconds": 3,
+      "seed": 42,
+      "clock": "real"
+    }
+  },
+  "match": {
+    "durationSeconds": 185.3,
+    "combatSeconds": 180.4,
+    "matches": 1,
+    "frames": 13888,
+    "averageFps": 74.9,
+    "frameTimeMs": {
+      "mean": 13.34,
+      "p50": 13.3,
+      "p95": 13.6,
+      "p99": 13.8,
+      "max": 27.1
+    },
+    "framesOver20ms": 8,
+    "entities": {
+      "maxEnemies": 5,
+      "maxProjectiles": 5,
+      "maxDisplayObjects": 228,
+      "meanEnemies": 2.3
+    },
+    "samples": [
+      {
+        "t": 1.3,
+        "enemies": 0,
+        "projectiles": 1,
+        "displayObjects": 178
+      },
+      {
+        "t": 2.3,
+        "enemies": 0,
+        "projectiles": 3,
+        "displayObjects": 185
+      },
+      {
+        "t": 3.3,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 186
+      },
+      {
+        "t": 4.3,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 5.3,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 186
+      },
+      {
+        "t": 6.3,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 7.3,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 8.3,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 9.4,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 210
+      },
+      {
+        "t": 10.4,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 198
+      },
+      {
+        "t": 11.4,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 205
+      },
+      {
+        "t": 12.4,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 203
+      },
+      {
+        "t": 13.4,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 14.4,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 205
+      },
+      {
+        "t": 15.4,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 222
+      },
+      {
+        "t": 16.5,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 215
+      },
+      {
+        "t": 17.5,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 205
+      },
+      {
+        "t": 18.5,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 199
+      },
+      {
+        "t": 19.5,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 197
+      },
+      {
+        "t": 20.5,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 21.5,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 200
+      },
+      {
+        "t": 22.5,
+        "enemies": 2,
+        "projectiles": 3,
+        "displayObjects": 198
+      },
+      {
+        "t": 23.6,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 24.6,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 25.6,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 200
+      },
+      {
+        "t": 26.6,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 209
+      },
+      {
+        "t": 27.6,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 203
+      },
+      {
+        "t": 28.6,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 210
+      },
+      {
+        "t": 29.6,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 204
+      },
+      {
+        "t": 30.6,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 31.6,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 190
+      },
+      {
+        "t": 32.6,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 33.6,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 208
+      },
+      {
+        "t": 34.7,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 35.7,
+        "enemies": 1,
+        "projectiles": 4,
+        "displayObjects": 195
+      },
+      {
+        "t": 36.7,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 37.7,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 191
+      },
+      {
+        "t": 38.7,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 39.7,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 197
+      },
+      {
+        "t": 40.7,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 202
+      },
+      {
+        "t": 41.8,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 198
+      },
+      {
+        "t": 42.8,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 183
+      },
+      {
+        "t": 43.8,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 185
+      },
+      {
+        "t": 44.8,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 182
+      },
+      {
+        "t": 45.8,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 46.8,
+        "enemies": 2,
+        "projectiles": 3,
+        "displayObjects": 201
+      },
+      {
+        "t": 47.8,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 48.8,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 202
+      },
+      {
+        "t": 49.8,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 50.8,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 203
+      },
+      {
+        "t": 50.8,
+        "enemies": 0,
+        "projectiles": 1,
+        "displayObjects": 179
+      },
+      {
+        "t": 51.8,
+        "enemies": 0,
+        "projectiles": 1,
+        "displayObjects": 178
+      },
+      {
+        "t": 52.8,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 175
+      },
+      {
+        "t": 53.9,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 186
+      },
+      {
+        "t": 54.9,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 55.9,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 56.9,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 198
+      },
+      {
+        "t": 57.9,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 58.9,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 59.9,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 60.9,
+        "enemies": 2,
+        "projectiles": 3,
+        "displayObjects": 198
+      },
+      {
+        "t": 62,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 191
+      },
+      {
+        "t": 63,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 193
+      },
+      {
+        "t": 64,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 198
+      },
+      {
+        "t": 65,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 182
+      },
+      {
+        "t": 66,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 67,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 194
+      },
+      {
+        "t": 68,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 69,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 205
+      },
+      {
+        "t": 70,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 71.1,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 197
+      },
+      {
+        "t": 72.1,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 209
+      },
+      {
+        "t": 73.1,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 206
+      },
+      {
+        "t": 74.1,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 205
+      },
+      {
+        "t": 75.1,
+        "enemies": 4,
+        "projectiles": 2,
+        "displayObjects": 210
+      },
+      {
+        "t": 76.1,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 214
+      },
+      {
+        "t": 77.1,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 210
+      },
+      {
+        "t": 78.1,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 209
+      },
+      {
+        "t": 79.1,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 206
+      },
+      {
+        "t": 80.2,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 203
+      },
+      {
+        "t": 81.2,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 82.2,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 83.2,
+        "enemies": 4,
+        "projectiles": 5,
+        "displayObjects": 225
+      },
+      {
+        "t": 83.2,
+        "enemies": 0,
+        "projectiles": 1,
+        "displayObjects": 179
+      },
+      {
+        "t": 84.2,
+        "enemies": 0,
+        "projectiles": 3,
+        "displayObjects": 184
+      },
+      {
+        "t": 85.2,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 175
+      },
+      {
+        "t": 86.2,
+        "enemies": 1,
+        "projectiles": 2,
+        "displayObjects": 189
+      },
+      {
+        "t": 87.2,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 88.3,
+        "enemies": 1,
+        "projectiles": 4,
+        "displayObjects": 194
+      },
+      {
+        "t": 89.3,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 90.3,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 91.3,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 193
+      },
+      {
+        "t": 92.3,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 202
+      },
+      {
+        "t": 93.3,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 94.3,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 95.3,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 215
+      },
+      {
+        "t": 96.3,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 205
+      },
+      {
+        "t": 97.4,
+        "enemies": 2,
+        "projectiles": 3,
+        "displayObjects": 203
+      },
+      {
+        "t": 98.4,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 200
+      },
+      {
+        "t": 99.4,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 200
+      },
+      {
+        "t": 100.4,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 101.4,
+        "enemies": 4,
+        "projectiles": 3,
+        "displayObjects": 216
+      },
+      {
+        "t": 102.4,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 205
+      },
+      {
+        "t": 103.4,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 104.5,
+        "enemies": 5,
+        "projectiles": 0,
+        "displayObjects": 215
+      },
+      {
+        "t": 105.5,
+        "enemies": 5,
+        "projectiles": 0,
+        "displayObjects": 213
+      },
+      {
+        "t": 106.5,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 208
+      },
+      {
+        "t": 107.5,
+        "enemies": 5,
+        "projectiles": 2,
+        "displayObjects": 219
+      },
+      {
+        "t": 108.5,
+        "enemies": 4,
+        "projectiles": 2,
+        "displayObjects": 228
+      },
+      {
+        "t": 109.5,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 210
+      },
+      {
+        "t": 110.5,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 212
+      },
+      {
+        "t": 111.5,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 208
+      },
+      {
+        "t": 112.6,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 112.6,
+        "enemies": 0,
+        "projectiles": 1,
+        "displayObjects": 178
+      },
+      {
+        "t": 113.6,
+        "enemies": 0,
+        "projectiles": 2,
+        "displayObjects": 181
+      },
+      {
+        "t": 114.6,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 175
+      },
+      {
+        "t": 115.6,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 186
+      },
+      {
+        "t": 116.6,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 117.7,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 186
+      },
+      {
+        "t": 118.7,
+        "enemies": 2,
+        "projectiles": 4,
+        "displayObjects": 208
+      },
+      {
+        "t": 119.7,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 120.7,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 188
+      },
+      {
+        "t": 121.7,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 122.7,
+        "enemies": 2,
+        "projectiles": 2,
+        "displayObjects": 195
+      },
+      {
+        "t": 123.7,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 197
+      },
+      {
+        "t": 124.7,
+        "enemies": 2,
+        "projectiles": 3,
+        "displayObjects": 198
+      },
+      {
+        "t": 125.8,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 196
+      },
+      {
+        "t": 126.8,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 186
+      },
+      {
+        "t": 127.8,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 128.8,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 191
+      },
+      {
+        "t": 129.8,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 130.8,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 199
+      },
+      {
+        "t": 131.8,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 204
+      },
+      {
+        "t": 132.9,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 200
+      },
+      {
+        "t": 133.9,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 208
+      },
+      {
+        "t": 134.9,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 210
+      },
+      {
+        "t": 135.9,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 204
+      },
+      {
+        "t": 136.9,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 207
+      },
+      {
+        "t": 137.9,
+        "enemies": 4,
+        "projectiles": 3,
+        "displayObjects": 217
+      },
+      {
+        "t": 138.9,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 209
+      },
+      {
+        "t": 139.9,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 208
+      },
+      {
+        "t": 140.9,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 205
+      },
+      {
+        "t": 141.9,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 199
+      },
+      {
+        "t": 143,
+        "enemies": 4,
+        "projectiles": 4,
+        "displayObjects": 223
+      },
+      {
+        "t": 144,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 210
+      },
+      {
+        "t": 145,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 212
+      },
+      {
+        "t": 145,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 175
+      },
+      {
+        "t": 146,
+        "enemies": 0,
+        "projectiles": 3,
+        "displayObjects": 186
+      },
+      {
+        "t": 147,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 175
+      },
+      {
+        "t": 148,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 149.1,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 182
+      },
+      {
+        "t": 150.1,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 185
+      },
+      {
+        "t": 151.1,
+        "enemies": 2,
+        "projectiles": 2,
+        "displayObjects": 199
+      },
+      {
+        "t": 152.1,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 153.1,
+        "enemies": 2,
+        "projectiles": 1,
+        "displayObjects": 192
+      },
+      {
+        "t": 154.1,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 200
+      },
+      {
+        "t": 155.1,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 208
+      },
+      {
+        "t": 156.2,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 203
+      },
+      {
+        "t": 157.2,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 224
+      },
+      {
+        "t": 158.2,
+        "enemies": 1,
+        "projectiles": 0,
+        "displayObjects": 195
+      },
+      {
+        "t": 159.2,
+        "enemies": 1,
+        "projectiles": 1,
+        "displayObjects": 189
+      },
+      {
+        "t": 160.2,
+        "enemies": 2,
+        "projectiles": 2,
+        "displayObjects": 196
+      },
+      {
+        "t": 161.2,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 190
+      },
+      {
+        "t": 162.2,
+        "enemies": 2,
+        "projectiles": 0,
+        "displayObjects": 189
+      },
+      {
+        "t": 163.2,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 201
+      },
+      {
+        "t": 164.2,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 198
+      },
+      {
+        "t": 165.2,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 205
+      },
+      {
+        "t": 166.2,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 204
+      },
+      {
+        "t": 167.3,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 212
+      },
+      {
+        "t": 168.3,
+        "enemies": 3,
+        "projectiles": 3,
+        "displayObjects": 211
+      },
+      {
+        "t": 169.3,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 204
+      },
+      {
+        "t": 170.3,
+        "enemies": 4,
+        "projectiles": 3,
+        "displayObjects": 216
+      },
+      {
+        "t": 171.3,
+        "enemies": 3,
+        "projectiles": 0,
+        "displayObjects": 210
+      },
+      {
+        "t": 172.3,
+        "enemies": 4,
+        "projectiles": 2,
+        "displayObjects": 213
+      },
+      {
+        "t": 173.3,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 208
+      },
+      {
+        "t": 174.3,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 204
+      },
+      {
+        "t": 175.3,
+        "enemies": 4,
+        "projectiles": 1,
+        "displayObjects": 210
+      },
+      {
+        "t": 176.4,
+        "enemies": 3,
+        "projectiles": 2,
+        "displayObjects": 203
+      },
+      {
+        "t": 177.4,
+        "enemies": 3,
+        "projectiles": 1,
+        "displayObjects": 199
+      },
+      {
+        "t": 178.4,
+        "enemies": 4,
+        "projectiles": 0,
+        "displayObjects": 206
+      },
+      {
+        "t": 178.4,
+        "enemies": 0,
+        "projectiles": 4,
+        "displayObjects": 190
+      },
+      {
+        "t": 179.4,
+        "enemies": 0,
+        "projectiles": 0,
+        "displayObjects": 177
+      },
+      {
+        "t": 180.4,
+        "enemies": 0,
+        "projectiles": 3,
+        "displayObjects": 184
+      }
+    ]
+  },
+  "memory": {
+    "baselineHeapMb": 6.74,
+    "cycles": [
+      {
+        "cycle": 1,
+        "heapMb": 8.59,
+        "resources": {
+          "applications": 0,
+          "tickerCallbacks": 0,
+          "listeners": 0,
+          "observers": 0,
+          "dynamicTextures": 0,
+          "audioLoops": 0,
+          "sessions": 0,
+          "canvases": 0,
+          "displayObjects": 0,
+          "cachedTextures": 234
+        }
+      },
+      {
+        "cycle": 2,
+        "heapMb": 8.83,
+        "resources": {
+          "applications": 0,
+          "tickerCallbacks": 0,
+          "listeners": 0,
+          "observers": 0,
+          "dynamicTextures": 0,
+          "audioLoops": 0,
+          "sessions": 0,
+          "canvases": 0,
+          "displayObjects": 0,
+          "cachedTextures": 234
+        }
+      },
+      {
+        "cycle": 3,
+        "heapMb": 9,
+        "resources": {
+          "applications": 0,
+          "tickerCallbacks": 0,
+          "listeners": 0,
+          "observers": 0,
+          "dynamicTextures": 0,
+          "audioLoops": 0,
+          "sessions": 0,
+          "canvases": 0,
+          "displayObjects": 0,
+          "cachedTextures": 234
+        }
+      },
+      {
+        "cycle": 4,
+        "heapMb": 9.08,
+        "resources": {
+          "applications": 0,
+          "tickerCallbacks": 0,
+          "listeners": 0,
+          "observers": 0,
+          "dynamicTextures": 0,
+          "audioLoops": 0,
+          "sessions": 0,
+          "canvases": 0,
+          "displayObjects": 0,
+          "cachedTextures": 234
+        }
+      },
+      {
+        "cycle": 5,
+        "heapMb": 9.25,
+        "resources": {
+          "applications": 0,
+          "tickerCallbacks": 0,
+          "listeners": 0,
+          "observers": 0,
+          "dynamicTextures": 0,
+          "audioLoops": 0,
+          "sessions": 0,
+          "canvases": 0,
+          "displayObjects": 0,
+          "cachedTextures": 234
+        }
+      }
+    ]
+  }
+}

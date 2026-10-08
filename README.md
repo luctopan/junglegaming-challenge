@@ -78,23 +78,24 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
 
 ## Scripts
 
-| Command                | What it does                                                          |
-| ---------------------- | --------------------------------------------------------------------- |
-| `pnpm dev`             | Build runtime assets, start the Vite dev server                       |
-| `pnpm build`           | Build runtime assets, typecheck, bundle `dist/`, verify no dev code   |
-| `pnpm preview`         | Serve `dist/` locally                                                 |
-| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects      |
-| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries)      |
-| `pnpm format`          | Prettier write (`format:check` verifies only)                         |
-| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)         |
-| `pnpm test:watch`      | Vitest in watch mode (no coverage)                                    |
-| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)       |
-| `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)           |
-| `pnpm ui:shots`        | Screenshots of every screen → `docs/screenshots/phase4/`              |
-| `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server       |
-| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image (`--cpus=2` = CI) |
-| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                   |
-| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)          |
+| Command                | What it does                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `pnpm dev`             | Build runtime assets, start the Vite dev server                                                      |
+| `pnpm build`           | Build runtime assets, typecheck, bundle `dist/`, verify no dev code                                  |
+| `pnpm preview`         | Serve `dist/` locally                                                                                |
+| `pnpm typecheck`       | `tsc -b` over app, simulation core (no DOM) and tooling projects                                     |
+| `pnpm lint`            | ESLint (type-checked rules, a11y, React hooks, layer boundaries)                                     |
+| `pnpm format`          | Prettier write (`format:check` verifies only)                                                        |
+| `pnpm test`            | Vitest unit tests + coverage (fails below 90 % lines on core)                                        |
+| `pnpm test:watch`      | Vitest in watch mode (no coverage)                                                                   |
+| `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)                                      |
+| `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)                                          |
+| `pnpm ui:shots`        | Screenshots of every screen → `docs/screenshots/phase4/`                                             |
+| `pnpm perf`            | Production build + 3-min match and 5-cycle memory check → [docs/PERFORMANCE.md](docs/PERFORMANCE.md) |
+| `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server                                      |
+| `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image (`--cpus=2` = CI)                                |
+| `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                                                  |
+| `pnpm assets:build`    | Regenerate `public/assets/` (Pixi atlases, sounds, branding)                                         |
 
 ## Testing
 

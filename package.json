@@ -21,6 +21,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
+    "perf": "pnpm build && node scripts/perf.mjs",
     "test:e2e": "playwright test",
     "test:e2e:docker": "node scripts/e2e-docker.mjs",
     "test:e2e:update": "node scripts/e2e-docker.mjs --update-snapshots",
