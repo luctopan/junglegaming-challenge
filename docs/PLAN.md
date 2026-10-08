@@ -117,36 +117,36 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### 5 Ranking & history
 
-- [ ] Typed contracts; ranking paginated by score — P5 — unit:contracts, e2e:records
-- [ ] Register completed match; paginated player history — P5 — e2e:submission
-- [ ] Record fields: matchId, playerId, date, score, effective duration, end reason, config — P5 — unit:contracts
-- [ ] Ranking compares same-config matches; deterministic tie-break — P6 — unit:ranking
-- [ ] Other players = fixtures — P6
-- [ ] Loading / empty / error / background refresh / cache / invalidation / retries — P5 — e2e:records
-- [ ] Both tabs refresh after submit and on re-show — P5 — e2e:submission
-- [ ] Stale responses don't overwrite newer data — P5/P6 — e2e:network-resilience
-- [ ] One record + one ranking entry per match; resends recover existing — P5/P6 — e2e:network-resilience
-- [ ] Pending records survive failure/refresh; manual retry — P5 — e2e:submission
-- [ ] `playedAt` fixed at match end → resubmissions byte-identical (no 409 on retry) — P5 — unit:pendingQueue
-- [ ] Last result and pending queue in separate storage keys — P4/P5 — unit:storage
-- [ ] One ranking entry per match (a captain may appear several times; documented) — P6 — unit:ranking
-- [ ] Can start a new match while a record is pending — P5 — e2e:submission
-- [ ] API failures never block game/options/combat — P5 — e2e:network-resilience
+- [x] Typed contracts; ranking paginated by score — P5 — unit:contracts, e2e:records
+- [x] Register completed match; paginated player history — P5 — e2e:submission
+- [x] Record fields: matchId, playerId, date, score, effective duration, end reason, config — P5 — unit:contracts
+- [x] Ranking compares same-config matches; deterministic tie-break — P6 — unit:ranking
+- [x] Other players = fixtures — P6
+- [x] Loading / empty / error / background refresh / cache / invalidation / retries — P5 — e2e:records
+- [x] Both tabs refresh after submit and on re-show — P5 — e2e:submission
+- [x] Stale responses don't overwrite newer data — P5/P6 — e2e:network-resilience
+- [x] One record + one ranking entry per match; resends recover existing — P5/P6 — e2e:network-resilience
+- [x] Pending records survive failure/refresh; manual retry — P5 — e2e:submission
+- [x] `playedAt` fixed at match end → resubmissions byte-identical (no 409 on retry) — P5 — unit:pendingQueue
+- [x] Last result and pending queue in separate storage keys — P4/P5 — unit:storage
+- [x] One ranking entry per match (a captain may appear several times; documented) — P6 — unit:ranking
+- [x] Can start a new match while a record is pending — P5 — e2e:submission
+- [x] API failures never block game/options/combat — P5 — e2e:network-resilience
 
 ### 6 MSW
 
-- [ ] Network-level mocks; contracts/fixtures/handlers shared dev/test/demo — P6
-- [ ] Confirmed records appear in later queries, consistent across tabs — P6 — e2e:submission
-- [ ] Scenarios: success, empty, multi-page — P6 — e2e:records
-- [ ] Slow, variable latency, out-of-order — P6 — e2e:network-resilience
-- [ ] Timeout, connection failure, 4xx/5xx — P6 — e2e:network-resilience
-- [ ] Ranking/history read failure — P6 — e2e:records
-- [ ] Timeout after successful write → recovery w/o duplication — P6 — e2e:network-resilience
-- [ ] Unavailable at match end → register after recovery — P6 — e2e:submission
-- [ ] Scenario selection + reset (dev panel via `?dev=1` + discreet footer link on main menu; documented in README) — P6 — e2e:network-resilience
-- [ ] Seeded randomness/latency in tests — P6
-- [ ] Works in published build — P6/P9 — `pnpm build && pnpm preview` smoke
-- [ ] Local persistence of confirmed + pending — P5/P6
+- [x] Network-level mocks; contracts/fixtures/handlers shared dev/test/demo — P6
+- [x] Confirmed records appear in later queries, consistent across tabs — P6 — e2e:submission
+- [x] Scenarios: success, empty, multi-page — P6 — e2e:records
+- [x] Slow, variable latency, out-of-order — P6 — e2e:network-resilience
+- [x] Timeout, connection failure, 4xx/5xx — P6 — e2e:network-resilience
+- [x] Ranking/history read failure — P6 — e2e:records
+- [x] Timeout after successful write → recovery w/o duplication — P6 — e2e:network-resilience
+- [x] Unavailable at match end → register after recovery — P6 — e2e:submission
+- [x] Scenario selection + reset (dev panel via `?dev=1` + discreet footer link on main menu; documented in README) — P6 — e2e:network-resilience
+- [x] Seeded randomness/latency in tests — P6
+- [x] Works in published build — P6/P9 — `pnpm build && pnpm preview` smoke
+- [x] Local persistence of confirmed + pending — P5/P6
 
 ### 7 UI, assets, a11y
 
@@ -505,8 +505,8 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | 2 ✅ | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                                                                                                                                                      | 13       |
 | 3 ✅ | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                                                                                                                                                 | 9        |
 | 4 ✅ | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                                                                                                                                            | 15       |
-| 5    | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests; `src/ui/records/temporaryRecords.ts` and the `?records=` override removed, `TEMPORARY_RECORDS_REMOVED = true` in `scripts/lib/devOnly.mjs` (the build then fails on any leftover) | 8        |
-| 6    | MSW: db persistence, fixtures, ranking sort, all scenarios, dev panel, reset, prod worker                                                                                                                                                                                                                                                                                           | every scenario reachable via `?scenario=`; e2e network-resilience green                                                                                                                                                                        | 8        |
+| 5 ✅ | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests; `src/ui/records/temporaryRecords.ts` and the `?records=` override removed, `TEMPORARY_RECORDS_REMOVED = true` in `scripts/lib/devOnly.mjs` (the build then fails on any leftover) | 8        |
+| 6 ✅ | MSW: db persistence, fixtures, ranking sort, all scenarios, dev panel, reset, prod worker                                                                                                                                                                                                                                                                                           | every scenario reachable via `?scenario=`; e2e network-resilience green                                                                                                                                                                        | 8        |
 | 7    | Playwright suite completion + visual baselines in Docker                                                                                                                                                                                                                                                                                                                            | every §8 item has a spec; full suite green on both projects twice in a row (flake check)                                                                                                                                                       | 14       |
 | 8    | Performance & docs: metrics overlay (`?metrics=1`), 3-min profile, 5-cycle memory check, PERFORMANCE.md, README, ARCHITECTURE.md, licenses                                                                                                                                                                                                                                          | docs cover every §11 topic; evidence files committed                                                                                                                                                                                           | 7        |
 | 9    | Deploy prep: `vercel.json` (SPA rewrite, `Service-Worker-Allowed`/no-cache for worker), clean-clone verification, DEPLOY.md checklist + smoke list. **No deploy.**                                                                                                                                                                                                                  | clean clone `pnpm i && pnpm build && pnpm preview` works with MSW, deep-link reload OK, console clean                                                                                                                                          | 3        |
