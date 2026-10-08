@@ -32,6 +32,9 @@ phase plan ([PLAN.md](PLAN.md)). Live demo: <https://junglegaming-challenge.verc
 - **Performance (§9)**: `pnpm perf` and [PERFORMANCE.md](PERFORMANCE.md): 74.9 FPS
   average (vsync-capped at 75 Hz), p95 frame time 13.6 ms over a 3-minute real-clock
   match; 5 cycles with every resource counter back to zero.
+- **Deployment (§11)**: Vercel, redeployed on push; checklist and clean-clone
+  verification in [DEPLOY.md](DEPLOY.md) (fresh clone installs, builds and passes 54 e2e
+  tests; the live bundle matches a local build of `main`).
 - **Docs (§11)**: README (reviewer guide, setup, env vars, controls, config, scenarios,
   commands, failure reproduction, licenses), ARCHITECTURE.md, DECISIONS.md.
 
@@ -40,8 +43,6 @@ phase plan ([PLAN.md](PLAN.md)). Live demo: <https://junglegaming-challenge.verc
 - Memory: the heap grows by 0.66 MB over cycles 2–5 while every resource counter returns
   to zero; a longer run with heap-snapshot comparison was not done
   ([PERFORMANCE.md](PERFORMANCE.md#results--memory-over-5-cycles)).
-- Phase 9 deploy checklist (`DEPLOY.md`) and a scripted clean-clone verification were not
-  written; the Vercel deployment itself is live and redeploys on push.
 - Performance was measured on one machine (discrete GPU); no phone measurements.
 
 ## Known limitations
