@@ -23,18 +23,13 @@ export function formatPlayedAt(iso: string, timeZone?: string): PlayedAt {
   }).formatToParts(date);
   const part = (type: Intl.DateTimeFormatPartTypes): string =>
     parts.find((p) => p.type === type)?.value ?? '';
-  const spoken = new Intl.DateTimeFormat('en-US', {
-    ...options,
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(date);
+  // Assembled from parts: the joining words of a full format differ between ICU versions.
+  const month = new Intl.DateTimeFormat('en-US', { ...options, month: 'long' }).format(date);
+  const time = `${part('hour')}:${part('minute')}`;
   return {
     date: `${part('day')} ${part('month').toUpperCase()}`,
-    time: `${part('hour')}:${part('minute')}`,
-    spoken,
+    time,
+    spoken: `${month} ${Number(part('day'))}, ${time}`,
   };
 }
 
