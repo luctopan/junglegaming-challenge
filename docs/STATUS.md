@@ -54,3 +54,7 @@ See [README → Known limitations](../README.md#known-limitations) and
 CI (GitHub Actions, pinned Playwright image) runs typecheck, lint, format, unit tests
 and the full e2e suite on every push. Result of the last pushed commit: see the end of
 this file.
+
+Last CI result: **success** — run 37725538853 on commit `6565d40` (typecheck, lint, format,
+unit and full e2e incl. visual regression, pinned Playwright image). Later commits only
+change this file.
