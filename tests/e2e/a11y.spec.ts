@@ -1,6 +1,13 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
-import { expect, readStorage, seedStorage, test } from './fixtures/test';
+import {
+  expect,
+  NETWORK_FAILURE_LOG,
+  readStorage,
+  seedMockRecords,
+  seedStorage,
+  test,
+} from './fixtures/test';
 import { advance, openMatch, waitForArena } from './helpers/game';
 
 /**
@@ -57,8 +64,10 @@ test.describe('accessibility (axe)', () => {
     await expectNoViolations(page, 'pause options');
   });
 
-  test('result and records panel', async ({ page, openApp }) => {
+  test('result and records panel', async ({ page, openApp, allowConsoleError }) => {
+    allowConsoleError(NETWORK_FAILURE_LOG);
     await seedStorage(page, 'pirate.lastResult.v1', LAST_RESULT);
+    await seedMockRecords(page, [JSON.parse(LAST_RESULT) as Record<string, unknown>]);
     await openApp('/result');
     await expect(page.getByRole('heading', { name: 'Battle complete' })).toBeVisible();
     await expectNoViolations(page, 'result');
@@ -69,7 +78,7 @@ test.describe('accessibility (axe)', () => {
     await page.getByRole('tab', { name: 'Match history' }).click();
     await expect(page.getByRole('table')).toBeVisible();
     await expectNoViolations(page, 'history');
-    await openApp('/records/ranking?test=1&records=error');
+    await openApp('/records/ranking?test=1&scenario=ranking-fail');
     await expect(page.getByRole('alert')).toBeVisible();
     await expectNoViolations(page, 'records error');
   });

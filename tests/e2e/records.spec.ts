@@ -1,25 +1,26 @@
 import type { Page } from '@playwright/test';
-import { expect, seedStorage, test, TEST_PLAYER_ID } from './fixtures/test';
+import {
+  expect,
+  NETWORK_FAILURE_LOG,
+  seedMockRecords,
+  seedStorage,
+  test,
+  testMatch,
+} from './fixtures/test';
 
 /**
- * Captain's Log on the temporary Phase 4 records source (in-memory fixtures;
- * Phase 5 moves these checks onto the API layer and MSW scenarios).
+ * Captain's Log over the real API layer (Axios + TanStack Query) and the MSW
+ * backend: pagination, ordering, YOU badge, config selector, and the loading,
+ * empty, error and cached states driven by network scenarios.
  */
-const LAST_RESULT = {
-  matchId: '7d1f3c2a-9b8e-4f6d-a5c4-3b2a1f0e9d8c',
-  playerId: TEST_PLAYER_ID,
-  playerName: 'Test Captain',
-  playedAt: '2026-09-08T19:36:00.000Z',
-  score: 24,
-  durationMs: 120_000,
-  endReason: 'time_up',
-  config: { sessionSeconds: 120, spawnIntervalSeconds: 3 },
-};
-
-const seedLastResult = (page: Page) =>
-  seedStorage(page, 'pirate.lastResult.v1', JSON.stringify(LAST_RESULT));
-
 const rows = (page: Page) => page.getByRole('tabpanel').getByRole('row');
+const rankingRequests = (page: Page): string[] => {
+  const urls: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/ranking?')) urls.push(request.url());
+  });
+  return urls;
+};
 
 test.describe("captain's log", () => {
   test('tabs follow the ARIA pattern and the URL', async ({ page, openApp }) => {
@@ -68,8 +69,14 @@ test.describe("captain's log", () => {
     await expect(rows(page)).toHaveCount(4); // header + 3
   });
 
+  test('multi-page scenario: long pagination', async ({ page, openApp }) => {
+    await openApp('/records/ranking?test=1&scenario=multi-page');
+    await expect(page.getByText('Page 1 of 15', { exact: true })).toBeVisible();
+    await expect(rows(page).nth(1)).toContainText('90');
+  });
+
   test('the player is marked YOU by id, and their history is listed', async ({ page, openApp }) => {
-    await seedLastResult(page);
+    await seedMockRecords(page, [testMatch()]);
     await openApp('/records/ranking?test=1');
     const mine = rows(page).filter({ hasText: 'Test Captain' });
     await expect(mine).toHaveCount(1);
@@ -109,24 +116,57 @@ test.describe("captain's log", () => {
     ]);
   });
 
-  test('loading, error with retry, and empty states', async ({ page, openApp }) => {
-    await openApp('/records/ranking?test=1&records=loading');
+  test('loading state, then data (slow scenario)', async ({ page, openApp }) => {
+    await openApp('/records/ranking?test=1&scenario=slow');
     await expect(page.getByRole('status').filter({ hasText: 'Loading the ranking' })).toBeVisible();
+    await expect(rows(page).nth(1)).toContainText('Captain Flint', { timeout: 10_000 });
+  });
 
-    await openApp('/records/ranking?test=1&records=error');
-    const alert = page.getByRole('alert');
-    await expect(alert).toContainText('Could not load the ranking');
-    await alert.getByRole('button', { name: 'Retry' }).click();
-    await expect(page.getByRole('alert')).toContainText('Could not load the ranking');
-
-    await openApp('/records/ranking?test=1&records=empty');
+  test('empty states', async ({ page, openApp }) => {
+    await openApp('/records/ranking?test=1&scenario=empty');
     await expect(page.getByText('No battles recorded with these settings yet')).toBeVisible();
-    await openApp('/records/history?test=1');
+    await page.getByRole('tab', { name: 'Match history' }).click();
     await expect(page.getByText('No battles yet')).toBeVisible();
   });
 
-  test('state overrides are ignored outside test mode', async ({ page, openApp }) => {
-    await openApp('/records/ranking?records=error');
+  test('read failures show an error with Retry, per list', async ({
+    page,
+    openApp,
+    allowConsoleError,
+  }) => {
+    allowConsoleError(NETWORK_FAILURE_LOG);
+    await openApp('/records/ranking?test=1&scenario=ranking-fail');
+    const alert = page.getByRole('alert');
+    await expect(alert).toContainText('Could not load the ranking', { timeout: 10_000 });
+    await alert.getByRole('button', { name: 'Retry' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Loading the ranking' })).toBeVisible();
+    await expect(page.getByRole('alert')).toContainText('Could not load the ranking', {
+      timeout: 10_000,
+    });
+    // The history is a separate endpoint: still available.
+    await page.getByRole('tab', { name: 'Match history' }).click();
+    await expect(page.getByText('No battles yet')).toBeVisible();
+
+    await openApp('/records/history?test=1&scenario=history-fail');
+    await expect(page.getByRole('alert')).toContainText('Could not load your match history', {
+      timeout: 10_000,
+    });
+  });
+
+  test('cached rows stay on screen and refresh in the background on re-show', async ({
+    page,
+    openApp,
+  }) => {
+    const requests = rankingRequests(page);
+    await openApp('/records/ranking?test=1');
     await expect(rows(page).nth(1)).toContainText('Captain Flint');
+    const before = requests.length;
+
+    await page.getByRole('tab', { name: 'Match history' }).click();
+    await page.getByRole('tab', { name: 'Ranking' }).click();
+    // Shown from the cache at once (no loading state), refetched behind it.
+    await expect(rows(page).nth(1)).toContainText('Captain Flint');
+    await expect(page.getByText('Loading the ranking')).toHaveCount(0);
+    await expect.poll(() => requests.length).toBeGreaterThan(before);
   });
 });

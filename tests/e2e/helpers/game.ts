@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expect } from '../fixtures/test';
+import { expect, OPTIONS_KEY, seedStorage } from '../fixtures/test';
 
 /**
  * Mirror of `ResourceReport` (src/game/runtime/testHook.ts). Kept local because
@@ -213,4 +213,20 @@ export async function leaveGame(page: Page): Promise<void> {
 export async function expectSessionReleased(page: Page): Promise<void> {
   const report = await resources(page);
   for (const key of SESSION_RESOURCES) expect(report[key], key).toBe(0);
+}
+
+/** One-minute matches with few enemies, so playing to the end stays quick. */
+export async function useShortMatches(page: Page): Promise<void> {
+  await seedStorage(
+    page,
+    OPTIONS_KEY,
+    JSON.stringify({ sessionSeconds: 60, spawnIntervalSeconds: 10 }),
+  );
+}
+
+/** Runs the match until it ends and waits for the Result dialog. */
+export async function playToTheEnd(page: Page): Promise<void> {
+  await advance(page, 61_000, 5_000);
+  expect((await snapshot(page)).phase).toBe('ended');
+  await expect(page.getByRole('dialog', { name: 'Battle complete' })).toBeVisible();
 }

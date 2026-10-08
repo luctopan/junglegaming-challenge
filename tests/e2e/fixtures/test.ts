@@ -122,3 +122,41 @@ export async function readStorage(page: Page, key: string): Promise<unknown> {
 }
 
 export { expect };
+
+export const MOCK_DB_KEY = 'pirate.mockdb.v1';
+export const PENDING_KEY = 'pirate.pending.v1';
+export const LAST_RESULT_KEY = 'pirate.lastResult.v1';
+
+/** A match of the seeded test captain, as submitted (`playedAt` fixed). */
+export function testMatch(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    matchId: '7d1f3c2a-9b8e-4f6d-a5c4-3b2a1f0e9d8c',
+    playerId: TEST_PLAYER_ID,
+    playerName: 'Test Captain',
+    playedAt: '2026-09-08T19:36:00.000Z',
+    score: 24,
+    durationMs: 120_000,
+    endReason: 'time_up',
+    config: { sessionSeconds: 120, spawnIntervalSeconds: 3 },
+    ...overrides,
+  };
+}
+
+/** Seeds confirmed records of the mock backend (as if registered by an earlier visit). */
+export async function seedMockRecords(
+  page: Page,
+  matches: readonly Record<string, unknown>[],
+): Promise<void> {
+  const records = matches.map((match) => {
+    const config = match.config as { sessionSeconds: number; spawnIntervalSeconds: number };
+    return {
+      ...match,
+      configKey: `${config.sessionSeconds}s-${config.spawnIntervalSeconds}s`,
+      recordedAt: match.playedAt,
+    };
+  });
+  await seedStorage(page, MOCK_DB_KEY, JSON.stringify(records));
+}
+
+/** Mock HTTP failures are logged by the browser itself ("Failed to load resource"). */
+export const NETWORK_FAILURE_LOG = /Failed to load resource|net::ERR_FAILED/;

@@ -52,7 +52,9 @@ test.describe('result', () => {
     await expect(dialog.getByTestId('result-summary')).toHaveText(
       new RegExp(`Points? · ${played(state.elapsedSeconds)} · ${reasonLabel(state.endReason)}`),
     );
-    await expect(dialog.getByRole('status')).toHaveText('Result saved on this device.');
+    await expect(dialog.getByRole('status')).toHaveText(
+      'Saved to the ranking and your match history.',
+    );
     await expect(dialog.getByRole('button', { name: 'Play again' })).toBeFocused();
     await expect(page.getByRole('button', { name: 'Pause' })).toHaveCount(0);
 
