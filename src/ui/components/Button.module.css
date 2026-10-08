@@ -11,7 +11,9 @@
   height: var(--button-height);
   min-width: calc(250px * var(--ui-scale));
   margin: 0;
-  padding: 0 calc(8px * var(--ui-scale)) calc(2px * var(--ui-scale));
+  /* Vertical padding keeps the content box (and its colour, below) inside the plank art. */
+  padding: calc(var(--button-height) * 0.24) calc(8px * var(--ui-scale))
+    calc(var(--button-height) * 0.24 + 2px * var(--ui-scale));
   border-style: solid;
   border-width: 0 calc(var(--button-height) * 50 / 88);
   border-image-slice: 0 19.53% fill;
@@ -43,6 +45,13 @@
 
 .primary {
   color: var(--color-button-text);
+  /*
+   * The plank's own gold, painted under the label only (content box, hidden by
+   * the art): contrast tools that cannot read border images measure the label
+   * against it instead of the navy panel behind the button.
+   */
+  background-color: #e7a134;
+  background-clip: content-box;
   border-image-source: image-set(
     url('../../../assets/png/default/ui/menu/button_primary_normal.png') 1x,
     url('../../../assets/png/retina/ui/menu/button_primary_normal.png') 2x

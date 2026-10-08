@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { GameConfig } from '../../config/gameConfig';
 import type { GameSnapshot, GameStore, PauseReason } from '../../game/bridge/gameStore';
 import { createGameStore } from '../../game/bridge/gameStore';
@@ -67,11 +67,15 @@ export function useGameSession(
   }, [muted]);
 
   const snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
-  return {
-    snapshot,
-    retryAssets: () => sessionRef.current?.retryAssets(),
-    pause: (reason = 'manual') => sessionRef.current?.pause(reason),
-    resume: () => sessionRef.current?.resume(),
-    restart: (nextConfig) => sessionRef.current?.restart(randomSeed(), nextConfig),
-  };
+  // Stable for the screen's lifetime: they always act on the current session.
+  const actions = useMemo(
+    () => ({
+      retryAssets: () => sessionRef.current?.retryAssets(),
+      pause: (reason: PauseReason = 'manual') => sessionRef.current?.pause(reason),
+      resume: () => sessionRef.current?.resume(),
+      restart: (nextConfig: GameConfig) => sessionRef.current?.restart(randomSeed(), nextConfig),
+    }),
+    [],
+  );
+  return { snapshot, ...actions };
 }

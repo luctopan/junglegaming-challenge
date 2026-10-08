@@ -102,3 +102,24 @@
 .control[data-pressed='true'] {
   transform: scale(0.94);
 }
+
+/* Portrait on a touch device: covers everything, the match is paused under it. */
+.rotate {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: var(--color-backdrop);
+}
+
+.rotateIcon {
+  width: 72px;
+  height: 72px;
+  fill: none;
+  stroke: var(--color-heading);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

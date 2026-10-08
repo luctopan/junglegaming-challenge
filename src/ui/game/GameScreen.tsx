@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { newUuid } from '../../platform/uuid';
 import { BrandLogo } from '../app/Backdrop';
 import { Button } from '../components/Button';
@@ -16,6 +16,8 @@ import {
 } from '../state/settings';
 import { Dialog } from '../components/Dialog';
 import { Hud } from './Hud';
+import { MatchAnnouncer } from './MatchAnnouncer';
+import { RotateOverlay } from './RotateOverlay';
 import { matchConfig } from './matchConfig';
 import { buildMatchResult } from './matchResult';
 import { PauseDialog } from './PauseDialog';
@@ -76,6 +78,10 @@ export function GameScreen({ onExit, onMatchEnded, onRestarted }: GameScreenProp
     onMatchEnded();
   }, [phase, match, matchId, result, onMatchEnded]);
 
+  const pauseForPortrait = useCallback(() => {
+    pause('portrait');
+  }, [pause]);
+
   const playAgain = (): void => {
     matchConfigRef.current = nextMatchConfig();
     setMatchId(newUuid());
@@ -87,6 +93,8 @@ export function GameScreen({ onExit, onMatchEnded, onRestarted }: GameScreenProp
     <main ref={screenRef} className={styles.screen}>
       <div ref={containerRef} className={styles.arena} data-testid="arena" />
       <BrandLogo className={styles.logo} />
+      <MatchAnnouncer snapshot={snapshot} />
+      <RotateOverlay phase={phase} onPortrait={pauseForPortrait} />
 
       {inMatch ? (
         <>
