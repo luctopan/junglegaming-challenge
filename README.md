@@ -126,6 +126,30 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
   `mcr.microsoft.com/playwright:v<installed version>-noble` so they match CI on any host
   OS: run `pnpm test:e2e:update` (needs Docker running). CI uses the same image.
 
+### Playwright coverage (spec §8)
+
+Every flow runs in `desktop-chromium` (1280×720) and `mobile-chromium` (Pixel 7
+landscape, touch); each test starts from a fresh browser context (empty storage, default
+scenario). Combat specs press real keys or touch real controls and observe through the
+test hook.
+
+| §8 requirement                                               | Specs                                                                                                                                                      |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Options: navigation, validation, persistence                 | [options](tests/e2e/options.spec.ts), [captain](tests/e2e/captain.spec.ts)                                                                                 |
+| Asset loading, failure and retry                             | [assets](tests/e2e/assets.spec.ts)                                                                                                                         |
+| Match start, movement, rotation, arena bounds, islands       | [movement](tests/e2e/movement.spec.ts)                                                                                                                     |
+| Front and broadside fire, damage, cooldown, score once       | [combat](tests/e2e/combat.spec.ts), [gameplay](tests/e2e/gameplay.spec.ts) (front shots damage and sink, score stays put)                                  |
+| Chaser and Shooter behaviour, spawn interval                 | [gameplay](tests/e2e/gameplay.spec.ts)                                                                                                                     |
+| End by time and by death, simulation stops, clean restart    | [gameplay](tests/e2e/gameplay.spec.ts), [navigation](tests/e2e/navigation.spec.ts) (Play again), [result](tests/e2e/result.spec.ts)                        |
+| Pause, focus loss, resume without timer drift                | [pause](tests/e2e/pause.spec.ts), [keyboard](tests/e2e/keyboard.spec.ts), [rendering](tests/e2e/rendering.spec.ts)                                         |
+| Result display and persistence after refresh                 | [result](tests/e2e/result.spec.ts)                                                                                                                         |
+| Abandon, repeated navigation, touch controls                 | [navigation](tests/e2e/navigation.spec.ts), [lifecycle](tests/e2e/lifecycle.spec.ts), [touch](tests/e2e/touch.spec.ts), [layout](tests/e2e/layout.spec.ts) |
+| Ranking and history: pagination, loading, empty, error       | [records](tests/e2e/records.spec.ts)                                                                                                                       |
+| Registration, both tabs updated, pending recovered on reload | [submission](tests/e2e/submission.spec.ts)                                                                                                                 |
+| Resend after timeout without duplicates, late responses      | [network-resilience](tests/e2e/network-resilience.spec.ts)                                                                                                 |
+| Visual regression: menu, stable arena, result                | [visual](tests/e2e/visual.spec.ts) (baselines in `tests/e2e/__screenshots__/`, Linux only: skipped on other host OSes, run `pnpm test:e2e:docker`)         |
+| Accessibility, Strict Mode lifecycle                         | [a11y](tests/e2e/a11y.spec.ts), [dev/strict-mode](tests/e2e/dev/strict-mode.spec.ts)                                                                       |
+
 ## Render sandbox (dev only)
 
 `pnpm dev`, then open <http://localhost:5173/sandbox.html>: a full match rendered with
