@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { expect, readStorage, seedStorage, test } from './fixtures/test';
-import { advance, openMatch } from './helpers/game';
+import { advance, openMatch, waitForArena } from './helpers/game';
 
 /**
  * Automated accessibility smoke checks (axe-core: roles, names, labels, ARIA
@@ -150,6 +150,8 @@ test.describe('sound', () => {
       'true',
     );
     await page.getByRole('button', { name: 'Play', exact: true }).click();
+    // The HUD appears once WebGL has started (slow on CI's software rasterizer).
+    await waitForArena(page);
     const hudMute = page.getByRole('button', { name: 'Mute sound' });
     await expect(hudMute).toHaveAttribute('aria-pressed', 'true');
     await hudMute.click();

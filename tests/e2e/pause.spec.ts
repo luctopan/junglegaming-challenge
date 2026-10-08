@@ -159,7 +159,8 @@ test.describe('pause menu', () => {
     await pauseButton.click();
     await page.getByRole('button', { name: 'Main menu' }).click();
     await page.getByRole('button', { name: 'Play', exact: true }).click();
-    await expect.poll(async () => (await snapshot(page).catch(() => null))?.phase).toBe('running');
+    await waitForArena(page);
+    await expect.poll(async () => (await snapshot(page)).phase).toBe('running');
     expect((await snapshot(page)).timeLeftSeconds).toBe(60);
   });
 
