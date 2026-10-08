@@ -96,7 +96,7 @@ worker fails to start, a visible startup error is rendered and the error is logg
 React owns screens and overlays; Pixi owns one canvas per game screen. They meet in three
 places only:
 
-1. **`useGameSession(containerRef, controlsRef, config)`** ([src/ui/game/](src/ui/game/)) creates a
+1. **`useGameSession(containerRef, controlsRef, { config, muted })`** ([src/ui/game/](src/ui/game/)) creates a
    `GameSession` ([src/game/runtime/gameSession.ts](src/game/runtime/gameSession.ts)) in an
    effect and destroys it in the cleanup. The game screen is lazy-loaded, so Pixi and the
    runtime are not part of the menu's initial bundle.
@@ -106,10 +106,45 @@ places only:
    read with `useSyncExternalStore`. React never renders per frame: the memoised HUD gets a
    new match object only when one of its values changed, and the e2e suite counts its
    commits through the test hook (≈ 1 per second, never per frame).
-3. **Commands** from React to the session (`retryAssets`, `pause`, `resume`, `restart`)
-   are plain method calls. The on-screen controls are plain buttons tagged with
+3. **Commands** from React to the session (`retryAssets`, `pause`, `resume`,
+   `restart(config)`, `setMuted`) are plain method calls, stable across renders. The on-screen controls are plain buttons tagged with
    `data-game-action`; the runtime listens to their pointer events by delegation, so React
    holds no input state.
+
+## UI layer (React)
+
+- **Routes** ([src/ui/app/App.tsx](src/ui/app/App.tsx), React Router): menu routes (`/`,
+  `/options`, `/records/:tab`) share a shell with the dimmed scene backdrop and the brand
+  logo. `/play` and `/result` share one layout route
+  ([MatchLayout.tsx](src/ui/app/MatchLayout.tsx)), so when a match ends the URL becomes
+  `/result` while the arena and its session stay mounted, and Play again reuses the canvas.
+  A match starts only from an in-app Play (an in-memory flag): a reload or a history entry
+  on `/play` goes to the menu (abandoned, never recorded); `/result` opened directly shows
+  the stored last result. Navigation keeps the query string (`?test=1`, `?seed=`…).
+- **State**: game state only through the bridge store; UI settings through small persistent
+  external stores ([src/ui/state/](src/ui/state/)) read with `useSyncExternalStore`. No
+  global state library.
+- **Components** ([src/ui/components/](src/ui/components/)) draw the UI atlas with CSS: the
+  panel is a 9-slice `border-image` of `panel_menu` (slices in percent, so the 1× and 2×
+  PNGs of the `image-set()` cut alike); menu buttons are a horizontal 3-slice with the
+  atlas normal/hover/pressed/disabled art (missing secondary states derived with filters);
+  round buttons and icons likewise. The focus ring is ours (`:focus-visible`, cream ring
+  with a dark halo), never an atlas state. Text colours are tokens in
+  [tokens.css](src/ui/styles/tokens.css); a tooling test samples the atlas PNGs and checks
+  every text token at ≥ 4.5:1 against the art it sits on.
+- **HUD** ([Hud.tsx](src/ui/game/Hud.tsx)): `health_frame` with the fill clipped by
+  `clip-path` from `ui.layout.fill_rect` (same green/amber/red bands as the in-world bar,
+  published by the bridge as `hpTone`), score/time counters, sound and pause buttons.
+- **Accessibility**: modal dialogs ([Dialog.tsx](src/ui/components/Dialog.tsx)) with initial
+  focus, a Tab trap, Escape where it makes sense and focus returned to the opener; Options as
+  ARIA spinbuttons; Ranking/Match History as ARIA tabs; errors linked with
+  `aria-describedby` and announced. A polite live region
+  ([MatchAnnouncer.tsx](src/ui/game/MatchAnnouncer.tsx)) follows the ~1 Hz bridge snapshot:
+  state changes, score (coalesced, one per second), time at 30 s marks and at 10 s left,
+  hull damage bands; it writes its text directly, without React renders. Game keys are
+  captured only while a match runs.
+- **Orientation**: on touch devices gameplay is landscape-only; in portrait an overlay
+  covers the game and pauses it with reason `portrait` (menus work in both).
 
 ## Input and pause
 
@@ -294,11 +329,29 @@ DOM lib). Public API: [src/game/core/index.ts](src/game/core/index.ts).
 
 ## Local persistence
 
-_Phase 4–5._
+All local data goes through [src/platform/storage.ts](src/platform/storage.ts) (typed
+JSON, never throws: missing, blocked or full storage and corrupted values are reported, not
+raised). Each key has one validating parser; an invalid stored value falls back to the
+default and is flagged `recovered` (Options shows an accessible message until the next save).
+
+| Key                    | Content                                                          |
+| ---------------------- | ---------------------------------------------------------------- |
+| `pirate.options.v1`    | Session time and spawn interval (validated against their bounds) |
+| `pirate.profile.v1`    | `{ playerId (UUID v4), name }`                                   |
+| `pirate.lastResult.v1` | Last completed match as a `MatchSubmission` (fixed `playedAt`)   |
+| `pirate.audio.v1`      | `{ muted }`                                                      |
+
+The last result is written once per `matchId` when the match ends, so a re-render or a
+refresh never records twice. The pending-submission queue gets its own key in Phase 5.
 
 ## Ranking and history integration (contracts, cache, pending recovery)
 
-_Phase 5–6._
+Typed contracts: [src/api/contracts.ts](src/api/contracts.ts). The Captain's Log panels
+consume a TanStack-shaped query state (`status`, `data`, `isFetching`, `refetch`; previous
+page kept while the next loads); in Phase 4 it is fed by a temporary in-memory source
+([temporaryRecords.ts](src/ui/records/temporaryRecords.ts)) that Phase 5 replaces with Axios +
+TanStack Query over MSW (the build then rejects any leftover, `scripts/lib/devOnly.mjs`).
+Cache, invalidation and pending recovery: _Phase 5–6._
 
 ## Testing infrastructure
 

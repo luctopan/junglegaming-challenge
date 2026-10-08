@@ -35,7 +35,7 @@ const settle = (page) => page.getByRole('table').or(page.getByRole('alert')).fir
 
 /**
  * @typedef {import('@playwright/test').Page} Page
- * @typedef {{ name: string, captain?: boolean, lastResult?: boolean, query?: string,
+ * @typedef {{ name: string, captain?: boolean, lastResult?: boolean, options?: object, query?: string,
  *   path?: string, portrait?: boolean, run: (page: Page) => Promise<void> }} Scene
  */
 
@@ -143,6 +143,26 @@ const SCENES = [
     run: settle,
   },
   {
+    name: '14-result',
+    // One-minute match with few enemies: the idle ship lasts until time is up.
+    options: { sessionSeconds: 60, spawnIntervalSeconds: 10 },
+    run: async (page) => {
+      await play(page);
+      await page.keyboard.press('Space');
+      await advance(page, 61_000);
+      await page.getByRole('dialog', { name: 'Battle complete' }).waitFor();
+    },
+  },
+  { name: '15-portrait-menu', portrait: true, run: () => Promise.resolve() },
+  {
+    name: '16-portrait-rotate',
+    portrait: true,
+    run: async (page) => {
+      await play(page);
+      await page.getByRole('alert').filter({ hasText: 'Rotate your device' }).waitFor();
+    },
+  },
+  {
     name: '13-history-empty',
     path: '/records/history',
     run: async (page) => {
@@ -179,6 +199,12 @@ try {
         await context.addInitScript(
           (profile) => localStorage.setItem('pirate.profile.v1', profile),
           JSON.stringify(CAPTAIN),
+        );
+      }
+      if (scene.options !== undefined) {
+        await context.addInitScript(
+          (options) => localStorage.setItem('pirate.options.v1', options),
+          JSON.stringify(scene.options),
         );
       }
       if (scene.lastResult === true) {

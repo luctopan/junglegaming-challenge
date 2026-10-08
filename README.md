@@ -5,9 +5,10 @@ Axios and MSW, tested with Vitest and Playwright. Everything runs in the browser
 ranking and match-history backend is mocked at network level by MSW in every build,
 including the public demo.
 
-> Status: **Phase 3 (input, pause and session lifecycle) complete.** The match is playable
-> with keyboard or on-screen touch controls, pauses manually or automatically, and shows a
-> temporary text HUD; menus, Options and the Result screen are placeholders until Phase 4.
+> Status: **Phase 4 (React screens and accessibility) complete.** Menu, Options, captain
+> name, HUD, touch controls, pause, Result and the Captain's Log (Ranking / Match History)
+> follow the mockups. The Captain's Log still reads a temporary in-memory source; the
+> Axios + TanStack Query API layer over MSW comes in Phase 5.
 > See [docs/PLAN.md](docs/PLAN.md) for the requirement checklist and phase status.
 
 ## Requirements
@@ -41,6 +42,7 @@ assets in `public/assets/` (git-ignored) from the delivered `assets/` folder.
 | `pnpm test:watch`      | Vitest in watch mode (no coverage)                                    |
 | `pnpm balance`         | 50 headless seeded matches → [docs/BALANCE.md](docs/BALANCE.md)       |
 | `pnpm sandbox:shots`   | Visual-review screenshots of the render sandbox (see below)           |
+| `pnpm ui:shots`        | Screenshots of every screen → `docs/screenshots/phase4/`              |
 | `pnpm test:e2e`        | Playwright: production bundle (desktop + mobile) and dev server       |
 | `pnpm test:e2e:docker` | Same suite inside the pinned Playwright Linux image (`--cpus=2` = CI) |
 | `pnpm test:e2e:update` | Regenerate visual baselines inside the pinned image                   |
@@ -107,14 +109,19 @@ Keys are matched by physical position (`KeyboardEvent.code`), so they work the s
 QWERTY, AZERTY or ABNT layouts and with Caps Lock on. They are captured only while a match
 is running; menus, dialogs and page scrolling keep their normal keys.
 
-| Action               | Keyboard           | Touch / mouse (on-screen) |
-| -------------------- | ------------------ | ------------------------- |
-| Sail forward         | `W` or `↑`         | ↑ (bottom left, raised)   |
-| Turn left / right    | `A` `D` or `←` `→` | ↶ / ↷ (bottom left)       |
-| Fire front cannon    | `Space` or `K`     | ● (bottom right, raised)  |
-| Fire left broadside  | `Q` or `J`         | ⇇ (bottom right)          |
-| Fire right broadside | `E` or `L`         | ⇉ (bottom right)          |
-| Pause / resume       | `Esc` or `P`       | ❚❚ (top right) / Resume   |
+| Action               | Keyboard           | Touch (on-screen)              |
+| -------------------- | ------------------ | ------------------------------ |
+| Sail forward         | `W` or `↑`         | Up arrow (bottom left, raised) |
+| Turn left / right    | `A` `D` or `←` `→` | Curved arrows (bottom left)    |
+| Fire front cannon    | `Space` or `K`     | Middle button (bottom right)   |
+| Fire left broadside  | `Q` or `J`         | Left button (bottom right)     |
+| Fire right broadside | `E` or `L`         | Right button (bottom right)    |
+| Pause / resume       | `Esc` or `P`       | Pause (top right) / Resume     |
+
+The main menu always shows a one-line summary (touch wording on touch devices) and a
+**Controls** button with the full table, generated from the game's own key map. The
+on-screen controls appear where touch is the primary input; on touch devices gameplay is
+landscape-only: turning to portrait covers the screen and pauses the match.
 
 Hold a control to keep acting (weapons fire again as soon as their cooldown allows); move
 and fire at the same time with several keys or fingers. The match also pauses by itself
@@ -138,6 +145,26 @@ the whole config valid; unknown paths, non-numbers and invalid values are ignore
 `[dev config]` console warning, and the active overrides are listed in the console. The
 production build ignores them: the parser is not even bundled (`pnpm build` fails if it
 is, see `scripts/verify-dist.mjs`).
+
+## Screens
+
+| Route              | Screen                                                                       |
+| ------------------ | ---------------------------------------------------------------------------- |
+| `/`                | Main menu: Play, Options, Ranking, Match history, controls, sound toggle     |
+| `/options`         | Session time and spawn interval (spinbuttons, saved on change), captain name |
+| `/play`            | The match (opened only from Play; a reload or history entry goes to `/`)     |
+| `/result`          | Result of the last completed match (kept after a refresh)                    |
+| `/records/ranking` | Captain's Log, Ranking tab (per battle settings, `YOU` badge)                |
+| `/records/history` | Captain's Log, Match History tab                                             |
+
+On the first Play the game asks for a **captain name** (2–20 letters, digits, spaces,
+`'` or `-`); it can be changed in Options. The player is identified by a random
+`playerId` stored with it, so renaming never loses ranking or history rows. Saved locally:
+`pirate.options.v1`, `pirate.profile.v1`, `pirate.lastResult.v1`, `pirate.audio.v1`
+(corrupted values fall back to defaults, with a message on Options).
+
+Until Phase 5 the Captain's Log reads in-memory fixtures plus your last result. On the dev
+server or with `?test=1`, `?records=demo|loading|empty|error` forces its states.
 
 ## Gameplay configuration
 
@@ -175,3 +202,6 @@ _Phase 6/7._
 
 _Phase 8._ Art based on the Kenney “Pirate Pack” (CC0) plus the provided “Pirate Battle
 UI asset pack”; see [docs/ASSETS.md](docs/ASSETS.md).
+UI font: **Archivo** (Omnibus-Type, SIL Open Font License 1.1), self-hosted through
+`@fontsource-variable/archivo`. Icons the atlas lacks (sound, help) are small inline SVGs
+drawn for this project.

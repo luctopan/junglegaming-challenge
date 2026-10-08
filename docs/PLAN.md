@@ -27,7 +27,7 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### 1 Stack
 
-- [ ] React for menus/forms/panels/dialogs — P4 — e2e:navigation
+- [x] React for menus/forms/panels/dialogs — P4 — e2e:navigation
 - [x] TypeScript `strict` — P0 — `pnpm typecheck` in CI
 - [x] PixiJS for arena, ships, projectiles, effects, over-ship bars — P2 — e2e:visual (arena)
 - [ ] TanStack Query for ranking/history reads + submission — P5 — e2e:records, e2e:submission
@@ -45,7 +45,7 @@ vector uses the preview layout, so frames were located by template matching and 
 - [x] Restricted to visible arena, cannot cross islands — P1 — unit:collision, e2e:movement
 - [x] Keyboard + touch controls for move/rotate/attacks — P3 — e2e:touch, e2e:combat
 - [x] Move and fire simultaneously — P3 — e2e:combat
-- [ ] Controls shown in UI (menu help + on-screen) — P4 — e2e:navigation
+- [x] Controls shown in UI (menu help + on-screen) — P4 — e2e:navigation
 
 ### 2 Gameplay — Enemies
 
@@ -67,12 +67,12 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### 2 Match rules
 
-- [ ] Duration configurable 60–180 s of active play — P1/P4 — unit:config, e2e:options
+- [x] Duration configurable 60–180 s of active play — P1/P4 — unit:config, e2e:options
 - [x] +1 per enemy destroyed by player; Chaser self-destruct = 0 — P1 — unit:match, e2e:combat
 - [x] Ends on time up or HP 0 — P1 — unit:match, e2e:match-end
 - [x] End freezes movement, attacks, damage, spawns, scoring — P1 — unit:match, e2e:match-end
 - [x] Restart = fresh HP/score/timer/entities — P3 — e2e:match-end
-- [ ] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual (P2: HP bars over every ship done; HUD in P4)
+- [x] HP above player and each enemy; HUD score + time remaining — P2/P4 — e2e:visual (P2: HP bars over every ship done; HUD in P4)
 - [x] Manual pause + auto-pause on blur/hidden — P3 — e2e:pause
 - [x] Pause suspends timer, cooldowns, simulation — P1/P3 — unit:stepper, e2e:pause
 - [x] Resume requires player action; no accumulated movement/shots — P3 — unit:inputState, e2e:pause
@@ -86,20 +86,20 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### 3 Screens & config
 
-- [ ] Main menu: Play, Options, control instructions, Ranking + Match History tabs — P4 — e2e:navigation
-- [ ] Options: session time + spawn interval, validation, save, persist after refresh — P4 — e2e:options
-- [ ] Game screen: Pixi arena, HUD, controls, pause — P2–P4 — e2e:visual
-- [ ] Result: score, time played, end reason, submission status, Play Again, Main Menu — P4/P5 — e2e:result
-- [ ] Ranking: rank, player identity, score, pagination — P4/P5 — e2e:records
-- [ ] Ranking config selector: defaults to current Options config, lists configs that have records; subtitle as in mockup — P4/P5/P6 — e2e:records
-- [ ] Match History: date, score, duration, end reason, pagination — P4/P5 — e2e:records
+- [x] Main menu: Play, Options, control instructions, Ranking + Match History tabs — P4 — e2e:navigation
+- [x] Options: session time + spawn interval, validation, save, persist after refresh — P4 — e2e:options
+- [x] Game screen: Pixi arena, HUD, controls, pause — P2–P4 — e2e:visual
+- [ ] Result: score, time played, end reason, submission status, Play Again, Main Menu — P4/P5 — e2e:result (P4: screen, persistence and the status slot done; online submission states in P5)
+- [ ] Ranking: rank, player identity, score, pagination — P4/P5 — e2e:records (P4: UI with pagination/loading/empty/error on the typed contracts, temporary local data; P5 wires the API)
+- [ ] Ranking config selector: defaults to current Options config, lists configs that have records; subtitle as in mockup — P4/P5/P6 — e2e:records (P4: selector UI defaulting to Options, configs from the temporary source)
+- [ ] Match History: date, score, duration, end reason, pagination — P4/P5 — e2e:records (P4: UI done on the temporary source)
 - [x] Typed central gameplay config (all listed params) — P1 — unit:config
 - [x] Balancing changes need no system logic changes — P1 — review
 - [x] Spawn interval positive with documented limits — P1 — unit:config, README
 - [x] Config snapshot frozen at match start — P1 — unit:match
-- [ ] Changing Options from the pause menu affects only the next match — P4 — e2e:options
+- [x] Changing Options from the pause menu affects only the next match — P4 — e2e:options
 - [x] Reload / leaving combat ends match — P3 — e2e:navigation
-- [ ] Persist options + last completed result — P4 — e2e:options, e2e:result
+- [x] Persist options + last completed result — P4 — e2e:options, e2e:result
 - [ ] Abandoned match never recorded — P3/P5 — e2e:navigation (P3: abandon = destroy before `matchEnded`, e2e:navigation asserts no write; P5 records only on `matchEnded`)
 - [ ] English UI/identifiers/docs; menu identity coherent with assets — all
 
@@ -151,24 +151,24 @@ vector uses the preview layout, so frames were located by template matching and 
 ### 7 UI, assets, a11y
 
 - [ ] Provided assets as visual base; conversions + licenses documented — P2/P8
-- [ ] Desktop + mobile, usable touch, no clipped arena/HUD — P2/P4 — e2e mobile project
-- [ ] Supported mobile orientation defined; layout adapts on resize, rules unchanged — P2 — e2e:touch
-- [ ] Portrait shows rotate overlay + auto-pause during gameplay; menus usable in portrait — P4 — e2e:touch
+- [x] Desktop + mobile, usable touch, no clipped arena/HUD — P2/P4 — e2e mobile project
+- [ ] Supported mobile orientation defined; layout adapts on resize, rules unchanged — P2 — e2e:touch (P4: portrait overlay + auto-pause, e2e:layout)
+- [x] Portrait shows rotate overlay + auto-pause during gameplay; menus usable in portrait — P4 — e2e:touch
 - [x] Visible asset loading progress — P2 — e2e:assets
-- [ ] Keyboard nav, visible focus, dialog focus control, labels, contrast, accessible errors — P4 — e2e:a11y
-- [ ] Semantic score/time/state, no per-frame announcements — P4 — e2e:a11y
+- [x] Keyboard nav, visible focus, dialog focus control, labels, contrast, accessible errors — P4 — e2e:a11y
+- [x] Semantic score/time/state, no per-frame announcements — P4 — e2e:a11y
 - [x] Game keys captured only during active gameplay — P3 — e2e:a11y (e2e:keyboard)
 
 ### 8 Playwright (each bullet = spec item)
 
-- [ ] Options navigation/validation/persistence — e2e:options
+- [x] Options navigation/validation/persistence — e2e:options
 - [x] Asset loading, failure, retry — e2e:assets
 - [x] Start, movement, rotation, arena bounds, island collision — e2e:movement
 - [ ] Front/side fire, damage, cooldown, score without duplication — e2e:combat (P3: fire + cooldown in e2e:combat; damage/score in P7)
 - [ ] Chaser/Shooter behaviour + spawn interval — e2e:enemies
 - [ ] End by time/death, simulation stop, clean restart — e2e:match-end
 - [x] Pause, blur, resume without timer drift — e2e:pause
-- [ ] Result display + persistence after refresh — e2e:result
+- [x] Result display + persistence after refresh — e2e:result
 - [x] Abandon, repeated navigation, touch controls — e2e:navigation, e2e:touch, e2e:lifecycle
 - [ ] Ranking/History query + pagination incl. loading/empty/error — e2e:records
 - [ ] Submit, both tabs updated, pending recovery after refresh — e2e:submission
@@ -197,10 +197,10 @@ vector uses the preview layout, so frames were located by template matching and 
 
 ### Product decisions from CLAUDE.md
 
-- [ ] Captain name dialog on first Play; UUID `playerId`; validation 2–20, `[A-Za-z0-9 '-]`, trimmed — P4 — unit:captainName, e2e:navigation
-- [ ] Rename from Options without breaking ownership — P4 — e2e:options
+- [x] Captain name dialog on first Play; UUID `playerId`; validation 2–20, `[A-Za-z0-9 '-]`, trimmed — P4 — unit:captainName, e2e:navigation
+- [x] Rename from Options without breaking ownership — P4 — e2e:options
 - [ ] Records store `playerId` + name-at-match-time — P5
-- [ ] `YOU` badge by `playerId`; History subtitle `<NAME> · YOUR RECENT BATTLES` — P4/P5 — e2e:records
+- [ ] `YOU` badge by `playerId`; History subtitle `<NAME> · YOUR RECENT BATTLES` — P4/P5 — e2e:records (P4: badge and History subtitle done; P5 for real records)
 - [ ] Fixture captains never collide with player identity — P6 — unit:fixtures
 - [x] `window.__PIRATE_TEST__` only in test mode — P3 — e2e:lifecycle (absent without `?test=1`)
 
@@ -504,7 +504,7 @@ seed=42&scenario=success')`, waits for MSW ready flag. `trace: 'retain-on-failur
 | 1 ✅ | Config + core: types/defaults/validation, rng, clock, stepper, map + islands, movement, steering, weapons, projectiles, collisions, damage, Chaser, Shooter, spawner, match rules, events                                                                                                                                                                                           | ≥ 90 % line coverage on `game/core`; all unit tests in §1 green; headless 180 s simulated match deterministic per seed                                                                                                                         | 16       |
 | 2 ✅ | Assets & Pixi: registry (progress/fail/retry, 1×/2×), arena tile view, ship views + damage stages, projectile pool, HP bars, muzzle/hit/explosion/fire effects (pooled), viewport/DPR/letterbox, audio                                                                                                                                                                              | match renders at 60 FPS on desktop; asset-failure e2e passes; StrictMode no double canvas                                                                                                                                                      | 13       |
 | 3 ✅ | Input & session: keyboard/touch → InputState, GameSession lifecycle, pause manual/auto, resume gesture, held-key reset, abandon on leave/reload, bridge store, test hook                                                                                                                                                                                                            | e2e movement/combat/pause/lifecycle green; no listeners left after destroy (test-mode counter)                                                                                                                                                 | 9        |
-| 4    | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                                                                                                                                            | 15       |
+| 4 ✅ | React UI: menu, options (stepper + validation + persistence), captain dialog, game screen HUD + touch controls + pause dialog + rotate overlay, result (+ persisted last result), records panel (tables, pagination, states), live region, focus management                                                                                                                         | e2e options/navigation/result/a11y green; contrast ≥ 4.5:1 for text                                                                                                                                                                            | 15       |
 | 5    | API layer: axios client, contracts, guards, query keys, hooks, submission mutation + pending queue + flush, revision guard                                                                                                                                                                                                                                                          | e2e records/submission green on `success`; unit queue tests; `src/ui/records/temporaryRecords.ts` and the `?records=` override removed, `TEMPORARY_RECORDS_REMOVED = true` in `scripts/lib/devOnly.mjs` (the build then fails on any leftover) | 8        |
 | 6    | MSW: db persistence, fixtures, ranking sort, all scenarios, dev panel, reset, prod worker                                                                                                                                                                                                                                                                                           | every scenario reachable via `?scenario=`; e2e network-resilience green                                                                                                                                                                        | 8        |
 | 7    | Playwright suite completion + visual baselines in Docker                                                                                                                                                                                                                                                                                                                            | every §8 item has a spec; full suite green on both projects twice in a row (flake check)                                                                                                                                                       | 14       |
