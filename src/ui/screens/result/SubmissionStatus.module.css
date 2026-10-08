@@ -1,0 +1,42 @@
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em 1em;
+  font-size: max(var(--min-font), calc(15px * var(--ui-scale)));
+  font-weight: 600;
+}
+
+.status p {
+  margin: 0;
+}
+
+.local,
+.saving {
+  color: var(--color-text-muted);
+}
+
+.saved {
+  color: var(--color-success);
+}
+
+.pending,
+.failed {
+  color: var(--color-danger);
+}
+
+.retry {
+  padding: 0.2em 0.9em;
+  border: 2px solid var(--color-danger);
+  border-radius: 999px;
+  background: var(--color-row);
+  color: var(--color-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retry:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

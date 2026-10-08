@@ -93,12 +93,19 @@ describe('createPool', () => {
   });
 });
 
+/** The first import of pixi.js in a worker takes seconds while the whole suite runs in parallel. */
+const COLD_PIXI_IMPORT_TIMEOUT_MS = 30_000;
+
 describe('trail texture', () => {
-  it('ramps from transparent at the tail to opaque at the ball, premultiplied', async () => {
-    const { trailRampPixels } = await import('./projectiles/trailTexture');
-    const data = trailRampPixels(4);
-    expect(Array.from(data.filter((_, i) => i % 4 === 3))).toEqual([64, 128, 191, 255]);
-    // Premultiplied white: every colour channel equals alpha.
-    expect(Array.from(data.slice(0, 4))).toEqual([64, 64, 64, 64]);
-  });
+  it(
+    'ramps from transparent at the tail to opaque at the ball, premultiplied',
+    { timeout: COLD_PIXI_IMPORT_TIMEOUT_MS },
+    async () => {
+      const { trailRampPixels } = await import('./projectiles/trailTexture');
+      const data = trailRampPixels(4);
+      expect(Array.from(data.filter((_, i) => i % 4 === 3))).toEqual([64, 128, 191, 255]);
+      // Premultiplied white: every colour channel equals alpha.
+      expect(Array.from(data.slice(0, 4))).toEqual([64, 64, 64, 64]);
+    },
+  );
 });

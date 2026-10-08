@@ -1,0 +1,18 @@
+.score {
+  margin: 0;
+  color: var(--color-gold);
+  font-size: max(44px, calc(88px * var(--ui-scale)));
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: var(--heading-shadow);
+}
+
+.summary {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.defeated {
+  color: var(--color-danger);
+}
